@@ -11,4 +11,4 @@ The website is
 # INFO
 - This is a fan made website
 - Please credit me if you are gonna use my code
-- Do not steal code and claim it as your own
+- Do not steal code and claim it as your own 
