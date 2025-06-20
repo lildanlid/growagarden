@@ -7,3 +7,8 @@ It uses APIs from
 
 The website is 
 - https://growagarden-stocks.netlify.app/
+
+# INFO
+- This is a fan made website
+- Please credit me if you are gonna use my code
+- Do not steal code and claim it as your own
