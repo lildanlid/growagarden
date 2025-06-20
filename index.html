@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Grow a Garden Stock</title>
-  <meta name="viewport" content="width=1440, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <style>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Grow a Garden Stock</title><link rel="icon" type="image/webp" href="https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><style>
 html,body{background:#060e22;color:#fff;font-family:'Segoe UI','Arial',sans-serif;margin:0;padding:0;min-height:100vh;}
 body{padding:0;box-sizing:border-box;}
 .main-container{max-width:1450px;margin:40px auto;padding:0;}
@@ -27,20 +21,39 @@ body{padding:0;box-sizing:border-box;}
 .section-header{display:flex;justify-content:flex-start;align-items:flex-end;margin-bottom:1.2rem;flex-wrap:wrap;gap:1.2rem;}
 .section-title{font-size:1.3em;color:#b6ccfa;font-weight:600;letter-spacing:0.01em;}
 .item-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;width:100%;}
-.item-card.egg-card{max-width:600px;width:98%;min-height:140px;padding-top:1.1rem;padding-bottom:1.0rem;margin-left:auto;margin-right:auto;}
-.item-card{background:rgba(15,23,42,0.98);border-radius:12px;box-shadow:0 2px 16px #1e1b4b33;display:flex;flex-direction:column;align-items:center;padding:1.1rem 0.4rem 1.0rem 0.4rem;transition:box-shadow .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1);border:1.5px solid transparent;position:relative;min-height:140px;width:94%;max-width:350px;margin-left:auto;margin-right:auto;}
+.item-card.egg-card{width:340px;max-width:340px;min-width:340px;min-height:140px;padding-top:1.1rem;padding-bottom:1.0rem;margin-left:auto;margin-right:auto;}
+.item-card{background:rgba(15,23,42,0.98);border-radius:12px;box-shadow:0 2px 16px #1e1b4b33;display:flex;flex-direction:column;align-items:center;padding:1.1rem 0.4rem 1.0rem 0.4rem;transition:box-shadow .2s cubic-bezier(.4,0,.2,1),transform .2s cubic-bezier(.4,0,.2,1);border:1.5px solid transparent;position:relative;min-height:140px;width:340px;max-width:340px;min-width:340px;margin-left:auto;margin-right:auto;}
 @media (min-width:1401px){.item-grid{grid-template-columns:repeat(4,1fr);}}
 @media (max-width:1400px){.item-grid{grid-template-columns:repeat(3,1fr);}}
 @media (max-width:900px){.item-grid{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:600px){.item-grid{grid-template-columns:1fr;}}
-.item-card:hover{box-shadow:0 4px 32px #2250c355;border-color:#3e5be1;transform:translateY(-2px) scale(1.03);}
-.item-name{font-weight:500;font-size:1.07em;color:#e6e9fa;margin-bottom:0.65em;text-align:center;margin-top:0.2em;}
-.item-pills{display:flex;flex-direction:column;gap:0.30em;width:100%;align-items:center;margin-top:auto;}
-.pill-stock{background:#2e7cff;color:#f3f9ff;border-radius:16px;font-weight:600;font-size:1.07em;padding:0.27em 1em;margin-bottom:0.2em;margin-top:0.05em;box-shadow:0 2px 10px #2955a933;border:1.5px solid #355eb9;}
-.pill-price{background:linear-gradient(90deg,#ffe066,#ffe066cc 70%,#ffe066 100%);color:#ad9300;border-radius:16px;font-weight:600;font-size:1.06em;padding:0.18em 0.95em;margin-bottom:0.03em;box-shadow:0 2px 8px #b7a20033;border:1.5px solid #ffe066;}
-html,body{zoom:0.9!important;}
-body, .main-container { zoom: 0.9!important; }
-#creditsModal .credits-title {text-align: center;width: 100%;}
+@media (max-width:600px){
+  .item-grid{grid-template-columns:1fr;}
+  .item-card,
+  .item-card.egg-card{
+    width:98vw;max-width:98vw;min-width:0;padding:0.7rem 0.15rem 0.5rem 0.15rem;min-height:100px;box-sizing:border-box;
+  }
+  .main-container{max-width:100vw;}
+  .dashboard-row,.section-card{min-width:0;width:100vw;padding-left:0;padding-right:0;}
+  .dashboard-card{padding:1.1rem 0.7rem 0.9rem 0.7rem;min-width:0;}
+  .tab-bar{gap:0.09rem;min-width:0;padding:0.4rem 0.2rem 0.4rem 0.3rem;border-radius:14px;font-size:0.98em;}
+  .tab{font-size:1em;padding:0.46rem 0.85rem;border-radius:9px;}
+  .section-header{gap:0.55rem;}
+  .section-title{font-size:1.08em;}
+}
+@media (max-width:400px){
+  .main-container,.dashboard-row,.section-card{min-width:0;width:100vw;}
+  .tab-bar-outer{max-width:100vw;}
+  .tab-bar{min-width:0;width:100vw;}
+  .item-grid{grid-template-columns:1fr;}
+  .item-card,.item-card.egg-card{min-height:82px;padding:0.3rem 0.08rem 0.2rem 0.08rem;}
+}
+/* Bell button styles */
+.bell-btn{position:fixed;top:20px;right:28px;z-index:10010;background:#101c36;border:none;border-radius:50%;padding:0.5em;box-shadow:0 2px 8px #0005;cursor:pointer;transition:background 0.15s,box-shadow 0.15s;display:flex;align-items:center;justify-content:center;}
+.bell-btn:hover,.bell-btn:focus{background:#233e70;box-shadow:0 4px 18px #2947a955;}
+.bell-btn .material-icons{color:#ffe066;font-size:2.1em;display:block;}
+@media (max-width:600px){.bell-btn{top:12px;right:10px;padding:0.38em;}.bell-btn .material-icons{font-size:1.55em;}}
+html,body,body .main-container{zoom:1!important;}
+#creditsModal .credits-title{text-align:center;width:100%;}
 .credits-btn{padding:0.28em 1.2em;font-size:1em;border-radius:9px;border:none;background:#313949;color:#e7e7e7;font-weight:600;cursor:pointer;box-shadow:0 1px 4px #0004;transition:background 0.13s,color 0.13s;}
 .credits-btn:hover,.credits-btn:focus{background:#495470;color:#fff;}
 #creditsModalBg{display:none;position:fixed;z-index:10001;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.36);}
@@ -52,27 +65,24 @@ body, .main-container { zoom: 0.9!important; }
 .credits-link{color:#71aaff;text-decoration:underline;font-weight:600;transition:color .13s;}
 .credits-link:hover{color:#ffe066;}
 .credits-close{position:absolute;top:0.8em;right:1.1em;background:none;border:none;font-size:1.6em;color:#ffe066;cursor:pointer;font-weight:700;outline:none;}
-@media (max-width:900px){.main-container{max-width:100vw;}.dashboard-row,.section-card{min-width:unset;width:98vw;}.tab-bar{min-width:0;width:98vw;flex-wrap:wrap;gap:0.12rem;}.section-card{padding:1.1rem 0.4rem 0.7rem 0.4rem;}}
-@media (max-width:600px){.main-container{max-width:100vw;}.dashboard-row,.section-card{min-width:0;width:100vw;padding-left:0;padding-right:0;}.dashboard-card{padding:1.1rem 0.7rem 0.9rem 0.7rem;min-width:0;}.tab-bar{gap:0.09rem;min-width:0;padding:0.4rem 0.2rem 0.4rem 0.3rem;border-radius:14px;font-size:0.98em;}.tab{font-size:1em;padding:0.46rem 0.85rem;border-radius:9px;}.item-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;}.item-card{min-height:100px;padding:0.7rem 0.2rem 0.5rem 0.2rem;max-width:unset;}.item-card.egg-card{max-width:unset;}.section-header{gap:0.55rem;}.section-title{font-size:1.08em;}}
-@media (max-width:400px){.main-container,.dashboard-row,.section-card{min-width:0;width:100vw;}.tab-bar-outer{max-width:100vw;}.tab-bar{min-width:0;width:100vw;}.item-grid{grid-template-columns:1fr;}.item-card{min-height:82px;padding:0.3rem 0.08rem 0.2rem 0.08rem;}}
   </style>
   <script>
-    document.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
-        e.preventDefault();
-      }
-    });
-    document.addEventListener('wheel', function(e) {
-      if (e.ctrlKey) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-    document.addEventListener('gesturestart', function (e) {e.preventDefault();});
-    document.addEventListener('gesturechange', function (e) {e.preventDefault();});
-    document.addEventListener('gestureend', function (e) {e.preventDefault();});
+function setVisualZoom(){var html=document.documentElement;html.style.zoom="";if(Math.abs(window.devicePixelRatio-1)<0.03){html.style.zoom="0.9";}}
+setVisualZoom();
+window.addEventListener("resize",setVisualZoom);
+window.addEventListener("DOMContentLoaded",setVisualZoom);
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&(e.key==='+'||e.key==='-'||e.key==='='||e.key==='0')){e.preventDefault();}});
+document.addEventListener('wheel',function(e){if(e.ctrlKey){e.preventDefault();}},{passive:false});
+document.addEventListener('gesturestart',function(e){e.preventDefault();});
+document.addEventListener('gesturechange',function(e){e.preventDefault();});
+document.addEventListener('gestureend',function(e){e.preventDefault();});
   </script>
 </head>
 <body>
+  <!-- BELL BUTTON -->
+  <a href="https://growagarden-stocks.netlify.app/notifier" class="bell-btn" title="Go to Notifier" aria-label="Notifier">
+    <span class="material-icons">notifications_active</span>
+  </a>
   <div class="main-container">
     <div id="dashboardRow"></div>
     <div class="tab-bar-outer"><div class="tab-bar" id="tabBar"></div></div>
@@ -91,295 +101,21 @@ body, .main-container { zoom: 0.9!important; }
     <a class="credits-link" href="https://github.com/Just3itx/Grow-A-Garden-API?tab=readme-ov-file" target="_blank" rel="noopener">API</a>
   </div>
   <script>
-const savedTab = localStorage.getItem('lastOpenedTab');
-let currentTab = savedTab ? savedTab : 'seed_stock';
-let stockRaw = {};
-let itemInfo = {};
-let restockTimes = {};
-let countdownStr = "--";
-let countdownInterval = null;
-let autoRefreshInterval = null;
-let autoRestockInterval = null;
-let tabs = [];
-let weatherList = [];
-let currentWeather = null;
-let autoWeatherInterval = null;
-
-function getTabs(stockRaw) {
-
-  const knownLabels = {
-    seed_stock: 'Seeds',
-    egg_stock: 'Eggs',
-    gear_stock: 'Gear',
-    cosmetic_stock: 'Cosmetics',
-    eventshop_stock: 'Honey Event'
-  };
-  return Object.entries(knownLabels).map(([cat, label]) => ({ cat, label }));
-}
-
-function renderTabs(selectedCategory, tabs) {
-  const tabBar = document.getElementById('tabBar');
-  tabBar.innerHTML = '';
-  tabs.forEach(({ cat, label }) => {
-    const btn = document.createElement('button');
-    btn.className = 'tab' + (cat === selectedCategory ? ' active' : '');
-    btn.textContent = label;
-    btn.onclick = () => {
-      currentTab = cat;
-      localStorage.setItem('lastOpenedTab', cat);
-      renderCategory(cat, tabs);
-      fetchRestockTime(cat);
-    };
-    tabBar.appendChild(btn);
-  });
-}
-
-function renderDashboardRow(tab) {
-  const dash = document.getElementById('dashboardRow');
-  dash.innerHTML = '';
-
-  const row = document.createElement('div');
-  row.className = 'dashboard-row';
-
-  const restockCard = document.createElement('div');
-  restockCard.className = 'dashboard-card';
-  restockCard.innerHTML = `
-    <div class="dashboard-label">
-      <svg class="dashboard-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9" stroke-opacity="0.68"/>
-        <path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      NEXT REFRESH IN
-    </div>
-    <span class="dashboard-timer" id="countdown"></span>
-    <div class="dashboard-note" id="dashboard-note">Refreshes at the listed interval</div>
-  `;
-
-  const weatherCard = document.createElement('div');
-  weatherCard.className = 'dashboard-card';
-  let weatherName = "No Special Weather Active";
-  if (currentWeather && currentWeather.weather_name) {
-    weatherName = currentWeather.weather_name.replace(/([A-Z])/g, ' $1').replace(/^ /, '');
-  }
-  weatherCard.innerHTML = `
-    <div class="dashboard-label">WEATHER</div>
-    <div style="display:flex;align-items:center;">
-      <span class="dashboard-weather-main">${weatherName}</span>
-    </div>
-  `;
-
-  row.appendChild(restockCard);
-  row.appendChild(weatherCard);
-  dash.appendChild(row);
-  updateCountdownUI();
-}
-
-function updateCountdownUI() {
-  const timer = document.getElementById('countdown');
-  if (timer) timer.textContent = countdownStr;
-}
-
-function startCountdown(countdownString) {
-  function parseCountdown(str) {
-    if (!str) return 0;
-    let h = 0, m = 0, s = 0;
-    const hm = str.match(/(\d+)h/);
-    const mm = str.match(/(\d+)m/);
-    const sm = str.match(/(\d+)s/);
-    if (hm) h = parseInt(hm[1], 10);
-    if (mm) m = parseInt(mm[1], 10);
-    if (sm) s = parseInt(sm[1], 10);
-    return h * 3600 + m * 60 + s;
-  }
-  let sec = parseCountdown(countdownString);
-  function fmt(sec) {
-    let h = Math.floor(sec / 3600);
-    let m = Math.floor((sec % 3600) / 60);
-    let s = sec % 60;
-    if (h > 0) return `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
-    else return `${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
-  }
-  countdownStr = fmt(sec);
-  updateCountdownUI();
-  if (countdownInterval) clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    sec--;
-    if (sec < 0) sec = 0;
-    countdownStr = fmt(sec);
-    updateCountdownUI();
-  }, 1000);
-}
-
-function renderCategory(cat, tabs) {
-  const content = document.getElementById('content');
-  content.innerHTML = '';
-  renderTabs(cat, tabs);
-  renderDashboardRow(cat);
-
-  const section = document.createElement('div');
-  section.className = 'section-card';
-
-  const header = document.createElement('div');
-  header.className = 'section-header';
-  const title = document.createElement('div');
-  title.className = 'section-title';
-  title.textContent = 'Available ' + tabs.find(t => t.cat === cat).label;
-  header.appendChild(title);
-  section.appendChild(header);
-
-  const grid = document.createElement('div');
-  grid.className = 'item-grid';
-
-  if (stockRaw[cat] && Array.isArray(stockRaw[cat])) {
-    let filtered = stockRaw[cat].filter(stockItem => stockItem.quantity && stockItem.quantity > 0);
-    filtered.forEach(stockItem => {
-      const info = itemInfo[stockItem.item_id] || {};
-      const displayName = stockItem.display_name || info.display_name || stockItem.item_id;
-      const card = document.createElement('div');
-      card.className = (cat === "egg_stock" ? 'item-card egg-card' : 'item-card');
-      if (info.icon || stockItem.icon) {
-        const img = document.createElement('img');
-        img.src = info.icon || stockItem.icon;
-        img.alt = displayName;
-        img.style.width = "70px";
-        img.style.height = "70px";
-        img.style.marginBottom = "0.7em";
-        img.style.objectFit = "contain";
-        card.appendChild(img);
-      }
-      const name = document.createElement('div');
-      name.className = 'item-name';
-      name.textContent = displayName;
-      card.appendChild(name);
-      const pills = document.createElement('div');
-      pills.className = 'item-pills';
-      const stockPill = document.createElement('div');
-      stockPill.className = 'pill-stock';
-      stockPill.textContent = stockItem.quantity;
-      pills.appendChild(stockPill);
-      const pricePill = document.createElement('div');
-      pricePill.className = 'pill-price';
-      let price = info.price;
-      let currency = (info.currency || '').toLowerCase();
-      if (cat === "eventshop_stock") {
-        if (!price || price === "0" || isNaN(Number(price)) || Number(price) <= 0 || Number(price) > 9999999) {
-          pricePill.textContent = "?";
-        } else if (displayName.toLowerCase().includes("lavender") || displayName.toLowerCase().includes("nectarshade")) {
-          pricePill.textContent = `${price} Honey`;
-        } else if (currency === "honey") {
-          pricePill.textContent = `${price} Honey`;
-        } else {
-          pricePill.textContent = `${price}c`;
-        }
-      } else {
-        if (!price || price === "0" || isNaN(Number(price)) || Number(price) <= 0 || Number(price) > 9999999) {
-          pricePill.textContent = "?";
-        } else if (currency === "honey") {
-          pricePill.textContent = `${price} Honey`;
-        } else {
-          pricePill.textContent = `${price}c`;
-        }
-      }
-      pills.appendChild(pricePill);
-      card.appendChild(pills);
-      grid.appendChild(card);
-    });
-  }
-  section.appendChild(grid);
-  content.appendChild(section);
-  updateCountdownUI();
-  if (cat === "seed_stock" || cat === "egg_stock" || cat === "eventshop_stock") {
-    fetchRestockTime(cat);
-  }
-}
-
-function getRestockCountdownKey(tab) {
-  if (tab === "seed_stock") return "seeds";
-  if (tab === "egg_stock") return "egg";
-  if (tab === "eventshop_stock") return "Event";
-  if (tab === "cosmetic_stock") return "cosmetic";
-  if (tab === "gear_stock") return "gear";
-  return null;
-}
-
-async function fetchRestockTime(tab) {
-  try {
-    const res = await fetch("https://growagardenapi.vercel.app/api/stock/Restock-Time");
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    restockTimes = json;
-    let countdown = "00m 00s";
-    const key = getRestockCountdownKey(tab || currentTab);
-    if (key && json[key] && json[key].countdown) {
-      countdown = json[key].countdown;
-    }
-    startCountdown(countdown);
-  } catch {
-    startCountdown("00m 00s");
-  }
-}
-
-async function fetchWeather() {
-  try {
-    const res = await fetch('https://growagardenapi.vercel.app/api/GetWeather');
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    weatherList = Array.isArray(json.weather) ? json.weather : [];
-    currentWeather = weatherList.find(w => w.active) || null;
-    renderDashboardRow(currentTab);
-  } catch { }
-}
-
-async function reloadAll(manual) {
-  const loading = document.getElementById('loading');
-  if (manual) loading.style.display = 'block';
-  const errorMsg = document.getElementById('errorMsg');
-  errorMsg.textContent = '';
-  try {
-    const [infoRes, stockRes] = await Promise.all([
-      fetch('https://api.joshlei.com/v2/growagarden/info'),
-      fetch('https://api.joshlei.com/v2/growagarden/stock')
-    ]);
-    if (!infoRes.ok || !stockRes.ok) throw new Error('API error');
-    const infoJson = await infoRes.json();
-    const stockJson = await stockRes.json();
-    itemInfo = {};
-    (infoJson || []).forEach(item => { itemInfo[item.item_id] = item; });
-    stockRaw = (stockJson || {});
-    loading.style.display = 'none';
-    tabs = getTabs(stockRaw);
-    if (!tabs.find(t => t.cat === currentTab)) currentTab = tabs[0]?.cat || '';
-    renderCategory(currentTab, tabs);
-  } catch (err) {
-    document.getElementById('loading').style.display = 'none';
-    errorMsg.textContent = 'Failed to load data from API.';
-    console.error('Fetch error:', err);
-  }
-}
-
-document.getElementById('refreshBtnBottom').onclick = () => {
-  reloadAll(true);
-  fetchRestockTime(currentTab);
-  fetchWeather();
-};
-
-if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-autoRefreshInterval = setInterval(() => {
-  reloadAll(false);
-  fetchWeather();
-}, 3000);
-
-if (autoRestockInterval) clearInterval(autoRestockInterval);
-autoRestockInterval = setInterval(() => {
-  fetchRestockTime(currentTab);
-}, 3000);
-
-if (autoWeatherInterval) clearInterval(autoWeatherInterval);
-autoWeatherInterval = setInterval(fetchWeather, 3000);
-
-reloadAll(false);
-fetchWeather();
-fetchRestockTime(currentTab);
+const savedTab=localStorage.getItem('lastOpenedTab');let currentTab=savedTab?savedTab:'seed_stock';let stockRaw={};let itemInfo={};let restockTimes={};let countdownStr="--";let countdownInterval=null;let autoRefreshInterval=null;let autoRestockInterval=null;let tabs=[];let weatherList=[];let currentWeather=null;let autoWeatherInterval=null;
+function getTabs(stockRaw){const knownLabels={seed_stock:'Seeds',egg_stock:'Eggs',gear_stock:'Gear',cosmetic_stock:'Cosmetics',eventshop_stock:'Honey Event'};return Object.entries(knownLabels).map(([cat,label])=>({cat,label}));}
+function renderTabs(selectedCategory,tabs){const tabBar=document.getElementById('tabBar');tabBar.innerHTML='';tabs.forEach(({cat,label})=>{const btn=document.createElement('button');btn.className='tab'+(cat===selectedCategory?' active':'');btn.textContent=label;btn.onclick=()=>{currentTab=cat;localStorage.setItem('lastOpenedTab',cat);renderCategory(cat,tabs);fetchRestockTime(cat);};tabBar.appendChild(btn);});}
+function renderDashboardRow(tab){const dash=document.getElementById('dashboardRow');dash.innerHTML='';const row=document.createElement('div');row.className='dashboard-row';const restockCard=document.createElement('div');restockCard.className='dashboard-card';restockCard.innerHTML=`<div class="dashboard-label"><svg class="dashboard-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-opacity="0.68"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>NEXT REFRESH IN</div><span class="dashboard-timer" id="countdown"></span><div class="dashboard-note" id="dashboard-note">Refreshes at the listed interval</div>`;const weatherCard=document.createElement('div');weatherCard.className='dashboard-card';let weatherName="No Special Weather Active";if(currentWeather&&currentWeather.weather_name){weatherName=currentWeather.weather_name.replace(/([A-Z])/g,' $1').replace(/^ /,'');}weatherCard.innerHTML=`<div class="dashboard-label">WEATHER</div><div style="display:flex;align-items:center;"><span class="dashboard-weather-main">${weatherName}</span></div>`;row.appendChild(restockCard);row.appendChild(weatherCard);dash.appendChild(row);updateCountdownUI();}
+function updateCountdownUI(){const timer=document.getElementById('countdown');if(timer)timer.textContent=countdownStr;}
+function startCountdown(countdownString){function parseCountdown(str){if(!str)return 0;let h=0,m=0,s=0;const hm=str.match(/(\d+)h/);const mm=str.match(/(\d+)m/);const sm=str.match(/(\d+)s/);if(hm)h=parseInt(hm[1],10);if(mm)m=parseInt(mm[1],10);if(sm)s=parseInt(sm[1],10);return h*3600+m*60+s;}let sec=parseCountdown(countdownString);function fmt(sec){let h=Math.floor(sec/3600);let m=Math.floor((sec%3600)/60);let s=sec%60;if(h>0)return`${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;else return`${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;}countdownStr=fmt(sec);updateCountdownUI();if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(()=>{sec--;if(sec<0)sec=0;countdownStr=fmt(sec);updateCountdownUI();},1000);}
+function renderCategory(cat,tabs){const content=document.getElementById('content');content.innerHTML='';renderTabs(cat,tabs);renderDashboardRow(cat);const section=document.createElement('div');section.className='section-card';const header=document.createElement('div');header.className='section-header';const title=document.createElement('div');title.className='section-title';title.textContent='Available '+tabs.find(t=>t.cat===cat).label;header.appendChild(title);section.appendChild(header);const grid=document.createElement('div');grid.className='item-grid';if(stockRaw[cat]&&Array.isArray(stockRaw[cat])){let filtered=stockRaw[cat].filter(stockItem=>stockItem.quantity&&stockItem.quantity>0);filtered.forEach(stockItem=>{const info=itemInfo[stockItem.item_id]||{};const displayName=stockItem.display_name||info.display_name||stockItem.item_id;const card=document.createElement('div');card.className=(cat==="egg_stock"?'item-card egg-card':'item-card');if(info.icon||stockItem.icon){const img=document.createElement('img');img.src=info.icon||stockItem.icon;img.alt=displayName;img.style.width="70px";img.style.height="70px";img.style.marginBottom="0.7em";img.style.objectFit="contain";card.appendChild(img);}const name=document.createElement('div');name.className='item-name';name.textContent=displayName;card.appendChild(name);const pills=document.createElement('div');pills.className='item-pills';const stockPill=document.createElement('div');stockPill.className='pill-stock';stockPill.textContent=stockItem.quantity;pills.appendChild(stockPill);const pricePill=document.createElement('div');pricePill.className='pill-price';let price=info.price;let currency=(info.currency||'').toLowerCase();if(cat==="eventshop_stock"){if(!price||price==="0"||isNaN(Number(price))||Number(price)<=0||Number(price)>9999999){pricePill.textContent="?";}else if(displayName.toLowerCase().includes("lavender")||displayName.toLowerCase().includes("nectarshade")){pricePill.textContent=`${price} Honey`;}else if(currency==="honey"){pricePill.textContent=`${price} Honey`;}else{pricePill.textContent=`${price}c`;}}else{if(!price||price==="0"||isNaN(Number(price))||Number(price)<=0||Number(price)>9999999){pricePill.textContent="?";}else if(currency==="honey"){pricePill.textContent=`${price} Honey`;}else{pricePill.textContent=`${price}c`;}}pills.appendChild(pricePill);card.appendChild(pills);grid.appendChild(card);});}section.appendChild(grid);content.appendChild(section);updateCountdownUI();if(cat==="seed_stock"||cat==="egg_stock"||cat==="eventshop_stock"){fetchRestockTime(cat);}}
+function getRestockCountdownKey(tab){if(tab==="seed_stock")return"seeds";if(tab==="egg_stock")return"egg";if(tab==="eventshop_stock")return"Event";if(tab==="cosmetic_stock")return"cosmetic";if(tab==="gear_stock")return"gear";return null;}
+async function fetchRestockTime(tab){try{const res=await fetch("https://growagardenapi.vercel.app/api/stock/Restock-Time");if(!res.ok)throw new Error();const json=await res.json();restockTimes=json;let countdown="00m 00s";const key=getRestockCountdownKey(tab||currentTab);if(key&&json[key]&&json[key].countdown){countdown=json[key].countdown;}startCountdown(countdown);}catch{startCountdown("00m 00s");}}
+async function fetchWeather(){try{const res=await fetch('https://growagardenapi.vercel.app/api/GetWeather');if(!res.ok)throw new Error();const json=await res.json();weatherList=Array.isArray(json.weather)?json.weather:[];currentWeather=weatherList.find(w=>w.active)||null;renderDashboardRow(currentTab);}catch{}}
+async function reloadAll(manual){const loading=document.getElementById('loading');if(manual)loading.style.display='block';const errorMsg=document.getElementById('errorMsg');errorMsg.textContent='';try{const[infoRes,stockRes]=await Promise.all([fetch('https://api.joshlei.com/v2/growagarden/info'),fetch('https://api.joshlei.com/v2/growagarden/stock')]);if(!infoRes.ok||!stockRes.ok)throw new Error('API error');const infoJson=await infoRes.json();const stockJson=await stockRes.json();itemInfo={};(infoJson||[]).forEach(item=>{itemInfo[item.item_id]=item;});stockRaw=(stockJson||{});loading.style.display='none';tabs=getTabs(stockRaw);if(!tabs.find(t=>t.cat===currentTab))currentTab=tabs[0]?.cat||'';renderCategory(currentTab,tabs);}catch(err){document.getElementById('loading').style.display='none';errorMsg.textContent='Failed to load data from API.';console.error('Fetch error:',err);}}
+document.getElementById('refreshBtnBottom').onclick=()=>{reloadAll(true);fetchRestockTime(currentTab);fetchWeather();};
+if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(()=>{reloadAll(false);fetchWeather();},3000);
+if(autoRestockInterval)clearInterval(autoRestockInterval);autoRestockInterval=setInterval(()=>{fetchRestockTime(currentTab);},3000);
+if(autoWeatherInterval)clearInterval(autoWeatherInterval);autoWeatherInterval=setInterval(fetchWeather,3000);
+reloadAll(false);fetchWeather();fetchRestockTime(currentTab);
   </script>
-</body>
-</html>
+</body></html>
