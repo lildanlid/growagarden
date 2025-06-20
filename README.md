@@ -6,4 +6,4 @@ It uses APIs from
 - https://joshlei.com/
 
 The website is 
-- https://growagardenstocks.vercel.app/
+- https://growagarden-stocks.netlify.app/
