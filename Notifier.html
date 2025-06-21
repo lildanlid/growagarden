@@ -105,10 +105,11 @@ document.getElementById('closeModalBtn').addEventListener('click',closeModal);
 document.getElementById('modalBg').addEventListener('click',closeModal);
 fetchAndInit();
 fetchRestockDataAndStartTimer();
+// Only ask ONCE for notification permission per browser
 if("Notification"in window&&Notification.permission==="default"&&!localStorage.getItem("permission_requested")){
   Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");});
 }
-
+// Request permission button
 document.getElementById('requestPermissionBtn').addEventListener('click', function() {
     if (!("Notification" in window)) {
         notifyStatus("Notifications not supported by your browser.", "var(--accent)");
@@ -129,6 +130,7 @@ document.getElementById('requestPermissionBtn').addEventListener('click', functi
         localStorage.setItem("permission_requested","1");
         if (permission === "granted") {
             notifyStatus("Notification permission granted!", "var(--success)");
+            // Optional: send a test notification
             new Notification("Grow a Garden: Test", { body: "Notifications enabled! You'll get alerts now.", icon: "https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter" });
         } else {
             notifyStatus("Notification permission denied.", "var(--accent)");
