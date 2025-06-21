@@ -71,24 +71,95 @@ function startNotifier(itemName,askPerm=!0){
   notifyStatus("Notifier enabled for selected items.");
   startPolling();
   renderList(currentTab,lastStockState);
-  // Send a test notification immediately (REMOVE THIS LINE if you want only on event)
-  if(hasNotificationPermission()){
-    new Notification("Grow a Garden: Test", {
-      body: "Test notification for "+itemName,
-      icon: itemDataMap[itemName]?.icon||weatherMap[itemName]?.icon||""
-    });
-  }
 }
 function stopNotifier(itemName){notifyList=notifyList.filter(n=>n!==itemName),saveNotifyList(),notifyStatus("Notifier updated."),renderList(currentTab,lastStockState),renderModalList(),updateAllNotifyBtn()}
 function toggleNotifyItem(itemName){notifyList.includes(itemName)?stopNotifier(itemName):startNotifier(itemName)}
 function sendStockNotification(item,msg){if(hasNotificationPermission())new Notification("Grow a Garden: "+item,{body:msg,icon:itemDataMap[item]?.icon||weatherMap[item]?.icon||"",tag:"growagarden-stock-"+(itemDataMap[item]?.item_id||item)})}
 function startPolling(){pollingInterval&&clearInterval(pollingInterval),pollingInterval=setInterval(checkStock,4e3),checkStock()}
-async function checkStock(){if(!notifyList.length)return;try{const r=await fetch("https://api.joshlei.com/v2/growagarden/stock");if(!r.ok)throw new Error;const stock=await r.json();let currentStock={},stockMap={};["seed_stock","gear_stock","egg_stock","eventshop_stock"].forEach(group=>{stock[group]&&stock[group].forEach(item=>{item&&item.item_id&&(stockMap[item.item_id]=item)})});let restockTimestamp=getCurrentRestockTimestampForTab(currentTab);notifyList.forEach(itemName=>{const item=itemDataMap[itemName];if(!item)return;if(getCategory(itemName)==="weather"){const w=weatherMap[itemName];const inStock=w&&w.active;currentStock[itemName]=inStock;if(inStock&&(!lastStockNotified[itemName]||lastStockNotified[itemName]!==w.start_duration_unix)){sendStockNotification(itemName,"Weather is now active!");lastStockNotified[itemName]=w.start_duration_unix;}}else{const s=stockMap[item?.item_id],inStock=!!(s&&s.quantity>0);currentStock[itemName]=inStock;if(inStock&&restockTimestamp&&(!lastStockNotified[itemName]||lastStockNotified[itemName]!==restockTimestamp))sendStockNotification(itemName,"Now in stock!"),lastStockNotified[itemName]=restockTimestamp;}});let inStockItems=notifyList.filter(n=>currentStock[n]);notifyStatus(inStockItems.length>0?"Active/stock: "+inStockItems.join(", ")+" Monitoring continues.":"Waiting for restock...",inStockItems.length?"#53b2fd":"var(--accent)"),lastStockState={...lastStockState,...currentStock},renderList(currentTab,currentStock)}catch(e){notifyStatus("Failed to check stock.","var(--accent)")}}
+async function checkStock(){
+  try{
+    const r = await fetch("https://api.joshlei.com/v2/growagarden/stock");
+    if(!r.ok) throw new Error;
+    const stock = await r.json();
+
+    let stockMap = {};
+    ["seed_stock","gear_stock","egg_stock","eventshop_stock"].forEach(group=>{
+      stock[group] && stock[group].forEach(item=>{
+        item && item.item_id && (stockMap[item.item_id] = item);
+      });
+    });
+
+  
+    let currentStock = {};
+    SEED_NAMES.forEach(name=>{
+      const item = itemDataMap[name];
+      if(item && stockMap[item.item_id]) {
+        currentStock[name] = stockMap[item.item_id].quantity > 0;
+      } else {
+        currentStock[name] = false;
+      }
+    });
+    GEAR_NAMES.forEach(name=>{
+      const item = itemDataMap[name];
+      if(item && stockMap[item.item_id]) {
+        currentStock[name] = stockMap[item.item_id].quantity > 0;
+      } else {
+        currentStock[name] = false;
+      }
+    });
+    EGG_NAMES.forEach(name=>{
+      const item = itemDataMap[name];
+      if(item && stockMap[item.item_id]) {
+        currentStock[name] = stockMap[item.item_id].quantity > 0;
+      } else {
+        currentStock[name] = false;
+      }
+    });
+    WEATHER_NAMES.forEach(name=>{
+      const w = weatherMap[name];
+      currentStock[name] = w && w.active;
+    });
+
+    // Send notifications only on state change for notifyList
+    let restockTimestamp = getCurrentRestockTimestampForTab(currentTab);
+    notifyList.forEach(itemName=>{
+      if(getCategory(itemName) === "weather"){
+        const w = weatherMap[itemName];
+        if(w && w.active && (!lastStockNotified[itemName] || lastStockNotified[itemName] !== w.start_duration_unix)){
+          sendStockNotification(itemName,"Weather is now active!");
+          lastStockNotified[itemName] = w.start_duration_unix;
+        }
+      }else{
+        const item = itemDataMap[itemName];
+        const s = item ? stockMap[item.item_id] : null;
+        const inStock = !!(s && s.quantity > 0);
+        if(inStock && restockTimestamp && (!lastStockNotified[itemName] || lastStockNotified[itemName] !== restockTimestamp)){
+          sendStockNotification(itemName,"Now in stock!");
+          lastStockNotified[itemName] = restockTimestamp;
+        }
+      }
+    });
+
+    let inStockItems = notifyList.filter(n=>currentStock[n]);
+    notifyStatus(
+      inStockItems.length>0
+        ? "Active/stock: " + inStockItems.join(", ") + " Monitoring continues."
+        : "Waiting for restock...",
+      inStockItems.length ? "#53b2fd" : "var(--accent)"
+    );
+
+    lastStockState = {...currentStock};
+    renderList(currentTab, currentStock);
+
+  } catch(e){
+    notifyStatus("Failed to check stock.","var(--accent)");
+  }
+}
 function getRestockCategoryForTab(tab){return"seeds"===tab?"seeds":"gear"===tab?"gear":"eggs"===tab?"egg":"weather"===tab?"weather":null}
 function getCurrentRestockTimestampForTab(tab){const cat=getRestockCategoryForTab(tab);if(cat==="weather")return null;return!cat||!restockData||!restockData[cat]?null:restockData[cat].timestamp||null}
 async function fetchRestockDataAndStartTimer(){try{const r=await fetch("https://growagardenapi.vercel.app/api/stock/Restock-Time");if(!r.ok)throw new Error("Failed to fetch restock time");restockData=await r.json();updateRestockBar();restockInterval&&clearInterval(restockInterval);restockInterval=setInterval(updateRestockBar,1e3)}catch{restockTimerBar.textContent="Failed to load restock timer."}}
 function updateRestockBar(){if(!restockData)return;const cat=getRestockCategoryForTab(currentTab);if(currentTab==="weather"){restockTimerBar.textContent="Weather events activate randomly. No timer."}else if(!cat||!restockData[cat]){restockTimerBar.textContent="No restock data available.";}else{const data=restockData[cat];liveRestockTimestamp=data.timestamp;let diff=data.timestamp-Date.now();diff<0&&(diff=0);const h=Math.floor(diff/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3),countdownStr=`${h.toString().padStart(2,"0")}h ${m.toString().padStart(2,"0")}m ${s.toString().padStart(2,"0")}s`;restockTimerBar.innerHTML=`<span class="restock-timer-label">Next ${currentTab.charAt(0).toUpperCase()+currentTab.slice(1)} restock:</span> <span>${countdownStr}</span>`;0===diff&&(fetchRestockDataAndStartTimer(),checkStock())}}
-function renderList(categoryKey,stockState){itemListEl.innerHTML="";let items=[];if(!allItemsFetched){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';return}if(categoryKey==="seeds")items=SEED_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="gear")items=GEAR_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="eggs")items=EGG_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="weather")items=WEATHER_NAMES.map(n=>weatherMap[n]).filter(Boolean);items.forEach(item=>{const card=document.createElement("div");card.className=`item-card ${getCategory(item.display_name||item.weather_name)}`+(notifyList.includes(item.display_name||item.weather_name)?" selected":"");const iconDiv=document.createElement("div");iconDiv.className="item-icon";const img=document.createElement("img");img.src=item.icon;img.alt=item.display_name||item.weather_name;img.style.width="100%";img.style.height="100%";img.style.objectFit="contain";img.draggable=!1;iconDiv.appendChild(img);card.appendChild(iconDiv);const infoDiv=document.createElement("div");infoDiv.className="item-info";const nameDiv=document.createElement("div");nameDiv.className="item-name";nameDiv.textContent=item.display_name||item.weather_name;infoDiv.appendChild(nameDiv);const n=item.display_name||item.weather_name;if(currentTab==="weather"&&notifyList.includes(n)&&weatherMap[n]&&weatherMap[n].active){const badge=document.createElement("span");badge.className='active-badge';badge.textContent="Active";infoDiv.appendChild(badge)}else if(notifyList.includes(n)&&stockState&&typeof stockState[n]==="boolean"&&stockState[n]){const badge=document.createElement('span');badge.className='in-stock-badge';badge.textContent="In Stock";infoDiv.appendChild(badge)}card.appendChild(infoDiv);const btnCol=document.createElement('div');btnCol.className='item-btn-col';if(notifyList.includes(n)){const notifyBtn=document.createElement('button');notifyBtn.className='notify-btn active';notifyBtn.textContent="Notifying";notifyBtn.disabled=true;btnCol.appendChild(notifyBtn);const unbtn=document.createElement('button');unbtn.className='unnotify-btn-single';unbtn.textContent="UnNotify";unbtn.onclick=e=>{e.stopPropagation();stopNotifier(n)};btnCol.appendChild(unbtn);}else{const btn=document.createElement('button');btn.className='notify-btn';btn.textContent="Notify";btn.onclick=e=>{e.stopPropagation();startNotifier(n)};btnCol.appendChild(btn);}card.appendChild(btnCol);itemListEl.appendChild(card)})}
+function renderList(categoryKey,stockState){itemListEl.innerHTML="";let items=[];if(!allItemsFetched){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';return}if(categoryKey==="seeds")items=SEED_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="gear")items=GEAR_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="eggs")items=EGG_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="weather")items=WEATHER_NAMES.map(n=>weatherMap[n]).filter(Boolean);items.forEach(item=>{const card=document.createElement("div");card.className=`item-card ${getCategory(item.display_name||item.weather_name)}`+(notifyList.includes(item.display_name||item.weather_name)?" selected":"");const iconDiv=document.createElement("div");iconDiv.className="item-icon";const img=document.createElement("img");img.src=item.icon;img.alt=item.display_name||item.weather_name;img.style.width="100%";img.style.height="100%";img.style.objectFit="contain";img.draggable=!1;iconDiv.appendChild(img);card.appendChild(iconDiv);const infoDiv=document.createElement("div");infoDiv.className="item-info";const nameDiv=document.createElement("div");nameDiv.className="item-name";nameDiv.textContent=item.display_name||item.weather_name;infoDiv.appendChild(nameDiv);const n=item.display_name||item.weather_name;if(currentTab==="weather"&&notifyList.includes(n)&&weatherMap[n]&&stockState[n]){const badge=document.createElement("span");badge.className='active-badge';badge.textContent="Active";infoDiv.appendChild(badge)}else if(notifyList.includes(n)&&stockState&&typeof stockState[n]==="boolean"&&stockState[n]){const badge=document.createElement('span');badge.className='in-stock-badge';badge.textContent="In Stock";infoDiv.appendChild(badge)}card.appendChild(infoDiv);const btnCol=document.createElement('div');btnCol.className='item-btn-col';if(notifyList.includes(n)){const notifyBtn=document.createElement('button');notifyBtn.className='notify-btn active';notifyBtn.textContent="Notifying";notifyBtn.disabled=true;btnCol.appendChild(notifyBtn);const unbtn=document.createElement('button');unbtn.className='unnotify-btn-single';unbtn.textContent="UnNotify";unbtn.onclick=e=>{e.stopPropagation();stopNotifier(n)};btnCol.appendChild(unbtn);}else{const btn=document.createElement('button');btn.className='notify-btn';btn.textContent="Notify";btn.onclick=e=>{e.stopPropagation();startNotifier(n)};btnCol.appendChild(btn);}card.appendChild(btnCol);itemListEl.appendChild(card)})}
 function setActiveTab(tabKey){document.querySelectorAll('.category-tab').forEach(btn=>{btn.classList.toggle('active',btn.dataset.tab===tabKey)});currentTab=tabKey;renderList(tabKey,lastStockState);updateRestockBar();}
 document.querySelectorAll('.category-tab').forEach(btn=>{btn.addEventListener('click',e=>{setActiveTab(e.target.dataset.tab);})});
 async function fetchAndInit(){loadNotifyList();itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';try{const [itemResp,weatherResp]=await Promise.all([fetch('https://api.joshlei.com/v2/growagarden/info'),fetch('https://api.joshlei.com/v2/growagarden/weather')]);if(!itemResp.ok||!weatherResp.ok)throw new Error("Failed to fetch items");const items=await itemResp.json();itemDataMap={};for(const item of items)(SEED_NAMES.includes(item.display_name)||GEAR_NAMES.includes(item.display_name)||EGG_NAMES.includes(item.display_name))&&(itemDataMap[item.display_name]=item);const weatherjson=await weatherResp.json();weatherData=weatherjson.weather;WEATHER_NAMES.length=0;weatherMap={};weatherData.forEach(w=>{WEATHER_NAMES.push(w.weather_name);weatherMap[w.weather_name]=w});allItemsFetched=!0;renderList(currentTab,lastStockState);if(notifyList.length>0)startPolling();updateAllNotifyBtn();}catch(e){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Failed to load items.<br>'+e+'</div>';}}
@@ -105,11 +176,11 @@ document.getElementById('closeModalBtn').addEventListener('click',closeModal);
 document.getElementById('modalBg').addEventListener('click',closeModal);
 fetchAndInit();
 fetchRestockDataAndStartTimer();
-// Only ask ONCE for notification permission per browser
+
 if("Notification"in window&&Notification.permission==="default"&&!localStorage.getItem("permission_requested")){
   Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");});
 }
-// Request permission button
+
 document.getElementById('requestPermissionBtn').addEventListener('click', function() {
     if (!("Notification" in window)) {
         notifyStatus("Notifications not supported by your browser.", "var(--accent)");
@@ -130,8 +201,6 @@ document.getElementById('requestPermissionBtn').addEventListener('click', functi
         localStorage.setItem("permission_requested","1");
         if (permission === "granted") {
             notifyStatus("Notification permission granted!", "var(--success)");
-            // Optional: send a test notification
-            new Notification("Grow a Garden: Test", { body: "Notifications enabled! You'll get alerts now.", icon: "https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter" });
         } else {
             notifyStatus("Notification permission denied.", "var(--accent)");
         }
