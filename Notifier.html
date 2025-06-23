@@ -1,188 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Grow a Garden Notifier</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="icon" type="image/webp" href="https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter">
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
-  <style>
-  :root{--primary-bg:#060e22;--secondary-bg:rgba(21,34,61,0.95);--tab-bg:#18254a;--tab-active-bg:#ffe066;--tab-active-text:#222;--tab-inactive-text:#ffe066;--tab-inactive-bg:#18254a;--accent:#ffe066;--card-bg:rgba(15,23,42,0.98);--item-selected-bg:#423f0b;--item-selected-border:#ffe066;--item-shadow:0 2px 16px #1e1b4b33;--main-shadow:0 8px 36px #0007;--notify-bg:#ffe066;--notify-text:#282828;--notify-shadow:0 2px 7px #ffe06665;--notifying-bg:#fff3b0;--gear-border:#16c97c;--seed-border:#7db4ee;--egg-border:#e74c3c;--honey-border:#ffd166;--info-text:#7db4ee;--success:#70e97b;--error:#e74c3c;--blue:#53b2fd;--transition:0.13s;--border-radius:16px;--font-main:'Inter','Segoe UI',Arial,sans-serif}html,body{height:100%;margin:0;padding:0;background:var(--primary-bg);color:#fff;font-family:var(--font-main);min-height:100vh}body{display:flex;align-items:flex-start;justify-content:center;min-height:100vh;margin:0}.main-container{width:100%;max-width:650px;margin:2.5em auto 0;background:var(--secondary-bg);border-radius:var(--border-radius);box-shadow:var(--main-shadow);padding:2em 1em 1.2em 1em;display:flex;flex-direction:column;align-items:stretch}.header{font-size:2.1em;font-weight:700;text-align:center;margin-bottom:.7em;color:var(--accent);letter-spacing:-1px;text-shadow:0 1px 8px #ffe06622}.category-tabs{display:flex;justify-content:center;gap:1.2em;margin-bottom:1.4em;margin-top:.7em;flex-wrap:wrap}.category-tab{background:var(--tab-inactive-bg);color:var(--tab-inactive-text);font-weight:600;border:none;border-radius:8px;padding:.6em 1.3em;font-size:1em;cursor:pointer;transition:background var(--transition),color var(--transition),box-shadow var(--transition)}.category-tab.active{background:var(--tab-active-bg);color:var(--tab-active-text);font-weight:700;box-shadow:0 2px 13px #ffe06644}.button-row{display:flex;justify-content:center;align-items:center;gap:1.2em;margin-bottom:1.2em;margin-top:.2em}.unotify-btn,.allnotify-btn{font-weight:600;font-size:1em;padding:.5em 1.5em;border-radius:10px;outline:none;border:none;cursor:pointer;transition:background .13s,color .13s;box-shadow:0 2px 7px #ffe06665;margin-bottom:0}.unotify-btn{background:#e74c3c;color:#fff;box-shadow:0 2px 7px #ea8681}.unotify-btn:hover,.unotify-btn:focus{background:#ff5c5c;color:#fff}.allnotify-btn{background:#16c97c;color:#fff;box-shadow:0 2px 7px #16c97c80}.allnotify-btn:hover,.allnotify-btn:focus{background:#19e88f;color:#fff}.restock-timer-bar{margin:0 auto 1.5em auto;text-align:center;font-size:1.08em;color:var(--accent);background:#19253e;border-radius:11px;padding:.6em 1.2em .6em 1.2em;box-shadow:0 2px 10px #0003;max-width:400px;margin-bottom:1.8em;letter-spacing:.02em;font-weight:600}.restock-timer-label{color:#b6d8ff;font-weight:400;font-size:.97em;margin-right:.4em}.item-list{display:flex;flex-direction:column;gap:1.1em;min-height:110px;max-height:55vh;overflow-y:auto;padding:.2em}.item-card{background:var(--card-bg);border-radius:12px;box-shadow:var(--item-shadow);padding:.9em 1.2em .8em 1.2em;display:flex;align-items:center;gap:1.1em;position:relative;border-left:6px solid transparent;transition:box-shadow var(--transition),background var(--transition),border-color var(--transition)}.item-card.selected{box-shadow:0 4px 32px #ffe06655;border:2px solid var(--item-selected-border);background:var(--item-selected-bg)}.item-card.gear{border-left:6px solid var(--gear-border)}.item-card.seed{border-left:6px solid var(--seed-border)}.item-card.egg{border-left:6px solid var(--egg-border)}.item-card.weather{border-left:6px solid var(--blue)}.item-icon{width:54px;height:54px;object-fit:contain;border-radius:8px;background:#213164;flex-shrink:0;border:1.5px solid #333c5c;display:flex;align-items:center;justify-content:center}.item-info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.05em}.item-name{font-weight:600;font-size:1.09em;color:var(--accent);margin-bottom:.22em;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;max-width:180px;display:block;letter-spacing:.01em}.in-stock-badge{background:var(--success);color:#183c1c;border-radius:5px;font-size:.93em;font-weight:700;padding:.09em .8em;margin-bottom:.12em;display:inline-block;vertical-align:middle;box-shadow:0 1px 4px #70e97b44;letter-spacing:.01em;width:fit-content;min-width:56px;text-align:center}.active-badge{background:var(--blue);color:#fff;border-radius:5px;font-size:.93em;font-weight:700;padding:.09em .8em;margin-bottom:.12em;display:inline-block;vertical-align:middle;box-shadow:0 1px 4px #53b2fd44;letter-spacing:.01em;width:fit-content;min-width:56px;text-align:center}.item-btn-col{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:.5em;min-width:110px;margin-left:.4em}.notify-btn,.unnotify-btn-single{font-size:1.01em;border:none;border-radius:8px;padding:.34em 1.1em;font-weight:600;box-shadow:0 1px 4px #ffe06644;margin:0;margin-bottom:.05em;margin-top:.05em;outline:none;cursor:pointer;transition:background .13s,color .13s,box-shadow .13s;display:inline-block;min-width:85px;max-width:120px;text-align:center}.notify-btn{background:var(--notify-bg);color:var(--notify-text)}.notify-btn.active{background:var(--notifying-bg);color:var(--notify-text);font-weight:700;box-shadow:0 2px 9px #ffe06665}.notify-btn:disabled{opacity:.65;cursor:default}.unnotify-btn-single{background:#e74c3c;color:#fff;font-weight:600;box-shadow:0 1px 7px #ea8681}.unnotify-btn-single:hover,.unnotify-btn-single:focus{background:#ff5c5c;color:#fff}.modal-bg{display:none;position:fixed;z-index:1001;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.38)}.modal-bg.active{display:block}.modal{display:none;position:fixed;z-index:1002;left:50%;top:50%;transform:translate(-50%,-50%);min-width:270px;background:#19253e;padding:2.2em 1.7em 1.2em 1.7em;border-radius:18px;box-shadow:0 8px 42px #000a;min-height:50px;max-width:98vw;max-height:70vh;overflow-y:auto}.modal.active{display:block}.modal-title{font-size:1.27em;color:var(--accent);font-weight:700;margin-bottom:.8em;text-align:center}.modal-list{margin-bottom:1.2em;display:flex;flex-direction:column;gap:.6em;max-height:35vh;overflow-y:auto}.modal-item{font-size:1.09em;color:#fff3b0;background:#202f57;border-radius:8px;padding:.43em 1em;display:flex;align-items:center;gap:.8em}.modal-unotify-one-btn{margin-left:auto;background:#e74c3c;color:#fff;border:none;border-radius:7px;padding:.2em 1.1em;font-size:.97em;font-weight:600;cursor:pointer;box-shadow:0 2px 7px #ea8681;transition:background .13s,color .13s}.modal-unotify-one-btn:hover,.modal-unotify-one-btn:focus{background:#ff5c5c;color:#fff}.modal-btn-row{display:flex;justify-content:center;align-items:center;gap:1.2em;margin-bottom:.6em;margin-top:1em}.modal-unotify-btn{background:#e74c3c;color:#fff;font-weight:600;padding:.5em 1.5em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 2px 7px #ea8681;font-size:1em;transition:background .13s,color .13s;outline:none;display:inline-block}.modal-unotify-btn:hover,.modal-unotify-btn:focus{background:#ff5c5c;color:#fff}.modal-close-btn{position:absolute;top:.6em;right:1.3em;background:none;border:none;color:var(--accent);font-size:1.7em;font-weight:bold;cursor:pointer;outline:none;transition:color .18s}.modal-close-btn:hover{color:#fff}.info-message{text-align:center;color:var(--info-text);font-size:1.1em;margin:0 0 1.3em 0;opacity:.98}.notify-status{margin-top:.7em;font-size:1.09em;text-align:center;color:var(--success);font-weight:600;min-height:1.9em}.back-btn{margin:2.6em auto 0 auto;display:block;width:92%;max-width:330px;background:#222c4d;color:#ffe066;font-size:1.1em;font-weight:700;text-align:center;padding:.8em 0;border-radius:12px;border:none;box-shadow:0 2px 8px #0005,0 2px 8px #ffe06622;cursor:pointer;transition:background .13s,color .13s,box-shadow .13s;letter-spacing:.03em} .back-btn:hover{background:#ffe066;color:#222c4d}.request-permission-btn{margin:1.7em auto 0 auto;display:block;background:#53b2fd;color:#fff;font-weight:700;font-size:1.08em;border:none;border-radius:12px;padding:.75em 2.5em;box-shadow:0 2px 8px #53b2fd33;cursor:pointer;transition:background .13s,color .13s}@media (max-width:700px){.main-container{max-width:99vw;margin-top:1.2em}.item-list{max-height:60vh}.restock-timer-bar{max-width:95vw}}@media (max-width:540px){.item-btn-col{min-width:80px;max-width:130px}.notify-btn,.unnotify-btn-single{min-width:74px;max-width:100px;font-size:.96em}.item-name{font-size:.9em}}@media (max-width:450px){.main-container{padding:1em .2em}.item-card{padding:.6em .3em}.item-name{font-size:.86em}.header{font-size:1.3em}.restock-timer-bar{padding:.45em .3em;font-size:.97em}.back-btn{width:99%;padding:.62em 0;font-size:.99em}}
-  </style>
+<meta charset="UTF-8">
+<title>Grow a Garden Notifier</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="icon" type="image/webp" href="https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter">
+<link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
+<style>:root{--primary-bg:#060e22;--secondary-bg:rgba(21,34,61,0.95);--tab-bg:#18254a;--tab-active-bg:#ffe066;--tab-active-text:#222;--tab-inactive-text:#ffe066;--tab-inactive-bg:#18254a;--accent:#ffe066;--card-bg:rgba(15,23,42,0.98);--item-selected-bg:#423f0b;--item-selected-border:#ffe066;--item-shadow:0 2px 16px #1e1b4b33;--main-shadow:0 8px 36px #0007;--notify-bg:#ffe066;--notify-text:#282828;--notify-shadow:0 2px 7px #ffe06665;--notifying-bg:#fff3b0;--gear-border:#16c97c;--seed-border:#7db4ee;--egg-border:#e74c3c;--honey-border:#ffd166;--info-text:#7db4ee;--success:#70e97b;--error:#e74c3c;--blue:#53b2fd;--transition:0.13s;--border-radius:16px;--font-main:'Inter','Segoe UI',Arial,sans-serif}html,body{height:100%;margin:0;padding:0;background:var(--primary-bg);color:#fff;font-family:var(--font-main);min-height:100vh}body{display:flex;align-items:flex-start;justify-content:center;min-height:100vh;margin:0}.main-container{width:100%;max-width:650px;margin:2.5em auto 0;background:var(--secondary-bg);border-radius:var(--border-radius);box-shadow:var(--main-shadow);padding:2em 1em 1.2em 1em;display:flex;flex-direction:column;align-items:stretch}.header{font-size:2.1em;font-weight:700;text-align:center;margin-bottom:.7em;color:var(--accent);letter-spacing:-1px;text-shadow:0 1px 8px #ffe06622}.category-tabs{display:flex;justify-content:center;gap:1.2em;margin-bottom:1.4em;margin-top:.7em;flex-wrap:wrap}.category-tab{background:var(--tab-inactive-bg);color:var(--tab-inactive-text);font-weight:600;border:none;border-radius:8px;padding:.6em 1.3em;font-size:1em;cursor:pointer;transition:background var(--transition),color var(--transition),box-shadow var(--transition)}.category-tab.active{background:var(--tab-active-bg);color:var(--tab-active-text);font-weight:700;box-shadow:0 2px 13px #ffe06644}.button-row{display:flex;justify-content:center;align-items:center;gap:1.2em;margin-bottom:1.2em;margin-top:.2em}.unotify-btn,.allnotify-btn{font-weight:600;font-size:1em;padding:.5em 1.5em;border-radius:10px;outline:none;border:none;cursor:pointer;transition:background .13s,color .13s;box-shadow:0 2px 7px #ffe06665;margin-bottom:0}.unotify-btn{background:#e74c3c;color:#fff;box-shadow:0 2px 7px #ea8681}.unotify-btn:hover,.unotify-btn:focus{background:#ff5c5c;color:#fff}.allnotify-btn{background:#16c97c;color:#fff;box-shadow:0 2px 7px #16c97c80}.allnotify-btn:hover,.allnotify-btn:focus{background:#19e88f;color:#fff}.restock-timer-bar{margin:0 auto 1.5em auto;text-align:center;font-size:1.08em;color:var(--accent);background:#19253e;border-radius:11px;padding:.6em 1.2em .6em 1.2em;box-shadow:0 2px 10px #0003;max-width:400px;margin-bottom:1.8em;letter-spacing:.02em;font-weight:600}.restock-timer-label{color:#b6d8ff;font-weight:400;font-size:.97em;margin-right:.4em}.item-list{display:flex;flex-direction:column;gap:1.1em;min-height:110px;max-height:55vh;overflow-y:auto;padding:.2em}.item-card{background:var(--card-bg);border-radius:12px;box-shadow:var(--item-shadow);padding:.9em 1.2em .8em 1.2em;display:flex;align-items:center;gap:1.1em;position:relative;border-left:6px solid transparent;transition:box-shadow var(--transition),background var(--transition),border-color var(--transition)}.item-card.selected{box-shadow:0 4px 32px #ffe06655;border:2px solid var(--item-selected-border);background:var(--item-selected-bg)}.item-card.gear{border-left:6px solid var(--gear-border)}.item-card.seed{border-left:6px solid var(--seed-border)}.item-card.egg{border-left:6px solid var(--egg-border)}.item-card.weather{border-left:6px solid var(--blue)}.item-icon{width:54px;height:54px;object-fit:contain;border-radius:8px;background:#213164;flex-shrink:0;border:1.5px solid #333c5c;display:flex;align-items:center;justify-content:center}.item-info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.05em}.item-name{font-weight:600;font-size:1.09em;color:var(--accent);margin-bottom:.22em;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;max-width:180px;display:block;letter-spacing:.01em}.in-stock-badge{background:var(--success);color:#183c1c;border-radius:5px;font-size:.93em;font-weight:700;padding:.09em .8em;margin-bottom:.12em;display:inline-block;vertical-align:middle;box-shadow:0 1px 4px #70e97b44;letter-spacing:.01em;width:fit-content;min-width:56px;text-align:center}.active-badge{background:var(--blue);color:#fff;border-radius:5px;font-size:.93em;font-weight:700;padding:.09em .8em;margin-bottom:.12em;display:inline-block;vertical-align:middle;box-shadow:0 1px 4px #53b2fd44;letter-spacing:.01em;width:fit-content;min-width:56px;text-align:center}.item-btn-col{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:.5em;min-width:110px;margin-left:.4em}.notify-btn,.unnotify-btn-single{font-size:1.01em;border:none;border-radius:8px;padding:.34em 1.1em;font-weight:600;box-shadow:0 1px 4px #ffe06644;margin:0;margin-bottom:.05em;margin-top:.05em;outline:none;cursor:pointer;transition:background .13s,color .13s,box-shadow .13s;display:inline-block;min-width:85px;max-width:120px;text-align:center}.notify-btn{background:var(--notify-bg);color:var(--notify-text)}.notify-btn.active{background:var(--notifying-bg);color:var(--notify-text);font-weight:700;box-shadow:0 2px 9px #ffe06665}.notify-btn:disabled{opacity:.65;cursor:default}.unnotify-btn-single{background:#e74c3c;color:#fff;font-weight:600;box-shadow:0 1px 7px #ea8681}.unnotify-btn-single:hover,.unnotify-btn-single:focus{background:#ff5c5c;color:#fff}.modal-bg{display:none;position:fixed;z-index:1001;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.38)}.modal-bg.active{display:block}.modal{display:none;position:fixed;z-index:1002;left:50%;top:50%;transform:translate(-50%,-50%);min-width:270px;background:#19253e;padding:2.2em 1.7em 1.2em 1.7em;border-radius:18px;box-shadow:0 8px 42px #000a;min-height:50px;max-width:98vw;max-height:70vh;overflow-y:auto}.modal.active{display:block}.modal-title{font-size:1.27em;color:var(--accent);font-weight:700;margin-bottom:.8em;text-align:center}.modal-list{margin-bottom:1.2em;display:flex;flex-direction:column;gap:.6em;max-height:35vh;overflow-y:auto}.modal-item{font-size:1.09em;color:#fff3b0;background:#202f57;border-radius:8px;padding:.43em 1em;display:flex;align-items:center;gap:.8em}.modal-unotify-one-btn{margin-left:auto;background:#e74c3c;color:#fff;border:none;border-radius:7px;padding:.2em 1.1em;font-size:.97em;font-weight:600;cursor:pointer;box-shadow:0 2px 7px #ea8681;transition:background .13s,color .13s}.modal-unotify-one-btn:hover,.modal-unotify-one-btn:focus{background:#ff5c5c;color:#fff}.modal-btn-row{display:flex;justify-content:center;align-items:center;gap:1.2em;margin-bottom:.6em;margin-top:1em}.modal-unotify-btn{background:#e74c3c;color:#fff;font-weight:600;padding:.5em 1.5em;border:none;border-radius:10px;cursor:pointer;box-shadow:0 2px 7px #ea8681;font-size:1em;transition:background .13s,color .13s;outline:none;display:inline-block}.modal-unotify-btn:hover,.modal-unotify-btn:focus{background:#ff5c5c;color:#fff}.modal-close-btn{position:absolute;top:.6em;right:1.3em;background:none;border:none;color:var(--accent);font-size:1.7em;font-weight:bold;cursor:pointer;outline:none;transition:color .18s}.modal-close-btn:hover{color:#fff}.info-message{text-align:center;color:var(--info-text);font-size:1.1em;margin:0 0 1.3em 0;opacity:.98}.notify-status{margin-top:.7em;font-size:1.09em;text-align:center;color:var(--success);font-weight:600;min-height:1.9em}.back-btn{margin:2.6em auto 0 auto;display:block;width:92%;max-width:330px;background:#222c4d;color:#ffe066;font-size:1.1em;font-weight:700;text-align:center;padding:.8em 0;border-radius:12px;border:none;box-shadow:0 2px 8px #0005,0 2px 8px #ffe06622;cursor:pointer;transition:background .13s,color .13s,box-shadow .13s;letter-spacing:.03em} .back-btn:hover{background:#ffe066;color:#222c4d}.request-permission-btn{margin:1.7em auto 0 auto;display:block;background:#53b2fd;color:#fff;font-weight:700;font-size:1.08em;border:none;border-radius:12px;padding:.75em 2.5em;box-shadow:0 2px 8px #53b2fd33;cursor:pointer;transition:background .13s,color .13s}@media (max-width:700px){.main-container{max-width:99vw;margin-top:1.2em}.item-list{max-height:60vh}.restock-timer-bar{max-width:95vw}}@media (max-width:540px){.item-btn-col{min-width:80px;max-width:130px}.notify-btn,.unnotify-btn-single{min-width:74px;max-width:100px;font-size:.96em}.item-name{font-size:.9em}}@media (max-width:450px){.main-container{padding:1em .2em}.item-card{padding:.6em .3em}.item-name{font-size:.86em}.header{font-size:1.3em}.restock-timer-bar{padding:.45em .3em;font-size:.97em}.back-btn{width:99%;padding:.62em 0;font-size:.99em}}</style>
 </head>
-<body> 
-  <div class="main-container">
-    <div class="header">Grow a Garden Notifier</div>
-    <div class="category-tabs">
-      <button class="category-tab active" data-tab="seeds">Seeds</button>
-      <button class="category-tab" data-tab="gear">Gear</button>
-      <button class="category-tab" data-tab="eggs">Eggs</button>
-      <button class="category-tab" data-tab="weather">Weather</button>
-    </div>
-    <div class="restock-timer-bar" id="restockTimerBar">Loading restock timer...</div>
-    <div class="button-row">
-      <button class="unotify-btn" id="unotifyAllBtn" type="button">UnNotify All</button>
-      <button class="allnotify-btn" id="allNotifyBtn" type="button">All Notify</button>
-    </div>
-    <div class="info-message">
-      Select items to be notified when they're in stock.<br>
-      <span style="color:var(--accent);">Notifications require permission and work best on modern browsers.</span>
-    </div>
-    <div class="item-list" id="itemList"></div>
-    <div class="notify-status" id="notifyStatus"></div>
-    <button class="back-btn" onclick="window.location.href='https://growagarden-stocks.netlify.app/'">&#8592; Back to Main Stock Page</button>
-    <button class="request-permission-btn" id="requestPermissionBtn" type="button">Request Notification Permission</button>
-  </div>
-  <div class="modal-bg" id="modalBg"></div>
-  <div class="modal" id="allNotifyModal">
-    <button class="modal-close-btn" id="closeModalBtn" title="Close">&times;</button>
-    <div class="modal-title">All Notified Items</div>
-    <div class="modal-list" id="modalList"></div>
-    <div class="modal-btn-row">
-      <button class="modal-unotify-btn" id="modalUnotifyBtn" type="button">UnNotify All</button>
-    </div>
-  </div>
-  <script>
+<body>
+<div class="main-container">
+<div class="header">Grow a Garden Notifier</div>
+<div class="category-tabs">
+<button class="category-tab active" data-tab="seeds">Seeds</button>
+<button class="category-tab" data-tab="gear">Gear</button>
+<button class="category-tab" data-tab="eggs">Eggs</button>
+<button class="category-tab" data-tab="weather">Weather</button>
+</div>
+<div class="restock-timer-bar" id="restockTimerBar">Loading restock timer...</div>
+<div class="button-row">
+<button class="unotify-btn" id="unotifyAllBtn" type="button">UnNotify All</button>
+<button class="allnotify-btn" id="allNotifyBtn" type="button">All Notify</button>
+</div>
+<div class="info-message">Select items to be notified when they're in stock.<br><span style="color:var(--accent);">Notifications require permission and work best on modern browsers.</span></div>
+<div class="item-list" id="itemList"></div>
+<div class="notify-status" id="notifyStatus"></div>
+<button class="back-btn" onclick="window.location.href='https://growagarden-stocks.netlify.app/'">&#8592; Back to Main Stock Page</button>
+<button class="request-permission-btn" id="requestPermissionBtn" type="button">Request Notification Permission</button>
+</div>
+<div class="modal-bg" id="modalBg"></div>
+<div class="modal" id="allNotifyModal">
+<button class="modal-close-btn" id="closeModalBtn" title="Close">&times;</button>
+<div class="modal-title">All Notified Items</div>
+<div class="modal-list" id="modalList"></div>
+<div class="modal-btn-row">
+<button class="modal-unotify-btn" id="modalUnotifyBtn" type="button">UnNotify All</button>
+</div>
+</div>
+<script>
+const WEATHER_NAMES=[];
 const SEED_NAMES=["Carrot","Strawberry","Blueberry","Cauliflower","Watermelon","Green apple","Avocado","Banana","Pineapple","Kiwi","Bell pepper","Prikily pear","Loquat","Feijoa","Sugar Apple"];
 const GEAR_NAMES=["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Tanning Mirror","Master Sprinkler","Cleaning Spray","Favorite Tool","Harvest Tool","Friendship Pot"];
 const EGG_NAMES=["Summer Comman Egg","Comman Egg","Uncomman Egg","Summer Rare Egg","Rare Egg","Paridice Egg","Legandary Egg","Mythical Egg","Bug Egg"];
-const WEATHER_NAMES=[]; 
-
 function getCategory(n){if(SEED_NAMES.includes(n))return"seed";if(GEAR_NAMES.includes(n))return"gear";if(EGG_NAMES.includes(n))return"egg";if(WEATHER_NAMES.includes(n))return"weather";return""}
-
 const NOTIFY_KEY="garden_notifier_items_v2",PERM_KEY="garden_notify_perm";
 let notifyList=[],itemDataMap={},lastStockState={},lastStockNotified={},pollingInterval=null,allItemsFetched=!1,currentTab="seeds",restockData=null,restockInterval=null,liveRestockTimestamp=null,weatherData=[],weatherMap={};
 const itemListEl=document.getElementById("itemList"),restockTimerBar=document.getElementById("restockTimerBar"),modalBg=document.getElementById("modalBg"),allNotifyModal=document.getElementById("allNotifyModal"),modalList=document.getElementById("modalList");
-
 function loadNotifyList(){try{const r=localStorage.getItem(NOTIFY_KEY);notifyList=r?JSON.parse(r):[]}catch{notifyList=[]}}
 function saveNotifyList(){localStorage.setItem(NOTIFY_KEY,JSON.stringify(notifyList))}
 function hasNotificationPermission(){return Notification.permission==="granted"||localStorage.getItem(PERM_KEY)==="granted"}
 function setNotificationPermission(g){g?localStorage.setItem(PERM_KEY,"granted"):localStorage.removeItem(PERM_KEY)}
 function notifyStatus(msg,color){const s=document.getElementById("notifyStatus");if(!msg){s.textContent="";return}s.textContent=msg;s.style.color=color||"var(--success)"}
-
-function sendLoadedNotification(){
-  if ("Notification" in window && hasNotificationPermission()) {
-    new Notification("Grow a Garden: Notifier Loaded", {
-      body: "Notifier Loaded and ready!",
-      icon: "https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter"
-    });
-  }
-}
-
-function startNotifier(itemName,askPerm=!0){
-  if(!("Notification"in window)){notifyStatus("Notifications not supported by your browser.","var(--accent)");return}
-  if(!hasNotificationPermission()){
-    if(localStorage.getItem("permission_requested")){notifyStatus("Notification permission denied. Enable notifications in browser settings.","var(--accent)");return;}
-    Notification.requestPermission().then(function(p){
-      setNotificationPermission("granted"===p);
-      localStorage.setItem("permission_requested","1");
-      if("granted"===p)startNotifier(itemName,!1);
-      else notifyStatus("Notification permission denied.","var(--accent)");
-    });
-    return;
-  }
-  if(!notifyList.includes(itemName)){notifyList.push(itemName);saveNotifyList()}
-  notifyStatus("Notifier enabled for selected items.");
-  startPolling();
-  renderList(currentTab,lastStockState);
-}
+function sendLoadedNotification(){if("Notification"in window&&hasNotificationPermission()){new Notification("Grow a Garden: Notifier Loaded",{body:"Notifier Loaded and ready!",icon:"https://tr.rbxcdn.com/180DAY-af390f61ad27c865a96c2c5d477d9d6e/420/420/Image/Webp/noFilter"});}}
+function startNotifier(itemName,askPerm=!0){if(!("Notification"in window)){notifyStatus("Notifications not supported by your browser.","var(--accent)");return}if(!hasNotificationPermission()){if(localStorage.getItem("permission_requested")){notifyStatus("Notification permission denied. Enable notifications in browser settings.","var(--accent)");return;}Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");if("granted"===p)startNotifier(itemName,!1);else notifyStatus("Notification permission denied.","var(--accent)");});return;}if(!notifyList.includes(itemName)){notifyList.push(itemName);saveNotifyList()}notifyStatus("Notifier enabled for selected items.");startPolling();renderList(currentTab,lastStockState);}
 function stopNotifier(itemName){notifyList=notifyList.filter(n=>n!==itemName),saveNotifyList(),notifyStatus("Notifier updated."),renderList(currentTab,lastStockState),renderModalList(),updateAllNotifyBtn()}
 function toggleNotifyItem(itemName){notifyList.includes(itemName)?stopNotifier(itemName):startNotifier(itemName)}
-function sendStockNotification(item,msg){if(hasNotificationPermission())new Notification("Grow a Garden: "+item,{body:msg,icon:itemDataMap[item]?.icon||weatherMap[item]?.icon||"",tag:"growagarden-stock-"+(itemDataMap[item]?.item_id||item)})}
-function startPolling(){pollingInterval&&clearInterval(pollingInterval),pollingInterval=setInterval(checkStock,4e3),checkStock()}
-
-async function checkStock(){
-  try{
-    const r = await fetch("https://api.joshlei.com/v2/growagarden/stock");
-    if(!r.ok) throw new Error;
-    const stock = await r.json();
-
-    let stockMap = {};
-    ["seed_stock","gear_stock","egg_stock","eventshop_stock"].forEach(group=>{
-      stock[group] && stock[group].forEach(item=>{
-        item && item.item_id && (stockMap[item.item_id] = item);
-      });
-    });
-
-    let currentStock = {};
-    SEED_NAMES.forEach(name=>{
-      const item = itemDataMap[name];
-      if(item && stockMap[item.item_id]) {
-        currentStock[name] = stockMap[item.item_id].quantity > 0;
-      } else {
-        currentStock[name] = false;
-      }
-    });
-    GEAR_NAMES.forEach(name=>{
-      const item = itemDataMap[name];
-      if(item && stockMap[item.item_id]) {
-        currentStock[name] = stockMap[item.item_id].quantity > 0;
-      } else {
-        currentStock[name] = false;
-      }
-    });
-    EGG_NAMES.forEach(name=>{
-      const item = itemDataMap[name];
-      if(item && stockMap[item.item_id]) {
-        currentStock[name] = stockMap[item.item_id].quantity > 0;
-      } else {
-        currentStock[name] = false;
-      }
-    });
-    WEATHER_NAMES.forEach(name=>{
-      const w = weatherMap[name];
-      currentStock[name] = w && w.active;
-    });
-
-    notifyList.forEach(itemName=>{
-      if(getCategory(itemName) === "weather"){
-        const w = weatherMap[itemName];
-        if(w && w.active && (!lastStockNotified[itemName] || lastStockNotified[itemName] !== w.start_duration_unix)){
-          sendStockNotification(itemName,"Weather is now active!");
-          lastStockNotified[itemName] = w.start_duration_unix;
-        }
-        if(w && !w.active) lastStockNotified[itemName] = null;
-      }else{
-        const item = itemDataMap[itemName];
-        const s = item ? stockMap[item.item_id] : null;
-        const inStock = !!(s && s.quantity > 0);
-        if(inStock && !lastStockNotified[itemName]){
-          sendStockNotification(itemName,"Now in stock!");
-          lastStockNotified[itemName] = true;
-        }
-        if(!inStock && lastStockNotified[itemName]) lastStockNotified[itemName] = null;
-      }
-    });
-
-    let inStockItems = notifyList.filter(n=>currentStock[n]);
-    notifyStatus(
-      inStockItems.length>0
-        ? "Active/stock: " + inStockItems.join(", ") + " Monitoring continues."
-        : "Waiting for restock...",
-      inStockItems.length ? "#53b2fd" : "var(--accent)"
-    );
-
-    lastStockState = {...currentStock};
-    renderList(currentTab, currentStock);
-
-  } catch(e){
-    notifyStatus("Failed to check stock.","var(--accent)");
-  }
+function sendStockNotification(item,msg){
+  let icon="";
+  if(itemDataMap[item]?.icon) icon=itemDataMap[item].icon;
+  else if(getCategory(item)==="weather" && weatherMap[item]?.icon) icon=weatherMap[item].icon;
+  if(hasNotificationPermission())new Notification("Grow a Garden: "+item,{body:msg,icon:icon,tag:"growagarden-stock-"+(itemDataMap[item]?.item_id||item)});
 }
+function startPolling(){pollingInterval&&clearInterval(pollingInterval),pollingInterval=setInterval(checkStock,4e3),checkStock()}
+async function checkStock(){try{const r=await fetch("https://api.joshlei.com/v2/growagarden/stock");if(!r.ok)throw new Error;const stock=await r.json();let stockMap={};["seed_stock","gear_stock","egg_stock","eventshop_stock"].forEach(group=>{stock[group]&&stock[group].forEach(item=>{item&&item.item_id&&(stockMap[item.item_id]=item);});});let currentStock={};SEED_NAMES.forEach(name=>{const item=itemDataMap[name];currentStock[name]=item&&stockMap[item.item_id]?stockMap[item.item_id].quantity>0:!1;});GEAR_NAMES.forEach(name=>{const item=itemDataMap[name];currentStock[name]=item&&stockMap[item.item_id]?stockMap[item.item_id].quantity>0:!1;});EGG_NAMES.forEach(name=>{let item=itemDataMap[name];currentStock[name]=item&&stockMap[item.item_id]?stockMap[item.item_id].quantity>0:!1;});WEATHER_NAMES.forEach(name=>{const w=weatherMap[name];currentStock[name]=w&&w.active;});notifyList.forEach(itemName=>{if(getCategory(itemName)==="weather"){const w=weatherMap[itemName];const prev=lastStockNotified[itemName];const curr=w&&w.active;if(curr&&!prev){sendStockNotification(itemName,"Weather is now active!");lastStockNotified[itemName]=true;}if(!curr&&prev){lastStockNotified[itemName]=false;}}else{const item=itemDataMap[itemName];const s=item?stockMap[item.item_id]:null;let inStock;if(getCategory(itemName)==="egg"&&!(item&&s)){inStock=!1;}else{inStock=!!(s&&s.quantity>0);}if(inStock&&!lastStockNotified[itemName]){sendStockNotification(itemName,"Now in stock!");lastStockNotified[itemName]=!0;}if(!inStock&&lastStockNotified[itemName])lastStockNotified[itemName]=null;}});let inStockItems=notifyList.filter(n=>currentStock[n]);notifyStatus(inStockItems.length>0?"Active/stock: "+inStockItems.join(", ")+" Monitoring continues.":"Waiting for restock...",inStockItems.length?"#53b2fd":"var(--accent)");lastStockState={...currentStock};renderList(currentTab,currentStock);}catch(e){notifyStatus("Failed to check stock.","var(--accent)");}}
 function getRestockCategoryForTab(tab){return"seeds"===tab?"seeds":"gear"===tab?"gear":"eggs"===tab?"egg":"weather"===tab?"weather":null}
 function getCurrentRestockTimestampForTab(tab){const cat=getRestockCategoryForTab(tab);if(cat==="weather")return null;return!cat||!restockData||!restockData[cat]?null:restockData[cat].timestamp||null}
-async function fetchRestockDataAndStartTimer(){try{const r=await fetch("https://growagarden-stocks.netlify.app/.netlify/functions/restock-time");if(!r.ok)throw new Error("Failed to fetch restock time");restockData=await r.json();updateRestockBar();restockInterval&&clearInterval(restockInterval);restockInterval=setInterval(updateRestockBar,1e3)}catch{restockTimerBar.textContent="Failed to load restock timer."}}
+async function fetchRestockDataAndStartTimer(){
+  try{
+    const r=await fetch("https://growagarden-stocks.netlify.app/.netlify/functions/restock-time");
+    if(!r.ok)throw new Error("Failed to fetch restock time");
+    restockData=await r.json();
+    updateRestockBar();
+    restockInterval&&clearInterval(restockInterval);
+    restockInterval=setInterval(updateRestockBar,1e3)
+  }catch{restockTimerBar.textContent="Failed to load restock timer."}
+}
 function updateRestockBar(){if(!restockData)return;const cat=getRestockCategoryForTab(currentTab);if(currentTab==="weather"){restockTimerBar.textContent="Weather events activate randomly. No timer."}else if(!cat||!restockData[cat]){restockTimerBar.textContent="No restock data available.";}else{const data=restockData[cat];liveRestockTimestamp=data.timestamp;let diff=data.timestamp-Date.now();diff<0&&(diff=0);const h=Math.floor(diff/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3),countdownStr=`${h.toString().padStart(2,"0")}h ${m.toString().padStart(2,"0")}m ${s.toString().padStart(2,"0")}s`;restockTimerBar.innerHTML=`<span class="restock-timer-label">Next ${currentTab.charAt(0).toUpperCase()+currentTab.slice(1)} restock:</span> <span>${countdownStr}</span>`;0===diff&&(fetchRestockDataAndStartTimer(),checkStock())}}
-function renderList(categoryKey,stockState){itemListEl.innerHTML="";let items=[];if(!allItemsFetched){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';return}if(categoryKey==="seeds")items=SEED_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="gear")items=GEAR_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="eggs")items=EGG_NAMES.map(n=>itemDataMap[n]).filter(Boolean);else if(categoryKey==="weather")items=WEATHER_NAMES.map(n=>weatherMap[n]).filter(Boolean);items.forEach(item=>{const card=document.createElement("div");card.className=`item-card ${getCategory(item.display_name||item.weather_name)}`+(notifyList.includes(item.display_name||item.weather_name)?" selected":"");const iconDiv=document.createElement("div");iconDiv.className="item-icon";const img=document.createElement("img");img.src=item.icon;img.alt=item.display_name||item.weather_name;img.style.width="100%";img.style.height="100%";img.style.objectFit="contain";img.draggable=!1;iconDiv.appendChild(img);card.appendChild(iconDiv);const infoDiv=document.createElement("div");infoDiv.className="item-info";const nameDiv=document.createElement("div");nameDiv.className="item-name";nameDiv.textContent=item.display_name||item.weather_name;infoDiv.appendChild(nameDiv);const n=item.display_name||item.weather_name;if(currentTab==="weather"&&stockState[n]){const badge=document.createElement("span");badge.className='active-badge';badge.textContent="Active";infoDiv.appendChild(badge)}else if(stockState&&typeof stockState[n]==="boolean"&&stockState[n]){const badge=document.createElement('span');badge.className='in-stock-badge';badge.textContent="In Stock";infoDiv.appendChild(badge)}card.appendChild(infoDiv);const btnCol=document.createElement('div');btnCol.className='item-btn-col';if(notifyList.includes(n)){const notifyBtn=document.createElement('button');notifyBtn.className='notify-btn active';notifyBtn.textContent="Notifying";notifyBtn.disabled=true;btnCol.appendChild(notifyBtn);const unbtn=document.createElement('button');unbtn.className='unnotify-btn-single';unbtn.textContent="UnNotify";unbtn.onclick=e=>{e.stopPropagation();stopNotifier(n)};btnCol.appendChild(unbtn);}else{const btn=document.createElement('button');btn.className='notify-btn';btn.textContent="Notify";btn.onclick=e=>{e.stopPropagation();startNotifier(n)};btnCol.appendChild(btn);}card.appendChild(btnCol);itemListEl.appendChild(card)})}
-
+function renderList(categoryKey,stockState){itemListEl.innerHTML="";let items=[];if(!allItemsFetched){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';return;}if(categoryKey==="seeds")items=SEED_NAMES.map(n=>itemDataMap[n]||{display_name:n,icon:""});else if(categoryKey==="gear")items=GEAR_NAMES.map(n=>itemDataMap[n]||{display_name:n,icon:""});else if(categoryKey==="eggs")items=EGG_NAMES.map(n=>itemDataMap[n]?itemDataMap[n]:{display_name:n,icon:""});else if(categoryKey==="weather")items=WEATHER_NAMES.map(n=>weatherMap[n]);items.forEach(item=>{const card=document.createElement("div");card.className=`item-card ${getCategory(item.display_name||item.weather_name)}`+(notifyList.includes(item.display_name||item.weather_name)?" selected":"");const iconDiv=document.createElement("div");iconDiv.className="item-icon";const img=document.createElement("img");img.src=item.icon||"";img.alt=item.display_name||item.weather_name;img.onerror=function(){this.style.display="none";};img.style.width="100%";img.style.height="100%";img.style.objectFit="contain";img.draggable=!1;iconDiv.appendChild(img);card.appendChild(iconDiv);const infoDiv=document.createElement("div");infoDiv.className="item-info";const nameDiv=document.createElement("div");nameDiv.className="item-name";nameDiv.textContent=item.display_name||item.weather_name;infoDiv.appendChild(nameDiv);const n=item.display_name||item.weather_name;if(currentTab==="weather"&&stockState[n]){const badge=document.createElement("span");badge.className='active-badge';badge.textContent="Active";infoDiv.appendChild(badge)}else if(stockState&&typeof stockState[n]==="boolean"&&stockState[n]){const badge=document.createElement('span');badge.className='in-stock-badge';badge.textContent="In Stock";infoDiv.appendChild(badge)}card.appendChild(infoDiv);const btnCol=document.createElement('div');btnCol.className='item-btn-col';if(notifyList.includes(n)){const notifyBtn=document.createElement('button');notifyBtn.className='notify-btn active';notifyBtn.textContent="Notifying";notifyBtn.disabled=true;btnCol.appendChild(notifyBtn);const unbtn=document.createElement('button');unbtn.className='unnotify-btn-single';unbtn.textContent="UnNotify";unbtn.onclick=e=>{e.stopPropagation();stopNotifier(n)};btnCol.appendChild(unbtn);}else{const btn=document.createElement('button');btn.className='notify-btn';btn.textContent="Notify";btn.onclick=e=>{e.stopPropagation();startNotifier(n)};btnCol.appendChild(btn);}card.appendChild(btnCol);itemListEl.appendChild(card)})}
 function setActiveTab(tabKey){document.querySelectorAll('.category-tab').forEach(btn=>{btn.classList.toggle('active',btn.dataset.tab===tabKey)});currentTab=tabKey;renderList(tabKey,lastStockState);updateRestockBar();}
 document.querySelectorAll('.category-tab').forEach(btn=>{btn.addEventListener('click',e=>{setActiveTab(e.target.dataset.tab);})});
-async function fetchAndInit(){loadNotifyList();itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';try{const [itemResp,weatherResp]=await Promise.all([fetch('https://api.joshlei.com/v2/growagarden/info'),fetch('https://api.joshlei.com/v2/growagarden/weather')]);if(!itemResp.ok||!weatherResp.ok)throw new Error("Failed to fetch items");const items=await itemResp.json();itemDataMap={};for(const item of items)(SEED_NAMES.includes(item.display_name)||GEAR_NAMES.includes(item.display_name)||EGG_NAMES.includes(item.display_name))&&(itemDataMap[item.display_name]=item);const weatherjson=await weatherResp.json();weatherData=weatherjson.weather;WEATHER_NAMES.length=0;weatherMap={};weatherData.forEach(w=>{WEATHER_NAMES.push(w.weather_name);weatherMap[w.weather_name]=w});allItemsFetched=!0;renderList(currentTab,lastStockState);if(notifyList.length>0)startPolling();updateAllNotifyBtn();}catch(e){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Failed to load items.<br>'+e+'</div>';}}
+async function fetchAndInit(){loadNotifyList();itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Loading items...</div>';try{const [itemResp,weatherResp]=await Promise.all([fetch('https://api.joshlei.com/v2/growagarden/info'),fetch('https://api.joshlei.com/v2/growagarden/weather')]);if(!itemResp.ok||!weatherResp.ok)throw new Error("Failed to fetch items");const items=await itemResp.json();itemDataMap={};for(const item of items){if(SEED_NAMES.includes(item.display_name)||GEAR_NAMES.includes(item.display_name)||EGG_NAMES.includes(item.display_name))itemDataMap[item.display_name]=item;}const weatherjson=await weatherResp.json();weatherData=weatherjson.weather;WEATHER_NAMES.length=0;weatherMap={};weatherData.forEach(w=>{WEATHER_NAMES.push(w.weather_name);weatherMap[w.weather_name]=w});allItemsFetched=!0;renderList(currentTab,lastStockState);if(notifyList.length>0)startPolling();updateAllNotifyBtn();}catch(e){itemListEl.innerHTML='<div style="color:#ffe066;text-align:center;padding:1.2em;">Failed to load items.<br>'+e+'</div>';}}
 function showAllNotifiedMenu(){renderModalList();modalBg.classList.add('active');allNotifyModal.classList.add('active');}
 function closeModal(){modalBg.classList.remove('active');allNotifyModal.classList.remove('active');}
-function renderModalList(){modalList.innerHTML="";if(!notifyList.length){modalList.innerHTML='<div style="color:#ffe066;text-align:center;padding:0.9em;">No items are being notified.</div>';return}notifyList.forEach(n=>{let item=itemDataMap[n]||weatherMap[n];if(!item)return;const div=document.createElement('div');div.className='modal-item';if(item.icon){const img=document.createElement('img');img.src=item.icon;img.alt=item.display_name||item.weather_name||n;img.style.width="32px";img.style.height="32px";img.style.objectFit="contain";img.style.borderRadius="6px";img.style.background="#0b1427";div.appendChild(img);}div.appendChild(document.createTextNode(item.display_name||item.weather_name||n));const unnotifyBtn=document.createElement('button');unnotifyBtn.className='modal-unotify-one-btn';unnotifyBtn.textContent='Unnotify';unnotifyBtn.onclick=(e)=>{e.stopPropagation();stopNotifier(n);};div.appendChild(unnotifyBtn);modalList.appendChild(div);});}
+function renderModalList(){modalList.innerHTML="";if(!notifyList.length){modalList.innerHTML='<div style="color:#ffe066;text-align:center;padding:0.9em;">No items are being notified.</div>';return}notifyList.forEach(n=>{let item=itemDataMap[n]||weatherMap[n]||{display_name:n,icon:""};const div=document.createElement('div');div.className='modal-item';if(item.icon){const img=document.createElement('img');img.src=item.icon;img.alt=item.display_name||item.weather_name||n;img.style.width="32px";img.style.height="32px";img.style.objectFit="contain";img.style.borderRadius="6px";img.style.background="#0b1427";img.onerror=function(){this.style.display="none";};div.appendChild(img);}div.appendChild(document.createTextNode(item.display_name||item.weather_name||n));const unnotifyBtn=document.createElement('button');unnotifyBtn.className='modal-unotify-one-btn';unnotifyBtn.textContent='Unnotify';unnotifyBtn.onclick=(e)=>{e.stopPropagation();stopNotifier(n);};div.appendChild(unnotifyBtn);modalList.appendChild(div);});}
 function unotifyAll(){notifyList=[];saveNotifyList();notifyStatus("All notifiers removed.","#e74c3c");renderList(currentTab,lastStockState);renderModalList();updateAllNotifyBtn();closeModal();}
-function notifyAll(){if(!("Notification"in window)){notifyStatus("Notifications not supported by your browser.","var(--accent)");return;}if(!hasNotificationPermission()){if(localStorage.getItem("permission_requested")){notifyStatus("Notification permission denied. Enable notifications in browser settings.","var(--accent)");return;}Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");if(p!=="granted"){notifyStatus("Notification permission denied.","var(--accent)");return;}notifyAll();});return;}notifyList=[...Object.keys(itemDataMap),...WEATHER_NAMES];saveNotifyList();notifyStatus("Notifier enabled for all items.");startPolling();renderList(currentTab,lastStockState);renderModalList();updateAllNotifyBtn();}
+function notifyAll(){if(!("Notification"in window)){notifyStatus("Notifications not supported by your browser.","var(--accent)");return;}if(!hasNotificationPermission()){if(localStorage.getItem("permission_requested")){notifyStatus("Notification permission denied. Enable notifications in browser settings.","var(--accent)");return;}Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");if(p!=="granted"){notifyStatus("Notification permission denied.","var(--accent)");return;}notifyAll();});return;}notifyList=[...Object.keys(itemDataMap),...WEATHER_NAMES,...EGG_NAMES.filter(n=>!itemDataMap[n])];saveNotifyList();notifyStatus("Notifier enabled for all items.");startPolling();renderList(currentTab,lastStockState);renderModalList();updateAllNotifyBtn();}
 function updateAllNotifyBtn(){const btn=document.getElementById('allNotifyBtn');btn.textContent=notifyList.length?"All Notify ("+notifyList.length+")":"All Notify";}
 document.getElementById('unotifyAllBtn').addEventListener('click',unotifyAll);
 document.getElementById('allNotifyBtn').addEventListener('click',showAllNotifiedMenu);
@@ -191,51 +93,9 @@ document.getElementById('closeModalBtn').addEventListener('click',closeModal);
 document.getElementById('modalBg').addEventListener('click',closeModal);
 fetchAndInit();
 fetchRestockDataAndStartTimer();
-if("Notification"in window&&Notification.permission==="default"&&!localStorage.getItem("permission_requested")){
-  Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");});
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-  if ("Notification" in window) {
-    if (hasNotificationPermission()) {
-      sendLoadedNotification();
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(function(permission) {
-        setNotificationPermission(permission === "granted");
-        localStorage.setItem("permission_requested", "1");
-        if(permission === "granted") sendLoadedNotification();
-      });
-    }
-  }
-});
-
-document.getElementById('requestPermissionBtn').addEventListener('click', function() {
-    if (!("Notification" in window)) {
-        notifyStatus("Notifications not supported by your browser.", "var(--accent)");
-        return;
-    }
-    if (Notification.permission === "granted") {
-        notifyStatus("Notification permission already granted.", "var(--success)");
-        setNotificationPermission(true);
-        sendLoadedNotification();
-        return;
-    }
-    if (Notification.permission === "denied") {
-        notifyStatus("You have blocked notifications. Please allow them in your browser site settings.", "var(--accent)");
-        setNotificationPermission(false);
-        return;
-    }
-    Notification.requestPermission().then(function(permission) {
-        setNotificationPermission(permission === "granted");
-        localStorage.setItem("permission_requested","1");
-        if (permission === "granted") {
-            notifyStatus("Notification permission granted!", "var(--success)");
-            sendLoadedNotification();
-        } else {
-            notifyStatus("Notification permission denied.", "var(--accent)");
-        }
-    });
-});
-  </script>
+if("Notification"in window&&Notification.permission==="default"&&!localStorage.getItem("permission_requested")){Notification.requestPermission().then(function(p){setNotificationPermission("granted"===p);localStorage.setItem("permission_requested","1");});}
+document.addEventListener("DOMContentLoaded",function(){if("Notification"in window){if(hasNotificationPermission()){sendLoadedNotification();}else if(Notification.permission!=="denied"){Notification.requestPermission().then(function(permission){setNotificationPermission(permission==="granted");localStorage.setItem("permission_requested","1");if(permission==="granted")sendLoadedNotification();});}}});
+document.getElementById('requestPermissionBtn').addEventListener('click',function(){if(!("Notification"in window)){notifyStatus("Notifications not supported by your browser.","var(--accent)");return;}if(Notification.permission==="granted"){notifyStatus("Notification permission already granted.","var(--success)");setNotificationPermission(true);sendLoadedNotification();return;}if(Notification.permission==="denied"){notifyStatus("You have blocked notifications. Please allow them in your browser site settings.","var(--accent)");setNotificationPermission(false);return;}Notification.requestPermission().then(function(permission){setNotificationPermission(permission==="granted");localStorage.setItem("permission_requested","1");if(permission==="granted"){notifyStatus("Notification permission granted!","var(--success)");sendLoadedNotification();}else{notifyStatus("Notification permission denied.","var(--accent)");}});});
+</script>
 </body>
 </html>
