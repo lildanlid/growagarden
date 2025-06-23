@@ -74,7 +74,7 @@ function calculateRestockTimes() {
       timeSinceLastRestock: timeSince(gearLastReset)
     },
     cosmetic: {
-      timestamp: cosmeticNextNextReset,
+      timestamp: cosmeticNextReset,
       countdown: cosmeticCountdown,
       LastRestock: formatTime(cosmeticLastReset),
       timeSinceLastRestock: timeSince(cosmeticLastReset)
