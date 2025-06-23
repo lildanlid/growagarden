@@ -4,7 +4,7 @@ function pad(n) {
 
 function calculateRestockTimes() {
   const now = new Date();
-  const timezone = 'America/New_York'; // or use Intl.DateTimeFormat().resolvedOptions().timeZone if preferred
+  const timezone = 'America/New_York';
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   function formatTime(timestamp) {
@@ -19,13 +19,10 @@ function calculateRestockTimes() {
   function timeSince(timestamp) {
     const nowMs = Date.now();
     const diff = nowMs - timestamp;
-
     const seconds = Math.floor(diff / 1000);
     if (seconds < 60) return `${seconds}s ago`;
-
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;
-
     const hours = Math.floor(minutes / 60);
     return `${hours}h ago`;
   }
@@ -77,7 +74,7 @@ function calculateRestockTimes() {
       timeSinceLastRestock: timeSince(gearLastReset)
     },
     cosmetic: {
-      timestamp: cosmeticNextReset,
+      timestamp: cosmeticNextNextReset,
       countdown: cosmeticCountdown,
       LastRestock: formatTime(cosmeticLastReset),
       timeSinceLastRestock: timeSince(cosmeticLastReset)
@@ -91,11 +88,11 @@ function calculateRestockTimes() {
   };
 }
 
-function register(app) {
-  app.get('/api/stock/restock-time', (req, res) => {
-    const restockTimes = calculateRestockTimes();
-    res.json(restockTimes);
-  });
-}
-
-module.exports = { register };
+exports.handler = async (event, context) => {
+  const restockTimes = calculateRestockTimes();
+  return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(restockTimes)
+  };
+};
