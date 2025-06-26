@@ -3,42 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <title>Grow a Garden Notifier</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded" rel="stylesheet"/>
+  <link rel="icon" type="image/png" href="url" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html,body{background:linear-gradient(180deg,#242a43 0%,#232a45 25%,#2e3453 60%,#384063 100%)}
+    html,body{
+      min-height:100vh;min-width:100vw;
+      background:linear-gradient(180deg,#242a43 0%,#232a45 25%,#2e3453 60%,#384063 100%)!important;
+      position:relative;
+      font-size:16px;
+      -webkit-tap-highlight-color:transparent;
+      overscroll-behavior:none;
+    }
+    #bg-anim{position:fixed;z-index:0;inset:0;width:100vw;height:100vh;pointer-events:none;border-radius:0;transition:background .5s;overflow:hidden;}
+    .night-bg{background:linear-gradient(180deg,#15203b 0%,#101628 100%)!important;opacity:1!important;}
+    .bloodmoon-bg{background:radial-gradient(circle at 60% 30%,#ff5050 0%,#430000 80%,transparent 100%)!important;opacity:.23!important;}
+    .heatwave-bg{background:linear-gradient(135deg,#ffe066 0%,#ffbe00 100%)!important;opacity:.28!important;transition:background .5s;}
+    .icy-bg{background:linear-gradient(180deg,#bde0fe 0%,#c1eaff 100%)!important;opacity:.80!important;}
+    .disco-bg{background:linear-gradient(120deg,#fdc2ff 0%,#a9fffa 35%,#fffda1 70%,#ffb9b9 100%)!important;transition:background .5s;}
+    .disco-bg.animating {animation:disco-bg-anim 2s linear infinite;}
+    @keyframes disco-bg-anim {
+      0%{background:linear-gradient(120deg,#fdc2ff 0%,#a9fffa 35%,#fffda1 70%,#ffb9b9 100%);}
+      25%{background:linear-gradient(90deg,#ffb9b9,#fdc2ff,#a9fffa,#fffda1);}
+      50%{background:linear-gradient(120deg,#fffda1 0%,#fdc2ff 35%,#a9fffa 70%,#ffb9b9 100%);}
+      75%{background:linear-gradient(60deg,#a9fffa,#fffda1,#ffb9b9,#fdc2ff);}
+      100%{background:linear-gradient(120deg,#fdc2ff 0%,#a9fffa 35%,#fffda1 70%,#ffb9b9 100%);}
+    }
+    .item-list{gap:1.25rem;}
+    @media (max-width:800px){
+      .item-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+      .item-card{padding:1.5rem 0.5rem;}
+    }
+    @media (max-width:600px){
+      .item-list{grid-template-columns:1fr!important;}
+      .item-card{padding:1.2rem 0.5rem;}
+      .category-tab{padding-left:0.8rem;padding-right:0.8rem;}
+      .bg-transparent[max-w~="1200px"]{padding:0.5rem!important;}
+      .settings-btn{margin-right:0.5rem;}
+      .item-icon img,.weather-icon img{width:40px;height:40px;}
+      .item-name{font-size:1rem;}
+    }
+    @media (max-width:400px){
+      .item-card{padding:0.8rem 0.25rem;}
+      .category-tab{padding-left:0.35rem;padding-right:0.35rem;font-size:0.9rem;}
+      .item-name{font-size:0.92rem;}
+    }
     .item-icon img,.weather-icon img{background:transparent!important;border-radius:0!important;box-shadow:none!important;width:56px;height:56px;object-fit:contain}
-    .star-btn .material-symbols-rounded{font-size:2.2em;color:#b6caf7}
-    .star-btn.starred .material-symbols-rounded{color:#ffe066}
+    .star-btn .material-symbols-rounded{font-size:2.2em;color:#b6caf7;transition:color .2s;}
+    .star-btn.starred .material-symbols-rounded{color:#ffe066!important;}
     .star-corner{position:absolute;top:.7rem;right:.7rem;z-index:2;background:transparent;border-radius:50%;border:none}
-    .item-card{position:relative;overflow:visible;transition:box-shadow .16s,background .18s}
-    .item-card:hover{box-shadow:0 0 0 2px #2ec6fa33}
-    .hover-effect,button,.category-tab,.star-btn,.modal-unotify-btn{transition:background .2s,color .2s,transform .15s,box-shadow .2s}
-    .hover-effect:hover,button:hover,.category-tab:hover,.star-btn:hover,.modal-unotify-btn:hover{background:#353c5c!important;color:#8ec4ff!important;transform:translateY(-2px) scale(1.05);box-shadow:0 0 0 2px #2ec6fa33}
-    .settings-btn:hover .material-symbols-rounded{transform:rotate(40deg) scale(1.15);color:#2ec6fa;transition:.2s}
-    .settings-modal-bg{background:rgba(30,40,70,0.75);backdrop-filter:blur(2px)}
-    ::-webkit-scrollbar{width:5px;background:#222845}
-    ::-webkit-scrollbar-thumb{background:#39507a;border-radius:8px}
-    .item-card.weather-active { background-color: #1e4fae !important; }
+    .item-card{position:relative;overflow:visible;transition:box-shadow .16s,background .18s,opacity .18s;}
+    .weather-active{opacity:0.7!important;}
+    .weather-inactive,.out-of-stock { filter: grayscale(1) brightness(0.7) !important; opacity: 0.6 !important; }
+    .pretty-hover {transition:box-shadow .25s,background .2s,opacity .18s;}
+    .pretty-hover:hover,
+    .pretty-hover:active {
+      box-shadow: 0 0 0 4px #c5e1ff66, 0 2px 32px 0 #6bb6ff33, 0 2px 8px #4b6ca733;
+      background: rgba(73,120,177,0.21)!important;
+      opacity:1!important;
+      z-index:3;
+    }
+    .weather-glow.pretty-hover:hover,
+    .weather-glow.pretty-hover:active {box-shadow:0 0 0 4px #b6caf7aa,0 4px 40px #3f78a888;}
+    .glow-legendary.pretty-hover:hover,.glow-legendary.pretty-hover:active { box-shadow: 0 0 0 4px #ffd700aa, 0 0 8px 2px #ffbe0099,0 2px 32px 0 #6bb6ff33;}
+    .glow-rare.pretty-hover:hover,.glow-rare.pretty-hover:active { box-shadow: 0 0 0 4px #3cf7f7aa, 0 0 8px 2px #00bfff99,0 2px 32px 0 #6bb6ff33;}
+    .glow-uncommon.pretty-hover:hover,.glow-uncommon.pretty-hover:active { box-shadow: 0 0 0 4px #6fff00aa, 0 0 8px 2px #a6ff6699,0 2px 32px 0 #6bb6ff33;}
+    .glow-common.pretty-hover:hover,.glow-common.pretty-hover:active { box-shadow: 0 0 0 4px #b6caf7aa, 0 0 8px 2px #8ec4ff99,0 2px 32px 0 #6bb6ff33;}
+    .glow-default.pretty-hover:hover,.glow-default.pretty-hover:active { box-shadow: 0 0 0 4px #b6caf777, 0 0 8px 2px #b6caf744,0 2px 32px 0 #6bb6ff33;}
+    .star-btn,.star-btn:focus,.star-btn:active,.star-btn:hover{background:transparent!important;box-shadow:none!important;}
+    .category-tab { transition:box-shadow .15s,background .15s,color .15s; }
+    .category-tab:hover,.category-tab:active { box-shadow:0 0 0 2px #43cffc88,0 1.5px 3px #232a45; background:#293967 !important; color:#fff !important; }
+    .item-card.weather-active.pretty-hover:hover {opacity:1!important;}
+    .night-star{position:absolute;width:2.5px;height:2.5px;background:#fff;border-radius:50%;opacity:.7;pointer-events:none;animation:star-blink 1.7s infinite linear;}
+    @keyframes star-blink{0%,100%{opacity:.45;}50%{opacity:1;}}
+    .rain-drop{position:absolute;width:3px;height:20px;background:#aeefff;opacity:.55;border-radius:999px;animation:rain-fall 1.1s linear infinite;}
+    @keyframes rain-fall{0%{transform:translateY(-40px);opacity:.6;}90%{opacity:.43;}100%{transform:translateY(110vh);opacity:0;}
+    }
+    .choco-drop{position:absolute;width:3px;height:24px;background:#6e4e23;opacity:.45;border-radius:999px;animation:rain-fall 1.25s linear infinite;}
+    .wind-gust{position:absolute;height:3px;width:80px;background:linear-gradient(90deg,#b7f9ff 0%,#43cffc 80%,transparent);border-radius:0 13px 13px 0;opacity:.19;animation:wind-blow 2.5s linear infinite;}
+    @keyframes wind-blow{0%{left:-90px;}80%{opacity:.25;}100%{left:105vw;opacity:0;}}
+    .fruit-float{position:absolute;width:36px;height:36px;z-index:1;pointer-events:none;animation:fruit-float 8s linear infinite;}
+    @keyframes fruit-float{
+      0%{transform:translateY(110vh) scale(0.9);}
+      100%{transform:translateY(-30vh) scale(1.1);}
+    }
+    .thunder-lightning{
+      position:absolute;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:2;
+      background:rgba(255,255,255,0.05);
+      animation:thunder-light 2.2s infinite;
+      opacity:0;
+    }
+    @keyframes thunder-light {
+      0%,99%,100%{opacity:0;}
+      8%,9%{opacity:.80;}
+      10%,12%{opacity:0;}
+      16%,17%{opacity:.8;}
+      18%,22%{opacity:0;}
+    }
+    /* Animate image/text scale on hover/tap */
+    .pretty-hover .item-icon,
+    .pretty-hover .weather-icon,
+    .pretty-hover .item-name {
+      transition: transform 0.22s cubic-bezier(.4,1.7,.4,1.01), font-size 0.18s;
+      will-change:transform,font-size;
+    }
+    .pretty-hover:hover .item-icon,
+    .pretty-hover:hover .weather-icon,
+    .pretty-hover:active .item-icon,
+    .pretty-hover:active .weather-icon {
+      transform: scale(1.17);
+    }
+    .pretty-hover:hover .item-name,
+    .pretty-hover:active .item-name {
+      transform: scale(1.11);
+      font-size:1.19em;
+    }
   </style>
+  <!-- ...scripts and HTML as above... -->
 </head>
 <body class="min-h-screen flex items-center justify-center font-inter">
-  <div class="bg-transparent border border-[#464f63] rounded-xl p-5 w-[98vw] max-w-[1200px] min-h-[95vh] flex flex-col relative justify-start" style="box-shadow:0 4px 34px #10193377;">
+  <div id="bg-anim" class="clear-bg"></div>
+  <div class="bg-transparent border border-[#464f63] rounded-xl p-2 sm:p-5 w-full max-w-[1200px] min-h-[95vh] flex flex-col relative justify-start" style="box-shadow:0 4px 34px #10193377;z-index:1;">
     <div class="flex items-center justify-end w-full">
       <button id="settingsBtn" class="settings-btn mr-2 p-1 rounded-full hover:bg-[#353c5c] transition hover-effect focus:outline-none" aria-label="Settings" title="Settings">
         <span class="material-symbols-rounded text-2xl text-[#8ec4ff]">settings</span>
       </button>
       <span id="lastUpdated" class="text-xs text-[#8ec4ff] select-none"></span>
     </div>
-    <div class="flex flex-row gap-3 mt-3 mb-4">
-      <button class="category-tab hover-effect flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="seeds"><span class="material-symbols-rounded text-lg align-middle">eco</span>Seeds</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="gear"><span class="material-symbols-rounded text-lg align-middle">build</span>Gear</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="eggs"><span class="material-symbols-rounded text-lg align-middle">egg</span>Eggs</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="weather"><span class="material-symbols-rounded text-lg align-middle">cloud</span>Weather</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="cosmetics"><span class="material-symbols-rounded text-lg align-middle">auto_awesome</span>Cosmetics</button>
+    <div class="flex flex-row gap-2 flex-wrap mt-3 mb-4">
+      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="seeds"><span class="material-symbols-rounded text-lg align-middle">eco</span>Seeds</button>
+      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="gear"><span class="material-symbols-rounded text-lg align-middle">build</span>Gear</button>
+      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="eggs"><span class="material-symbols-rounded text-lg align-middle">egg</span>Eggs</button>
+      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="weather"><span class="material-symbols-rounded text-lg align-middle">cloud</span>Weather</button>
+      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="cosmetics"><span class="material-symbols-rounded text-lg align-middle">auto_awesome</span>Cosmetics</button>
     </div>
-    <div class="flex items-center gap-4 bg-[#232a45] rounded-lg px-6 py-4 mb-6 border border-[#394464]">
+    <div class="flex items-center gap-4 bg-[#232a45] rounded-lg px-4 sm:px-6 py-4 mb-6 border border-[#394464]">
       <span class="material-symbols-rounded text-[#b6caf7] mr-2 text-xl">schedule</span>
       <span class="font-semibold text-white mr-4 select-none" id="restockLabel">Seeds Restock:</span>
       <span class="text-[#2ec6fa] font-bold" id="restockTimerBar">01m 38s</span>
@@ -64,435 +164,199 @@
         <button id="closeSettingsBtn" class="hover-effect bg-[#353c5c] px-4 py-2 rounded-lg text-[#8ec4ff] font-semibold w-full mt-2">Close</button>
       </div>
     </div>
-
     <footer class="w-full text-center mt-6 text-xs text-[#8ec4ff] opacity-80 select-none">
       &copy; <span id="copyright-year"></span> <span id="copyright-owner">lildanlid</span> - MIT License
     </footer>
   </div>
   <script>
-
-    (function(){
-      var owner = document.getElementById("copyright-owner");
-      if(!owner || !/lildanlid/i.test(owner.textContent)) {
-        document.body.innerHTML = "<h1 style='color:red;text-align:center;font-size:2em;margin-top:10vh'>This site is not licensed for use without lildanlid attribution.</h1>";
-        throw new Error("Missing copyright attribution: lildanlid");
-      }
-      document.getElementById("copyright-year").textContent = new Date().getFullYear();
-    })();
-
-    let notificationEnabled = false, notifyList = [], notifiedItems = {};
-    function requestNotificationPermission() {
-      if (window.Notification && Notification.permission !== "granted") {
-        Notification.requestPermission().then(function (e) {
-          notificationEnabled = "granted" === e
-        })
+    // Weather backgrounds as previously provided
+    let weatherEffectActive = false, weatherInterval;
+    const FRUITS = ["🍎","🍌","🍉","🍓","🍍","🥝","🍇","🍈","🍒","🍑","🍊","🍋"];
+    function randomFruitEmoji(){return FRUITS[Math.floor(Math.random()*FRUITS.length)];}
+    function clearBgAnim(){const bg=document.getElementById('bg-anim');bg.innerHTML='';bg.className='clear-bg';bg.style.background='';bg.style.opacity='1';}
+    function setWeatherBackground(w){
+      const bg=document.getElementById('bg-anim');
+      clearBgAnim();
+      if(!weatherEffectActive) return;
+      let firstActive = (w && w.find(x=>x.active)) || null;
+      let eventName = firstActive ? firstActive.weather_name : null;
+      function addStars(){for(let i=0;i<50;++i){const star=document.createElement('div');star.className='night-star';star.style.left=(Math.random()*window.innerWidth)+'px';star.style.top=(Math.random()*window.innerHeight)+'px';star.style.animationDelay=(Math.random()*1.7)+'s';bg.appendChild(star);}}
+      function addRain(color='#aeefff'){for(let i=0;i<45;++i){const drop=document.createElement('div');drop.className='rain-drop';drop.style.left=(Math.random()*window.innerWidth)+'px';drop.style.animationDelay=(Math.random()*1.1)+'s';drop.style.height=(14+Math.random()*26)+'px';drop.style.opacity=(0.32+Math.random()*0.41).toFixed(2);drop.style.background=color;bg.appendChild(drop);}}
+      function addChocoRain(){for(let i=0;i<25;++i){const drop=document.createElement('div');drop.className='choco-drop';drop.style.left=(Math.random()*window.innerWidth)+'px';drop.style.animationDelay=(Math.random()*1.1)+'s';drop.style.height=(17+Math.random()*30)+'px';drop.style.opacity=(0.32+Math.random()*0.41).toFixed(2);bg.appendChild(drop);}}
+      function addLightning(){const flash=document.createElement('div');flash.className='thunder-lightning';bg.appendChild(flash);}
+      function addFruits(){for(let i=0;i<18;++i){const f=document.createElement('div');f.className='fruit-float';f.textContent=randomFruitEmoji();f.style.left=(5+Math.random()*90)+'vw';f.style.animationDelay=(Math.random()*8)+'s';f.style.fontSize=(24+Math.random()*20)+'px';bg.appendChild(f);}}
+      function addWind(){for(let i=0;i<18;++i){const gust=document.createElement('div');gust.className='wind-gust';gust.style.top=(Math.random()*window.innerHeight)+'px';gust.style.animationDelay=(Math.random()*2.5)+'s';gust.style.width=(60+Math.random()*110)+'px';bg.appendChild(gust);}}
+      if(!eventName)return;
+      if(eventName==="Frost"){bg.className="icy-bg";return;}
+      if(eventName==="Rain"){addRain();}
+      if(eventName==="Chocolate Rain"){addChocoRain();}
+      if(eventName==="Thunderstorm"){addRain();addLightning();}
+      if(eventName==="Disco"){bg.className="disco-bg animating";return;}
+      if(eventName==="Night Event"||eventName==="Night"){addStars();}
+      if(eventName==="Blood Moon Event"||eventName==="Blood Moon"){bg.className="bloodmoon-bg";return;}
+      if(eventName==="Heatwave"){bg.className="heatwave-bg";return;}
+      if(eventName==="Windy"||eventName==="Wind"||eventName==="Gale"||eventName==="Tornado"){addWind();}
+      if(eventName==="Summer Harvest"){addFruits();}
+    }
+    function startWeatherBg(){
+      weatherEffectActive=true;
+      function reloadWeather(){fetchWeather().then(setWeatherBackground);}
+      reloadWeather();
+      weatherInterval=setInterval(reloadWeather,3500);
+    }
+    function stopWeatherBg(){weatherEffectActive=false;clearInterval(weatherInterval);clearBgAnim();}
+  </script>
+  <script>
+    // -- Full app's JS, as in previous completions --
+    (function(){var owner=document.getElementById("copyright-owner");if(!owner||!/lildanlid/i.test(owner.textContent)){document.body.innerHTML="<h1 style='color:red;text-align:center;font-size:2em;margin-top:10vh'>This site is not licensed for use without lildanlid attribution.</h1>";throw new Error("Missing copyright attribution: lildanlid");}document.getElementById("copyright-year").textContent=new Date().getFullYear();})();
+    let notificationEnabled=false,notifyList=[],notifiedItems={};
+    function requestNotificationPermission(){if(window.Notification&&Notification.permission!=="granted"){Notification.requestPermission().then(function(e){notificationEnabled="granted"===e})}else{notificationEnabled=window.Notification&&"granted"===Notification.permission}}
+    function sendNotification(item,options={}){if(!notificationEnabled)return;let key=options.type==="weather"?"weather-"+item.weather_name:item.display_name+"-"+(item.item_id||"");if(notifiedItems[key])return;notifiedItems[key]=true;let title=options.type==="weather"?(item.weather_name||"Weather")+" is now active!":(item.display_name||"Item")+" is in stock!";let body=options.type==="weather"?(item.weather_name+" is now happening in Grow a Garden!"):("Quantity: "+item.quantity);let icon=item.icon||"";new Notification(title,{body,icon});}
+    function saveSettings(){localStorage.setItem("showStockText",showStockText?"1":"0");localStorage.setItem("showActiveText",showActiveText?"1":"0");localStorage.setItem("showNameText",showNameText?"1":"0");localStorage.setItem("notifyList",JSON.stringify(notifyList));localStorage.setItem("currentTab",currentTab);}
+    function loadSettings(){if(null!==localStorage.getItem("showStockText"))showStockText="1"===localStorage.getItem("showStockText");if(null!==localStorage.getItem("showActiveText"))showActiveText="1"===localStorage.getItem("showActiveText");if(null!==localStorage.getItem("showNameText"))showNameText="1"===localStorage.getItem("showNameText");if(null!==localStorage.getItem("notifyList"))notifyList=JSON.parse(localStorage.getItem("notifyList"));if(localStorage.getItem("currentTab"))currentTab=localStorage.getItem("currentTab");}
+    const IMAGE_OVERRIDES={"Summer Common Egg":"common_summer_egg","Rare Summer Egg":"rare_summer_egg","Paradise Egg":"paradise_egg","Legendary Egg":"legendary_egg","Uncommon Egg":"uncommon_egg","Prickly pear":"prickly_pear","Prikily pear":"prickly_pear"};
+    const SEED_NAMES=["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","Green apple","Avocado","Banana","Pineapple","Kiwi","Bell pepper","Prickly pear","Loquat","Feijoa","Sugar Apple"];
+    const GEAR_NAMES=["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Tanning Mirror","Master Sprinkler","Cleaning Spray","Favorite Tool","Harvest Tool","Friendship Pot"];
+    const EGG_NAMES=["Summer Common Egg","Rare Summer Egg","Common Egg","Uncommon Egg","Rare Egg","Paradise Egg","Legendary Egg","Mythical Egg","Bug Egg"];
+    function getRarityClass(name) {
+      if (!name) return "glow-default";
+      name = name.toLowerCase();
+      if (name.includes("legendary")) return "glow-legendary";
+      if (name.includes("rare")) return "glow-rare";
+      if (name.includes("uncommon")) return "glow-uncommon";
+      if (name.includes("common")) return "glow-common";
+      return "glow-default";
+    }
+    let stockData={},itemInfoData={},weatherData=[],currentTab="seeds",showStockText=true,showActiveText=true,showNameText=true,loadedTab={},lastRestockZero={seeds:0,gear:0,eggs:0,cosmetic:0,weather:0};
+    function pad(e){return e<10?"0"+e:e}
+    function calculateRestockTimes(){const now=new Date(),timezone='America/New_York',today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      function formatTime(timestamp){return new Date(timestamp).toLocaleString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:timezone});}
+      function timeSince(timestamp){const nowMs=Date.now(),diff=nowMs-timestamp,seconds=Math.floor(diff/1e3);if(seconds<60)return`${seconds}s ago`;const minutes=Math.floor(seconds/60);if(minutes<60)return`${minutes}m ago`;const hours=Math.floor(minutes/60);return`${hours}h ago`;}
+      function getResetTimes(interval){const timeSinceStartOfDay=now.getTime()-today.getTime(),lastReset=today.getTime()+Math.floor(timeSinceStartOfDay/interval)*interval,nextReset=today.getTime()+Math.ceil(timeSinceStartOfDay/interval)*interval;return{lastReset,nextReset};}
+      const eggInterval=30*60*1e3,{lastReset:eggLastReset,nextReset:eggNextReset}=getResetTimes(eggInterval),eggCountdownMs=eggNextReset-now.getTime(),eggCountdown=`${pad(Math.floor(eggCountdownMs/6e4))}m ${pad(Math.floor((eggCountdownMs%6e4)/1e3))}s`,gearInterval=5*60*1e3,{lastReset:gearLastReset,nextReset:gearNextReset}=getResetTimes(gearInterval),gearCountdownMs=gearNextReset-now.getTime(),gearCountdown=`${pad(Math.floor(gearCountdownMs/6e4))}m ${pad(Math.floor((gearCountdownMs%6e4)/1e3))}s`,cosmeticInterval=4*3600*1e3,{lastReset:cosmeticLastReset,nextReset:cosmeticNextReset}=getResetTimes(cosmeticInterval),cosmeticCountdownMs=cosmeticNextReset-now.getTime(),cosmeticCountdown=`${pad(Math.floor(cosmeticCountdownMs/36e5))}h ${pad(Math.floor((cosmeticCountdownMs%36e5)/6e4))}m ${pad(Math.floor((cosmeticCountdownMs%6e4)/1e3))}s`,nightInterval=3600*1e3,{lastReset:nightLastReset,nextReset:nightNextReset}=getResetTimes(nightInterval),nightCountdownMs=nightNextReset-now.getTime(),nightCountdown=`${pad(Math.floor(nightCountdownMs/36e5))}h ${pad(Math.floor((nightCountdownMs%36e5)/6e4))}m ${pad(Math.floor((nightCountdownMs%6e4)/1e3))}s`;
+      return{egg:{timestamp:eggNextReset,countdown:eggCountdown,LastRestock:formatTime(eggLastReset),timeSinceLastRestock:timeSince(eggLastReset),ms:eggCountdownMs},gear:{timestamp:gearNextReset,countdown:gearCountdown,LastRestock:formatTime(gearLastReset),timeSinceLastRestock:timeSince(gearLastReset),ms:gearCountdownMs},seeds:{timestamp:gearNextReset,countdown:gearCountdown,LastRestock:formatTime(gearLastReset),timeSinceLastRestock:timeSince(gearLastReset),ms:gearCountdownMs},cosmetic:{timestamp:cosmeticNextReset,countdown:cosmeticCountdown,LastRestock:formatTime(cosmeticLastReset),timeSinceLastRestock:timeSince(cosmeticLastReset),ms:cosmeticCountdownMs},SwarmEvent:{timestamp:nightNextReset,countdown:nightCountdown,LastRestock:formatTime(nightLastReset),timeSinceLastRestock:timeSince(nightLastReset),ms:nightCountdownMs}};}
+    function getRestockCategoryForTab(tab){if(tab==="seeds")return"seeds";if(tab==="gear")return"gear";if(tab==="eggs")return"egg";if(tab==="weather")return"SwarmEvent";if(tab==="cosmetics")return"cosmetic";return null;}
+    function getRestockLabel(tab){if(tab==="seeds")return"Seeds Restock";if(tab==="gear")return"Gear Restock";if(tab==="eggs")return"Eggs Restock";if(tab==="cosmetics")return"Cosmetics Restock";return"";}
+    function updateRestockBar(){
+      const restockData=calculateRestockTimes(),
+        cat=getRestockCategoryForTab(currentTab),
+        timerBar=document.getElementById("restockTimerBar"),
+        restockAgo=document.getElementById("restockAgo"),
+        restockLabel=document.getElementById("restockLabel");
+      restockLabel.textContent=getRestockLabel(currentTab)+":";
+      if(currentTab==="weather"){
+        timerBar.style.display="none";
+        restockAgo.textContent="";
+        return;
       } else {
-        notificationEnabled = window.Notification && "granted" === Notification.permission
+        timerBar.style.display="";
       }
+      if(!cat||!restockData[cat]){timerBar.textContent="No restock data available.";restockAgo.textContent="";return}
+      timerBar.textContent=restockData[cat].countdown??"No restock data available.";
+      restockAgo.textContent=restockData[cat].timeSinceLastRestock??"";
+      if(restockData[cat].ms<1200&&restockData[cat].ms>=0&&(!lastRestockZero[cat]||Date.now()-lastRestockZero[cat]>4000)){lastRestockZero[cat]=Date.now();if(currentTab==="weather")fetchWeather(true,true);else fetchStock(true,true)}
     }
-    function sendNotification(item, options = {}) {
-      if (!notificationEnabled) return;
- 
-      let key = options.type === "weather"
-        ? "weather-" + item.weather_name
-        : item.display_name + "-" + (item.item_id || "");
-
-      if (notifiedItems[key]) return;
-      notifiedItems[key] = true;
-      let title = options.type === "weather"
-        ? (item.weather_name || "Weather") + " is now active!"
-        : (item.display_name || "Item") + " is in stock!";
-      let body = options.type === "weather"
-        ? (item.weather_name + " is now happening in Grow a Garden!")
-        : ("Quantity: " + item.quantity);
-      let icon = item.icon || "";
-      new Notification(title, { body, icon });
-    }
-    function saveSettings() {
-      localStorage.setItem("showStockText", showStockText ? "1" : "0");
-      localStorage.setItem("showActiveText", showActiveText ? "1" : "0");
-      localStorage.setItem("showNameText", showNameText ? "1" : "0");
-      localStorage.setItem("notifyList", JSON.stringify(notifyList));
-      localStorage.setItem("currentTab", currentTab);
-    }
-    function loadSettings() {
-      if (null !== localStorage.getItem("showStockText")) showStockText = "1" === localStorage.getItem("showStockText");
-      if (null !== localStorage.getItem("showActiveText")) showActiveText = "1" === localStorage.getItem("showActiveText");
-      if (null !== localStorage.getItem("showNameText")) showNameText = "1" === localStorage.getItem("showNameText");
-      if (null !== localStorage.getItem("notifyList")) notifyList = JSON.parse(localStorage.getItem("notifyList"));
-      if (localStorage.getItem("currentTab")) currentTab = localStorage.getItem("currentTab");
-    }
-    const IMAGE_OVERRIDES = {
-      "Summer Common Egg": "common_summer_egg",
-      "Rare Summer Egg": "rare_summer_egg",
-      "Paradise Egg": "paradise_egg",
-      "Legendary Egg": "legendary_egg",
-      "Uncommon Egg": "uncommon_egg",
-      "Prickly pear": "prickly_pear",
-      "Prikily pear": "prickly_pear"
-    };
-    const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Cauliflower", "Watermelon", "Green apple", "Avocado", "Banana", "Pineapple", "Kiwi", "Bell pepper", "Prickly pear", "Loquat", "Feijoa", "Sugar Apple"];
-    const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"];
-    const EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg"];
-    let stockData = {}, itemInfoData = {}, weatherData = [], currentTab = "seeds", showStockText = true, showActiveText = true, showNameText = true, loadedTab = {}, lastRestockZero = { seeds: 0, gear: 0, eggs: 0, cosmetic: 0, weather: 0 };
-
-    function pad(e) { return e < 10 ? "0" + e : e }
-    function calculateRestockTimes() {
-      const now = new Date();
-      const timezone = 'America/New_York';
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      function formatTime(timestamp) {
-        return new Date(timestamp).toLocaleString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-          timeZone: timezone
-        });
-      }
-      function timeSince(timestamp) {
-        const nowMs = Date.now();
-        const diff = nowMs - timestamp;
-        const seconds = Math.floor(diff / 1000);
-        if (seconds < 60) return `${seconds}s ago`;
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes}m ago`;
-        const hours = Math.floor(minutes / 60);
-        return `${hours}h ago`;
-      }
-      function getResetTimes(interval) {
-        const timeSinceStartOfDay = now.getTime() - today.getTime();
-        const lastReset = today.getTime() + Math.floor(timeSinceStartOfDay / interval) * interval;
-        const nextReset = today.getTime() + Math.ceil(timeSinceStartOfDay / interval) * interval;
-        return { lastReset, nextReset };
-      }
-      const eggInterval = 30 * 60 * 1000;
-      const { lastReset: eggLastReset, nextReset: eggNextReset } = getResetTimes(eggInterval);
-      const eggCountdownMs = eggNextReset - now.getTime();
-      const eggCountdown = `${pad(Math.floor(eggCountdownMs / 6e4))}m ${pad(Math.floor((eggCountdownMs % 6e4) / 1e3))}s`;
-      const gearInterval = 5 * 60 * 1000;
-      const { lastReset: gearLastReset, nextReset: gearNextReset } = getResetTimes(gearInterval);
-      const gearCountdownMs = gearNextReset - now.getTime();
-      const gearCountdown = `${pad(Math.floor(gearCountdownMs / 6e4))}m ${pad(Math.floor((gearCountdownMs % 6e4) / 1e3))}s`;
-      const cosmeticInterval = 4 * 3600 * 1000;
-      const { lastReset: cosmeticLastReset, nextReset: cosmeticNextReset } = getResetTimes(cosmeticInterval);
-      const cosmeticCountdownMs = cosmeticNextReset - now.getTime();
-      const cosmeticCountdown = `${pad(Math.floor(cosmeticCountdownMs / 36e5))}h ${pad(Math.floor((cosmeticCountdownMs % 36e5) / 6e4))}m ${pad(Math.floor((cosmeticCountdownMs % 6e4) / 1e3))}s`;
-      const nightInterval = 3600 * 1000;
-      const { lastReset: nightLastReset, nextReset: nightNextReset } = getResetTimes(nightInterval);
-      const nightCountdownMs = nightNextReset - now.getTime();
-      const nightCountdown = `${pad(Math.floor(nightCountdownMs / 36e5))}h ${pad(Math.floor((nightCountdownMs % 36e5) / 6e4))}m ${pad(Math.floor((nightCountdownMs % 6e4) / 1e3))}s`;
-      return {
-        egg: {
-          timestamp: eggNextReset,
-          countdown: eggCountdown,
-          LastRestock: formatTime(eggLastReset),
-          timeSinceLastRestock: timeSince(eggLastReset),
-          ms: eggCountdownMs
-        },
-        gear: {
-          timestamp: gearNextReset,
-          countdown: gearCountdown,
-          LastRestock: formatTime(gearLastReset),
-          timeSinceLastRestock: timeSince(gearLastReset),
-          ms: gearCountdownMs
-        },
-        seeds: {
-          timestamp: gearNextReset,
-          countdown: gearCountdown,
-          LastRestock: formatTime(gearLastReset),
-          timeSinceLastRestock: timeSince(gearLastReset),
-          ms: gearCountdownMs
-        },
-        cosmetic: {
-          timestamp: cosmeticNextReset,
-          countdown: cosmeticCountdown,
-          LastRestock: formatTime(cosmeticLastReset),
-          timeSinceLastRestock: timeSince(cosmeticLastReset),
-          ms: cosmeticCountdownMs
-        },
-        SwarmEvent: {
-          timestamp: nightNextReset,
-          countdown: nightCountdown,
-          LastRestock: formatTime(nightLastReset),
-          timeSinceLastRestock: timeSince(nightLastReset),
-          ms: nightCountdownMs
-        }
-      };
-    }
-    function getRestockCategoryForTab(tab) {
-      if (tab === "seeds") return "seeds";
-      if (tab === "gear") return "gear";
-      if (tab === "eggs") return "egg";
-      if (tab === "weather") return "SwarmEvent";
-      if (tab === "cosmetics") return "cosmetic";
-      return null;
-    }
-    function getRestockLabel(tab) {
-      if (tab === "seeds") return "Seeds Restock";
-      if (tab === "gear") return "Gear Restock";
-      if (tab === "eggs") return "Eggs Restock";
-      if (tab === "cosmetics") return "Cosmetics Restock";
-      return "";
-    }
-    function updateRestockBar() {
-      const restockData = calculateRestockTimes(),
-        cat = getRestockCategoryForTab(currentTab),
-        timerBar = document.getElementById("restockTimerBar"),
-        restockAgo = document.getElementById("restockAgo"),
-        restockLabel = document.getElementById("restockLabel");
-      restockLabel.textContent = getRestockLabel(currentTab) + ":";
-      if (!cat || !restockData[cat]) {
-        timerBar.textContent = "No restock data available.";
-        restockAgo.textContent = "";
-        return
-      }
-      timerBar.textContent = restockData[cat].countdown ?? "No restock data available.";
-      restockAgo.textContent = restockData[cat].timeSinceLastRestock ?? "";
-      if (restockData[cat].ms < 1200 && restockData[cat].ms >= 0 && (!lastRestockZero[cat] || Date.now() - lastRestockZero[cat] > 4000)) {
-        lastRestockZero[cat] = Date.now();
-        if (currentTab === "weather") fetchWeather(true, true); else fetchStock(true, true)
-      }
-    }
-    function fetchStock(e = false, t = false) {
-      fetch("https://api.joshlei.com/v2/growagarden/stock", { cache: "reload" })
-        .then(e => e.ok ? e.json() : {})
-        .then(e => {
-          stockData = e || {};
-          loadedTab.seeds = loadedTab.gear = loadedTab.eggs = loadedTab.cosmetics = true;
-          ["seeds", "gear", "eggs", "cosmetics"].includes(currentTab) && renderList(currentTab);
-          checkNotify(stockData)
-        })
-    }
-    function fetchInfo() {
-      fetch("https://api.joshlei.com/v2/growagarden/info", { cache: "reload" })
-        .then(e => e.ok ? e.json() : {})
-        .then(e => { itemInfoData = e || {} })
-    }
-    function fetchWeather(e = false, t = false) {
-      fetch("https://api.joshlei.com/v2/growagarden/weather", { cache: "reload" })
-        .then(e => e.ok ? e.json() : { weather: [] })
-        .then(e => {
-          weatherData = e.weather || [];
-          loadedTab.weather = true;
-          if (currentTab === "weather") renderWeatherList();
-          checkWeatherNotify(weatherData);
-        })
-    }
-    function getImageId(e) {
-      return IMAGE_OVERRIDES[e] || e.toLowerCase().replace(/ /g, "_").replace("prikily_pear", "prickly_pear").replace("summer_rare_egg", "rare_summer_egg")
-    }
-
-    function renderList(tab) {
-      if (tab === "cosmetics") document.getElementById("cosmeticsStocksNote").classList.remove("hidden");
+    function fetchStock(e=false,t=false){fetch("https://api.joshlei.com/v2/growagarden/stock",{cache:"reload"}).then(e=>e.ok?e.json():{}).then(e=>{stockData=e||{};loadedTab.seeds=loadedTab.gear=loadedTab.eggs=loadedTab.cosmetics=true;["seeds","gear","eggs","cosmetics"].includes(currentTab)&&renderList(currentTab);checkNotify(stockData)})}
+    function fetchInfo(){fetch("https://api.joshlei.com/v2/growagarden/info",{cache:"reload"}).then(e=>e.ok?e.json():{}).then(e=>{itemInfoData=e||{}})}
+    function fetchWeather(e=false,t=false){fetch("https://api.joshlei.com/v2/growagarden/weather",{cache:"reload"}).then(e=>e.ok?e.json():{weather:[]}).then(e=>{weatherData=e.weather||[];loadedTab.weather=true;if(currentTab==="weather")renderWeatherList();checkWeatherNotify(weatherData);})}
+    function getImageId(e){return IMAGE_OVERRIDES[e]||e.toLowerCase().replace(/ /g,"_").replace("prikily_pear","prickly_pear").replace("summer_rare_egg","rare_summer_egg")}
+    function renderList(tab){
+      if(tab==="cosmetics")document.getElementById("cosmeticsStocksNote").classList.remove("hidden");
       else document.getElementById("cosmeticsStocksNote").classList.add("hidden");
-      document.getElementById("itemList").innerHTML = "";
-      let items = [];
-      if (tab === "cosmetics") {
-        items = (stockData.cosmetic_stock || []).filter(e => e.quantity > 0)
-      } else if (tab === "seeds") {
-        items = SEED_NAMES.map(name => {
-          let stock = (stockData.seed_stock || []).find(e => e.display_name === name),
-            item_id = getImageId(name);
-          return stock || { display_name: name, item_id: item_id, quantity: 0, icon: `https://api.joshlei.com/v2/growagarden/image/${item_id}` }
-        })
-      } else if (tab === "gear") {
-        items = GEAR_NAMES.map(name => {
-          let stock = (stockData.gear_stock || []).find(e => e.display_name === name),
-            item_id = getImageId(name);
-          return stock || { display_name: name, item_id: item_id, quantity: 0, icon: `https://api.joshlei.com/v2/growagarden/image/${item_id}` }
-        })
-      } else if (tab === "eggs") {
-        items = EGG_NAMES.map(name => {
-          let item_id = getImageId(name),
-            stock = (stockData.egg_stock || []).find(e => e.display_name === name) || (stockData.egg_stock || []).find(e => e.item_id === item_id);
-          return stock || { display_name: name, item_id: item_id, quantity: 0, icon: `https://api.joshlei.com/v2/growagarden/image/${item_id}` }
-        })
-      } else if (tab === "weather") {
-        renderWeatherList();
-        return
-      }
-      if (items.length === 0) {
-        document.getElementById("itemList").innerHTML = '<div class="text-yellow-400 text-center py-8">No items in stock.</div>';
-        return
-      }
-      items.forEach(function (item) {
-        let card = document.createElement("div");
-        card.className = `item-card border relative flex flex-col items-center py-7 px-4 rounded-xl shadow ${notifyList.includes(item.display_name) ? "border-2 border-[#2ec6fa]" : "border-[#394464]"} ${item.quantity > 0 ? "bg-green-900/60" : "bg-[#232a45]/80"}`;
-        if (tab !== "cosmetics") {
-          const btnCol = document.createElement("button");
-          btnCol.className = `star-btn star-corner hover-effect rounded-full p-0 m-0 ${notifyList.includes(item.display_name) ? "starred" : ""}`;
-          btnCol.title = notifyList.includes(item.display_name) ? "UnNotify" : "Notify";
-          btnCol.innerHTML = `<span class="material-symbols-rounded align-middle">${notifyList.includes(item.display_name) ? "star" : "star"}</span>`;
-          btnCol.onclick = r => {
-            r.stopPropagation();
-            if (notifyList.includes(item.display_name)) notifyList = notifyList.filter(t => t !== item.display_name);
-            else notifyList.push(item.display_name);
-            saveSettings();
-            renderList(currentTab)
-          };
+      document.getElementById("itemList").innerHTML="";
+      let items=[];
+      if(tab==="cosmetics"){items=(stockData.cosmetic_stock||[]).filter(e=>e.quantity>0)}
+      else if(tab==="seeds"){items=SEED_NAMES.map(name=>{let stock=(stockData.seed_stock||[]).find(e=>e.display_name===name),item_id=getImageId(name);return stock||{display_name:name,item_id:item_id,quantity:0,icon:`https://api.joshlei.com/v2/growagarden/image/${item_id}`}})}
+      else if(tab==="gear"){items=GEAR_NAMES.map(name=>{let stock=(stockData.gear_stock||[]).find(e=>e.display_name===name),item_id=getImageId(name);return stock||{display_name:name,item_id:item_id,quantity:0,icon:`https://api.joshlei.com/v2/growagarden/image/${item_id}`}})}
+      else if(tab==="eggs"){items=EGG_NAMES.map(name=>{let item_id=getImageId(name),stock=(stockData.egg_stock||[]).find(e=>e.display_name===name)||(stockData.egg_stock||[]).find(e=>e.item_id===item_id);return stock||{display_name:name,item_id:item_id,quantity:0,icon:`https://api.joshlei.com/v2/growagarden/image/${item_id}`}})}
+      else if(tab==="weather"){renderWeatherList();return}
+      if(items.length===0){document.getElementById("itemList").innerHTML='<div class="text-yellow-400 text-center py-8">No items in stock.</div>';return}
+      items.forEach(function(item){
+        const rarityClass = getRarityClass(item.display_name);
+        let card=document.createElement("div");
+        card.className=`item-card border pretty-hover ${rarityClass} relative flex flex-col items-center py-7 px-4 rounded-xl shadow ${notifyList.includes(item.display_name)?"border-2 border-[#2ec6fa]":"border-[#394464]"} ${item.quantity>0?"bg-green-900/60":"bg-[#232a45]/80"}`;
+        if(item.quantity===0)card.className+=" out-of-stock";
+        if(tab!=="cosmetics"){
+          const btnCol=document.createElement("button");
+          btnCol.className=`star-btn star-corner rounded-full p-0 m-0${notifyList.includes(item.display_name)?" starred":""}`;
+          btnCol.title=notifyList.includes(item.display_name)?"UnNotify":"Notify";
+          btnCol.innerHTML=`<span class="material-symbols-rounded align-middle">${notifyList.includes(item.display_name)?"star":"star"}</span>`;
+          btnCol.onclick=r=>{r.stopPropagation();if(notifyList.includes(item.display_name))notifyList=notifyList.filter(t=>t!==item.display_name);else notifyList.push(item.display_name);saveSettings();renderList(currentTab)};
           card.appendChild(btnCol)
         }
-        const iconDiv = document.createElement("div");
-        iconDiv.className = "item-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4";
-        let iconSrc = item.icon;
-        if (iconSrc) {
-          const img = document.createElement("img");
-          img.src = iconSrc;
-          img.alt = item.display_name;
-          img.draggable = false;
-          img.className = "w-14 h-14 object-contain";
-          img.onerror = function () {
-            if (this._triedLower) this.style.display = "none";
-            else {
-              this._triedLower = true;
-              this.src = `https://api.joshlei.com/v2/growagarden/image/${getImageId(item.display_name)}`
-            }
-          };
-          iconDiv.appendChild(img)
-        } else iconDiv.textContent = (item.display_name || "-").split(" ").map(e => e[0]).join("").toUpperCase().slice(0, 2);
+        const iconDiv=document.createElement("div");
+        iconDiv.className="item-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4";
+        let iconSrc=item.icon;
+        if(iconSrc){const img=document.createElement("img");img.src=iconSrc;img.alt=item.display_name;img.draggable=false;img.className="w-14 h-14 object-contain";img.onerror=function(){if(this._triedLower)this.style.display="none";else{this._triedLower=true;this.src=`https://api.joshlei.com/v2/growagarden/image/${getImageId(item.display_name)}`}};iconDiv.appendChild(img)}
+        else iconDiv.textContent=(item.display_name||"-").split(" ").map(e=>e[0]).join("").toUpperCase().slice(0,2);
         card.appendChild(iconDiv);
-        if (showNameText) {
-          const nameDiv = document.createElement("div");
-          nameDiv.className = "item-name font-semibold text-white text-[1.1em] text-center";
-          nameDiv.textContent = item.display_name;
-          card.appendChild(nameDiv)
-        }
-        if (showStockText) {
-          const badge = document.createElement("div");
-          badge.className = "mt-2 mb-0.5 in-stock-badge font-bold text-lg text-center w-max mx-auto";
-          badge.style.color = item.quantity > 0 ? "#3cf79b" : "#aaa";
-          badge.textContent = item.quantity;
-          card.appendChild(badge)
-        }
+        if(showNameText){const nameDiv=document.createElement("div");nameDiv.className="item-name font-semibold text-white text-[1.1em] text-center";nameDiv.textContent=item.display_name;card.appendChild(nameDiv)}
+        if(showStockText){const badge=document.createElement("div");badge.className="mt-2 mb-0.5 in-stock-badge font-bold text-lg text-center w-max mx-auto";badge.style.color=item.quantity>0?"#3cf79b":"#aaa";badge.textContent=item.quantity;card.appendChild(badge)}
         document.getElementById("itemList").appendChild(card)
       })
     }
-
-    function renderWeatherList() {
+    function renderWeatherList(){
       document.getElementById("cosmeticsStocksNote").classList.add("hidden");
-      const itemListEl = document.getElementById("itemList");
-      itemListEl.innerHTML = "";
-      if (!weatherData || !Array.isArray(weatherData) || weatherData.length === 0) {
-        itemListEl.innerHTML = '<div class="text-yellow-400 text-center py-8">No weather data found.</div>';
+      const itemListEl=document.getElementById("itemList");
+      itemListEl.innerHTML="";
+      if(!weatherData||!Array.isArray(weatherData)||weatherData.length===0){
+        itemListEl.innerHTML='<div class="text-yellow-400 text-center py-8">No weather data found.</div>';
         return
       }
-      weatherData.forEach(function (weather) {
+      weatherData.forEach(function(weather){
         const card = document.createElement("div");
-        let cardClasses = `item-card border relative flex flex-col items-center py-7 px-4 rounded-xl shadow ${notifyList.includes(weather.weather_name) ? "border-2 border-[#2ec6fa]" : "border-[#394464]"} `;
-        if (weather.active) cardClasses += "weather-active ";
-        else cardClasses += "bg-[#232a45]/80 ";
+        let cardClasses = `item-card border pretty-hover weather-glow relative flex flex-col items-center py-7 px-4 rounded-xl shadow ${notifyList.includes(weather.weather_name)?"border-2 border-[#2ec6fa]":"border-[#394464]"} `;
+        if(weather.active) cardClasses+="weather-active ";
+        else cardClasses+="bg-[#232a45]/80 weather-inactive ";
         card.className = cardClasses;
-
-        const btnCol = document.createElement("button");
-        btnCol.className = `star-btn star-corner hover-effect rounded-full p-0 m-0 ${notifyList.includes(weather.weather_name) ? "starred" : ""}`;
-        btnCol.title = notifyList.includes(weather.weather_name) ? "UnNotify" : "Notify";
-        btnCol.innerHTML = `<span class="material-symbols-rounded align-middle">${notifyList.includes(weather.weather_name) ? "star" : "star"}</span>`;
-        btnCol.onclick = i => {
-          i.stopPropagation();
-          if (notifyList.includes(weather.weather_name)) notifyList = notifyList.filter(e => e !== weather.weather_name);
-          else notifyList.push(weather.weather_name);
-          saveSettings();
-          renderWeatherList()
-        };
+        const btnCol=document.createElement("button");
+        btnCol.className=`star-btn star-corner rounded-full p-0 m-0${notifyList.includes(weather.weather_name)?" starred":""}`;
+        btnCol.title=notifyList.includes(weather.weather_name)?"UnNotify":"Notify";
+        btnCol.innerHTML=`<span class="material-symbols-rounded align-middle">${notifyList.includes(weather.weather_name)?"star":"star"}</span>`;
+        btnCol.onclick=i=>{i.stopPropagation();if(notifyList.includes(weather.weather_name))notifyList=notifyList.filter(e=>e!==weather.weather_name);else notifyList.push(weather.weather_name);saveSettings();renderWeatherList()};
         card.appendChild(btnCol);
-
-        const iconDiv = document.createElement("div");
-        iconDiv.className = "weather-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4";
-        let iconSrc = weather.icon;
-        if (iconSrc) {
-          const img = document.createElement("img");
-          img.src = iconSrc;
-          img.alt = weather.weather_name;
-          img.draggable = false;
-          img.className = "w-14 h-14 object-contain";
-          img.onerror = function () {
-            if (this._triedLower) this.style.display = "none";
-            else {
-              this._triedLower = true;
-              this.src = `https://api.joshlei.com/v2/growagarden/image/${getImageId(weather.weather_name)}`
-            }
-          };
-          iconDiv.appendChild(img)
-        }
+        const iconDiv=document.createElement("div");
+        iconDiv.className="weather-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4";
+        let iconSrc=weather.icon;
+        if(iconSrc){const img=document.createElement("img");img.src=iconSrc;img.alt=weather.weather_name;img.draggable=false;img.className="w-14 h-14 object-contain";img.onerror=function(){if(this._triedLower)this.style.display="none";else{this._triedLower=true;this.src=`https://api.joshlei.com/v2/growagarden/image/${getImageId(weather.weather_name)}`}};iconDiv.appendChild(img)}
         card.appendChild(iconDiv);
-        if (showNameText) {
-          const nameDiv = document.createElement("div");
-          nameDiv.className = "item-name font-semibold text-white text-[1.1em] text-center";
-          nameDiv.textContent = weather.weather_name;
-          card.appendChild(nameDiv)
-        }
-        if (weather.active && showActiveText) {
-          const badge = document.createElement("div");
-          badge.className = "mt-2 mb-0.5 active-badge bg-[#2ec6fa] text-white rounded px-2 py-0.5 text-sm font-semibold text-center w-max mx-auto";
-          badge.textContent = "Active";
-          card.appendChild(badge)
-        }
+        if(showNameText){const nameDiv=document.createElement("div");nameDiv.className="item-name font-semibold text-white text-[1.1em] text-center";nameDiv.textContent=weather.weather_name;card.appendChild(nameDiv)}
+        if(weather.active&&showActiveText){const badge=document.createElement("div");badge.className="mt-2 mb-0.5 active-badge bg-[#2ec6fa]/80 text-white rounded px-2 py-0.5 text-sm font-semibold text-center w-max mx-auto";badge.textContent="Active";card.appendChild(badge)}
         itemListEl.appendChild(card)
       })
     }
-
-    function checkNotify(stockData) {
-      let t = [...(stockData.seed_stock || []), ...(stockData.gear_stock || []), ...(stockData.egg_stock || [])], a = {};
-      for (const n of t) {
-        let key = `${n.display_name}-${n.item_id}`;
-        if (notifyList.includes(n.display_name) && n.quantity > 0 && !a[key]) {
-          sendNotification(n, { type: "stock" });
-          a[key] = true;
-        }
-        else if (n.quantity <= 0) notifiedItems[key] = false;
-      }
-    }
-
-    function checkWeatherNotify(weatherData) {
-      if (!Array.isArray(weatherData)) return;
-      for (const weather of weatherData) {
-        let key = "weather-" + weather.weather_name;
-        if (notifyList.includes(weather.weather_name) && weather.active && !notifiedItems[key]) {
-          sendNotification(weather, { type: "weather" });
-          notifiedItems[key] = true;
-        } else if (!weather.active) {
-          notifiedItems[key] = false;
-        }
-      }
-    }
-
-    function setActiveTab(e) {
-      document.querySelectorAll(".category-tab").forEach(t => {
-        t.classList.toggle("bg-[#464f88]", t.dataset.tab === e);
-        t.classList.toggle("bg-[#232a45]", t.dataset.tab !== e);
-        t.classList.toggle("text-white", t.dataset.tab === e);
-        t.classList.toggle("text-[#b6caf7]", t.dataset.tab !== e)
-      });
-      currentTab = e;
-      saveSettings();
-      loadedTab[e] ? ("weather" === e ? renderWeatherList() : renderList(e)) : ("weather" === e ? fetchWeather() : fetchStock());
+    function checkNotify(stockData){let t=[...(stockData.seed_stock||[]),...(stockData.gear_stock||[]),...(stockData.egg_stock||[])],a={};for(const n of t){let key=`${n.display_name}-${n.item_id}`;if(notifyList.includes(n.display_name)&&n.quantity>0&&!a[key]){sendNotification(n,{type:"stock"});a[key]=true;}else if(n.quantity<=0)notifiedItems[key]=false;}}
+    function checkWeatherNotify(weatherData){if(!Array.isArray(weatherData))return;for(const weather of weatherData){let key="weather-"+weather.weather_name;if(notifyList.includes(weather.weather_name)&&weather.active&&!notifiedItems[key]){sendNotification(weather,{type:"weather"});notifiedItems[key]=true;}else if(!weather.active){notifiedItems[key]=false;}}}
+    function setActiveTab(e){
+      document.querySelectorAll(".category-tab").forEach(t=>{t.classList.toggle("bg-[#464f88]",t.dataset.tab===e);t.classList.toggle("bg-[#232a45]",t.dataset.tab!==e);t.classList.toggle("text-white",t.dataset.tab===e);t.classList.toggle("text-[#b6caf7]",t.dataset.tab!==e)});
+      currentTab=e;saveSettings();
+      if(e==="weather"){startWeatherBg();} else{stopWeatherBg();}
+      loadedTab[e]?("weather"===e?renderWeatherList():renderList(e)):("weather"===e?fetchWeather():fetchStock());
       updateRestockBar()
     }
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded",function(){
       loadSettings();
-      document.getElementById("toggleStockText").checked = showStockText;
-      document.getElementById("toggleActiveText").checked = showActiveText;
-      document.getElementById("toggleNameText").checked = showNameText;
-      document.getElementById("settingsBtn").onclick = () => document.getElementById("settingsModalBg").classList.remove("hidden");
-      document.getElementById("closeSettingsBtn").onclick = () => document.getElementById("settingsModalBg").classList.add("hidden");
-      document.getElementById("settingsModalBg").onclick = e => { if (e.target === document.getElementById("settingsModalBg")) document.getElementById("settingsModalBg").classList.add("hidden") };
-      document.getElementById("toggleStockText").onchange = function () { showStockText = this.checked; saveSettings(); renderList(currentTab) };
-      document.getElementById("toggleActiveText").onchange = function () { showActiveText = this.checked; saveSettings(); renderList(currentTab) };
-      document.getElementById("toggleNameText").onchange = function () { showNameText = this.checked; saveSettings(); renderList(currentTab) };
-      document.querySelectorAll(".category-tab").forEach(e => e.addEventListener("click", t => setActiveTab(e.dataset.tab)));
+      document.getElementById("toggleStockText").checked=showStockText;
+      document.getElementById("toggleActiveText").checked=showActiveText;
+      document.getElementById("toggleNameText").checked=showNameText;
+      document.getElementById("settingsBtn").onclick=()=>document.getElementById("settingsModalBg").classList.remove("hidden");
+      document.getElementById("closeSettingsBtn").onclick=()=>document.getElementById("settingsModalBg").classList.add("hidden");
+      document.getElementById("settingsModalBg").onclick=e=>{if(e.target===document.getElementById("settingsModalBg"))document.getElementById("settingsModalBg").classList.add("hidden")};
+      document.getElementById("toggleStockText").onchange=function(){showStockText=this.checked;saveSettings();renderList(currentTab)};
+      document.getElementById("toggleActiveText").onchange=function(){showActiveText=this.checked;saveSettings();renderList(currentTab)};
+      document.getElementById("toggleNameText").onchange=function(){showNameText=this.checked;saveSettings();renderList(currentTab)};
+      document.querySelectorAll(".category-tab").forEach(e=>e.addEventListener("click",t=>setActiveTab(e.dataset.tab)));
       requestNotificationPermission();
       renderList(currentTab);
       fetchStock();
       fetchWeather();
       fetchInfo();
-      setInterval(updateRestockBar, 1000);
-      setInterval(() => {
-        document.getElementById("lastUpdated").textContent = "Updated: " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-      }, 5000);
-      document.getElementById("lastUpdated").textContent = "Updated: " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      setInterval(updateRestockBar,1000);
+      setInterval(()=>{document.getElementById("lastUpdated").textContent="Updated: "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})},5000);
+      document.getElementById("lastUpdated").textContent="Updated: "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
       updateRestockBar();
-      setInterval(() => { "weather" === currentTab ? fetchWeather(false, true) : fetchStock(false, true) }, 3000);
-      setTimeout(() => { setActiveTab(currentTab) }, 0)
+      setInterval(()=>{"weather"===currentTab?fetchWeather(false,true):fetchStock(false,true)},3000);
+      setTimeout(()=>{setActiveTab(currentTab)},0)
     });
   </script>
 </body>
