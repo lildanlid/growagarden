@@ -1,14 +1,9 @@
-# Grow A Garden Stock
+# 📑 INFOMATION
+This is a grow a garden stocks viewer you can view what is in stock and get notifyed when it its stock or the a certin weather is happening.
 
-This is a simple grow a garden stock view.
-It uses APIs from 
-- https://github.com/Just3itx/Grow-A-Garden-API
-- https://joshlei.com/
-
-The website is 
+# 💿 URLs/LINKs
 - https://growagarden-stocks.netlify.app/
 
-# INFO
-- This is a fan made website
-- Please credit me if you are gonna use my code
-- Do not steal code and claim it as your own 
+# 💾 APIS
+- [API Codes](https://github.com/lildanlid/growagarden-api)
+- [joshlei](https://api.joshlei.com/) 
