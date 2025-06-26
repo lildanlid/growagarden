@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
   <meta charset="UTF-8" />
-  <title>Grow a Garden | Live Stocks</title>
+    <title>Grow a Garden | Live Stocks</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded" rel="stylesheet"/>
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/lildanlid/growagarden/refs/heads/main/images/favicon.png" />
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/lildanlid/growagarden/refs/heads/main/images/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html,body{
@@ -50,12 +50,40 @@
       .item-name{font-size:0.92rem;}
     }
     .item-icon img,.weather-icon img{background:transparent!important;border-radius:0!important;box-shadow:none!important;width:56px;height:56px;object-fit:contain}
-    .star-btn .material-symbols-rounded{font-size:2.2em;color:#b6caf7;transition:color .2s;}
-    .star-btn.starred .material-symbols-rounded{color:#ffe066!important;}
-    .star-corner{position:absolute;top:.7rem;right:.7rem;z-index:2;background:transparent;border-radius:50%;border:none}
+    .star-btn {
+      position: absolute;
+      top: .7rem; right: .7rem; z-index: 10;
+      background: transparent !important;
+      border-radius: 50%; border: none;
+      pointer-events: auto;
+      filter: none !important;
+    }
+    .star-btn .material-symbols-rounded{
+      font-size:2.2em;
+      color:#b6caf7;
+      transition:color .2s;
+      filter: none !important;
+      z-index: 11;
+      position: relative;
+    }
+    .star-btn.starred .material-symbols-rounded{
+      color:#ffe066!important;
+      filter: none !important;
+    }
+    .star-corner{pointer-events:auto;}
     .item-card{position:relative;overflow:visible;transition:box-shadow .16s,background .18s,opacity .18s;}
-    .weather-active{opacity:0.7!important;}
-    .weather-inactive,.out-of-stock { filter: grayscale(1) brightness(0.7) !important; opacity: 0.6 !important; }
+    /* GRAY OUT overlay so star remains colored */
+    .out-of-stock, .weather-inactive { position: relative; }
+    .out-of-stock::after, .weather-inactive::after {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background: rgba(44,58,85,0.62);
+      backdrop-filter: grayscale(1) brightness(0.7);
+      border-radius: inherit;
+    }
     .pretty-hover {transition:box-shadow .25s,background .2s,opacity .18s;}
     .pretty-hover:hover,
     .pretty-hover:active {
@@ -71,7 +99,6 @@
     .glow-uncommon.pretty-hover:hover,.glow-uncommon.pretty-hover:active { box-shadow: 0 0 0 4px #6fff00aa, 0 0 8px 2px #a6ff6699,0 2px 32px 0 #6bb6ff33;}
     .glow-common.pretty-hover:hover,.glow-common.pretty-hover:active { box-shadow: 0 0 0 4px #b6caf7aa, 0 0 8px 2px #8ec4ff99,0 2px 32px 0 #6bb6ff33;}
     .glow-default.pretty-hover:hover,.glow-default.pretty-hover:active { box-shadow: 0 0 0 4px #b6caf777, 0 0 8px 2px #b6caf744,0 2px 32px 0 #6bb6ff33;}
-    .star-btn,.star-btn:focus,.star-btn:active,.star-btn:hover{background:transparent!important;box-shadow:none!important;}
     .category-tab { transition:box-shadow .15s,background .15s,color .15s; }
     .category-tab:hover,.category-tab:active { box-shadow:0 0 0 2px #43cffc88,0 1.5px 3px #232a45; background:#293967 !important; color:#fff !important; }
     .item-card.weather-active.pretty-hover:hover {opacity:1!important;}
@@ -120,7 +147,7 @@
       font-size:1.19em;
     }
   </style>
-  <!-- ...scripts and HTML as above... -->
+  <!-- All scripts are at the end of the body for best performance -->
 </head>
 <body class="min-h-screen flex items-center justify-center font-inter">
   <div id="bg-anim" class="clear-bg"></div>
@@ -169,7 +196,7 @@
     </footer>
   </div>
   <script>
-    // Weather backgrounds as previously provided
+    // Weather backgrounds
     let weatherEffectActive = false, weatherInterval;
     const FRUITS = ["🍎","🍌","🍉","🍓","🍍","🥝","🍇","🍈","🍒","🍑","🍊","🍋"];
     function randomFruitEmoji(){return FRUITS[Math.floor(Math.random()*FRUITS.length)];}
@@ -207,7 +234,6 @@
     function stopWeatherBg(){weatherEffectActive=false;clearInterval(weatherInterval);clearBgAnim();}
   </script>
   <script>
-    // -- Full app's JS, as in previous completions --
     (function(){var owner=document.getElementById("copyright-owner");if(!owner||!/lildanlid/i.test(owner.textContent)){document.body.innerHTML="<h1 style='color:red;text-align:center;font-size:2em;margin-top:10vh'>This site is not licensed for use without lildanlid attribution.</h1>";throw new Error("Missing copyright attribution: lildanlid");}document.getElementById("copyright-year").textContent=new Date().getFullYear();})();
     let notificationEnabled=false,notifyList=[],notifiedItems={};
     function requestNotificationPermission(){if(window.Notification&&Notification.permission!=="granted"){Notification.requestPermission().then(function(e){notificationEnabled="granted"===e})}else{notificationEnabled=window.Notification&&"granted"===Notification.permission}}
@@ -229,8 +255,8 @@
     }
     let stockData={},itemInfoData={},weatherData=[],currentTab="seeds",showStockText=true,showActiveText=true,showNameText=true,loadedTab={},lastRestockZero={seeds:0,gear:0,eggs:0,cosmetic:0,weather:0};
     function pad(e){return e<10?"0"+e:e}
-    function calculateRestockTimes(){const now=new Date(),timezone='America/New_York',today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-      function formatTime(timestamp){return new Date(timestamp).toLocaleString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:timezone});}
+    function calculateRestockTimes(){const now=new Date(),timezone='en-NZ',today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      function formatTime(timestamp){return new Date(timestamp).toLocaleString('en-NZ',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:timezone});}
       function timeSince(timestamp){const nowMs=Date.now(),diff=nowMs-timestamp,seconds=Math.floor(diff/1e3);if(seconds<60)return`${seconds}s ago`;const minutes=Math.floor(seconds/60);if(minutes<60)return`${minutes}m ago`;const hours=Math.floor(minutes/60);return`${hours}h ago`;}
       function getResetTimes(interval){const timeSinceStartOfDay=now.getTime()-today.getTime(),lastReset=today.getTime()+Math.floor(timeSinceStartOfDay/interval)*interval,nextReset=today.getTime()+Math.ceil(timeSinceStartOfDay/interval)*interval;return{lastReset,nextReset};}
       const eggInterval=30*60*1e3,{lastReset:eggLastReset,nextReset:eggNextReset}=getResetTimes(eggInterval),eggCountdownMs=eggNextReset-now.getTime(),eggCountdown=`${pad(Math.floor(eggCountdownMs/6e4))}m ${pad(Math.floor((eggCountdownMs%6e4)/1e3))}s`,gearInterval=5*60*1e3,{lastReset:gearLastReset,nextReset:gearNextReset}=getResetTimes(gearInterval),gearCountdownMs=gearNextReset-now.getTime(),gearCountdown=`${pad(Math.floor(gearCountdownMs/6e4))}m ${pad(Math.floor((gearCountdownMs%6e4)/1e3))}s`,cosmeticInterval=4*3600*1e3,{lastReset:cosmeticLastReset,nextReset:cosmeticNextReset}=getResetTimes(cosmeticInterval),cosmeticCountdownMs=cosmeticNextReset-now.getTime(),cosmeticCountdown=`${pad(Math.floor(cosmeticCountdownMs/36e5))}h ${pad(Math.floor((cosmeticCountdownMs%36e5)/6e4))}m ${pad(Math.floor((cosmeticCountdownMs%6e4)/1e3))}s`,nightInterval=3600*1e3,{lastReset:nightLastReset,nextReset:nightNextReset}=getResetTimes(nightInterval),nightCountdownMs=nightNextReset-now.getTime(),nightCountdown=`${pad(Math.floor(nightCountdownMs/36e5))}h ${pad(Math.floor((nightCountdownMs%36e5)/6e4))}m ${pad(Math.floor((nightCountdownMs%6e4)/1e3))}s`;
