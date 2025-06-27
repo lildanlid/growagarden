@@ -87,7 +87,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     </div>
     <div id="cosmeticsStocksNote" class="mb-4 text-blue-300 font-semibold hidden">Only Showing Stocks</div>
     <div class="item-list" id="itemList" style="position:relative;"></div>
-
+    <!-- Settings Modal -->
     <div id="settingsModalBg" class="settings-modal-bg fixed inset-0 hidden flex items-center justify-center modal-fade">
       <div class="settings-modal">
         <h2 class="font-semibold text-lg text-[#8ec4ff] mb-4">Settings</h2>
@@ -144,50 +144,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
 
-    const settingsModalBg = document.getElementById("settingsModalBg");
-    const settingsBtn2 = document.getElementById("settingsBtn");
-    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
-    settingsBtn2.onclick = () => {
-      settingsModalBg.classList.remove("hidden");
-      setTimeout(() => {
-        settingsModalBg.classList.add("modal-show");
-      }, 10);
-    };
-    closeSettingsBtn.onclick = () => {
-      settingsModalBg.classList.remove("modal-show");
-      setTimeout(() => {
-        settingsModalBg.classList.add("hidden");
-      }, 350);
-    };
-    settingsModalBg.onclick = e => {
-      if (e.target === settingsModalBg) {
-        settingsModalBg.classList.remove("modal-show");
-        setTimeout(() => {
-          settingsModalBg.classList.add("hidden");
-        }, 350);
-      }
-    };
-    const supportBtn = document.getElementById('supportBtn');
-    const supportModal = document.getElementById('supportModal');
-    supportBtn.onclick = function () {
-      supportModal.style.display = "flex";
-      setTimeout(() => {
-        supportModal.classList.add('modal-show');
-      }, 10);
-    };
-    function closeSupportModal() {
-      supportModal.classList.remove('modal-show');
-      setTimeout(() => {
-        supportModal.style.display = "none";
-      }, 250);
-    }
-    supportModal.onclick = function (e) {
-      if (e.target === supportModal) {
-        closeSupportModal();
-      }
-    };
-  </script>
-  <script>
     function getItemIconUrl(name) {
       const IMAGE_OVERRIDES = {
         "Summer Common Egg": "common_summer_egg", "Rare Summer Egg": "rare_summer_egg", "Paradise Egg": "paradise_egg",
@@ -233,22 +189,18 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           ];
           for (const item of allStock) {
             const key = item.display_name;
-            const shouldNotify = notifyList.includes(key);
             const lastSeen = Number(item.last_seen || 0);
-            if (shouldNotify && item.quantity > 0) {
-              if (!notifiedItemsRestock[key] || notifiedItemsRestock[key].lastSeen !== lastSeen) {
-                sendNotification(item);
-                notifiedItemsRestock[key] = { lastSeen: lastSeen, notified: true };
-              }
-            }
-           
-            if (item.quantity <= 0) {
+            if (!notifiedItemsRestock[key] || notifiedItemsRestock[key].lastSeen !== lastSeen) {
               notifiedItemsRestock[key] = { lastSeen, notified: false };
+            }
+            if (notifyList.includes(key) && item.quantity > 0 && !notifiedItemsRestock[key].notified) {
+              sendNotification(item);
+              notifiedItemsRestock[key].notified = true;
             }
           }
         }
       } catch (e) {}
- 
+
       try {
         const wres = await fetch('https://api.joshlei.com/v2/growagarden/weather');
         if (wres.ok) {
@@ -256,17 +208,13 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           for (const weather of weatherData) {
             const key = weather.weather_name;
             const shouldNotify = notifyList.includes(key);
-
             const lastActive = Number(weather.last_activated || weather.last_seen || 0);
-            if (shouldNotify && weather.active) {
-              if (!notifiedWeatherRestock[key] || notifiedWeatherRestock[key].lastActive !== lastActive) {
-                sendNotification(weather, { type: "weather" });
-                notifiedWeatherRestock[key] = { lastActive, notified: true };
-              }
-            }
-
-            if (!weather.active) {
+            if (!notifiedWeatherRestock[key] || notifiedWeatherRestock[key].lastActive !== lastActive) {
               notifiedWeatherRestock[key] = { lastActive, notified: false };
+            }
+            if (shouldNotify && weather.active && !notifiedWeatherRestock[key].notified) {
+              sendNotification(weather, { type: "weather" });
+              notifiedWeatherRestock[key].notified = true;
             }
           }
         }
@@ -276,11 +224,9 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       if (window.Notification && Notification.permission !== "granted") {
         Notification.requestPermission();
       }
-
       document.getElementById("copyright-year").textContent = new Date().getFullYear();
     });
-  </script>
-  <script>
+
     const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Cauliflower", "Watermelon", "Green apple", "Avocado", "Banana", "Pineapple", "Kiwi", "Bell pepper", "Prickly pear", "Loquat", "Feijoa", "Sugar Apple"];
     const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"];
     const EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg"];
@@ -568,7 +514,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
           starBtn = "";
         } else if (tab === "weather") {
-          // handled in renderWeather
+
         } else {
           glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
           starBtn = `<button class="star-btn star-corner glow-btn rounded-full p-0 m-0${isNotified ? ' starred' : ''}" title="${isNotified ? 'Unnotify' : 'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
@@ -646,7 +592,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
 
     setCols(loadSetting("ggn-setting-cols", 4));
     fetchStock();
-
-  </script>
+</script>
 </body>
 </html>
