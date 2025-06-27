@@ -67,14 +67,14 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       </div>
     </div>
     <div class="support-section">
-      <button id="supportBtn" class="support-btn glow-btn">Support <span>💖</span></button>
+      <button id="supportBtn" class="support-btn glow-btn">Support <span>☕</span></button>
       <div class="support-desc">Enjoying the tool? Your support helps cover server costs!</div>
       <div class="support-note">Data provided by JoshLei's API.</div>
     </div>
     <div id="supportModal" class="modal-fade">
       <div class="modal-inner">
         <button onclick="closeSupportModal()" class="close-btn">&times;</button>
-        <h2 style="margin-top:0;">Support Me 💖</h2>
+        <h2 style="margin-top:0;">Support Us 💖</h2>
         <div style="margin-bottom:1.3em;">Complete tasks to help keep the website online</div>
         <div style="display:flex; flex-direction:column; gap:.7em;">
           <a id="lootlabsLink" href="https://loot-link.com/s?3MfF8pCH" target="_blank" rel="noopener"
@@ -90,7 +90,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
   </div>
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
-
+    // Modal open/close JS
     const settingsModalBg = document.getElementById("settingsModalBg");
     const settingsBtn2 = document.getElementById("settingsBtn");
     const closeSettingsBtn = document.getElementById("closeSettingsBtn");
@@ -135,7 +135,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     };
   </script>
   <script>
-
+    // NOTIFICATIONS: poll stocks and weather every 2 seconds
     function requestNotificationPermission() {
       if (window.Notification && Notification.permission !== "granted") {
         Notification.requestPermission();
@@ -165,7 +165,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     setInterval(async function () {
       let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
       try {
-
+        // STOCKS
         const sres = await fetch('https://api.joshlei.com/v2/growagarden/stock');
         if (sres.ok) {
           const stockData = await sres.json();
@@ -186,7 +186,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
             }
           }
         }
-
+        // WEATHER
         const wres = await fetch('https://api.joshlei.com/v2/growagarden/weather');
         if (wres.ok) {
           const weatherData = (await wres.json()).weather || [];
@@ -206,7 +206,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     document.addEventListener("DOMContentLoaded", requestNotificationPermission);
   </script>
   <script>
-
+    // FULL UI logic for stocks/weather/tabs/settings/cards/notify toggles/etc
     function saveSetting(key, value) {
       localStorage.setItem(key, JSON.stringify(value));
     }
@@ -498,7 +498,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
             glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
             starBtn = "";
           } else if (tab === "weather") {
-
+            // handled in renderWeather
           } else {
             glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
             starBtn = `<button class="star-btn star-corner glow-btn rounded-full p-0 m-0${isNotified ? ' starred' : ''}" title="${isNotified ? 'Unnotify' : 'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
