@@ -1,200 +1,30 @@
 <!DOCTYPE html>
 <html lang="en-NZ">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <title>Grow a Garden | Live Stocks</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded" rel="stylesheet"/>
-   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/lildanlid/growagarden/refs/heads/main/images/favicon.png" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/lildanlid/growagarden/refs/heads/main/images/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#242a43 0%,#232a45 25%,#2e3453 60%,#384063 100%)!important;position:relative;font-size:16px;}
-    .item-list{gap:1.25rem;position:relative;}
-    .item-card {
-      position:relative;
-      overflow:visible;
-      z-index:2;
-      border-radius: 1rem;
-      background: #232a45;
-      transition: border-color .18s, box-shadow .35s;
-      border: 2px solid #394464;
-    }
-    .item-card:focus-visible { outline: 2px solid #8ec4ff; outline-offset: 2px;}
-    .item-card.glow-green:hover,
-    .item-card.glow-green:focus-within {
-      border-color: #3cf79b !important;
-      box-shadow:
-        0 0 0 4px #3cf79b55,
-        0 0 12px 4px #3cf79baa,
-        0 0 36px 16px #3cf79bcc,
-        0 0 64px 24px #3cf79b77;
-    }
-    .item-card.glow-gray:hover,
-    .item-card.glow-gray:focus-within {
-      border-color: #aaa !important;
-      box-shadow:
-        0 0 0 4px #aaa7,
-        0 0 12px 4px #aaa6,
-        0 0 36px 16px #aaa5,
-        0 0 64px 24px #aaa3;
-    }
-    .item-card.glow-cosmetic:hover,
-    .item-card.glow-cosmetic:focus-within {
-      border-color: #3cf79b !important;
-      box-shadow:
-        0 0 0 4px #3cf79b55,
-        0 0 12px 4px #3cf79baa,
-        0 0 36px 16px #3cf79bcc,
-        0 0 64px 24px #3cf79b77;
-    }
-    .item-card.glow-yellow:hover,
-    .item-card.glow-yellow:focus-within {
-      border-color: #ffe066 !important;
-      box-shadow:
-        0 0 0 4px #ffe06644,
-        0 0 16px 6px #ffe06688,
-        0 0 40px 18px #ffe066aa,
-        0 0 72px 30px #ffe06655;
-    }
-    .item-card { box-shadow: none; }
-    .out-of-stock{position:relative;}
-    .out-of-stock::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:5;background:rgba(44,58,85,.62);backdrop-filter:grayscale(1) brightness(.7);border-radius:inherit}
-    .pretty-hover{transition:box-shadow .25s,background .2s,opacity .18s;}
-    .star-btn{position:absolute;top:.7rem;right:.7rem;z-index:10;background:transparent!important;border-radius:50%;border:none;pointer-events:auto;filter:none!important}
-    .star-btn .material-symbols-rounded{font-size:2.2em;color:#b6caf7;transition:color .2s;filter:none!important;z-index:11;position:relative}
-    .star-btn.starred .material-symbols-rounded{color:#ffe066!important;filter:none!important}
-    .star-corner{pointer-events:auto}
-    .category-tab{transition:box-shadow .15s,background .15s,color .15s}
-    .category-tab:hover,.category-tab:active{box-shadow:0 0 0 2px #43cffc88,0 1.5px 3px #232a45;background:#293967!important;color:#fff!important}
-    .tabs-center{justify-content:center!important}
-    .tabs-separator{display:inline-block;margin:0 .5rem;height:1.75rem;border-left:1.5px solid #384063;vertical-align:middle;opacity:.8}
-    .settings-modal-bg {
-      background: rgba(30, 36, 62, 0.65);
-      z-index: 1000;
-      transition: background .2s;
-    }
-    .modal-fade {
-      opacity: 0;
-      transform: scale(0.95);
-      pointer-events: none;
-      transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
-    }
-    .modal-show {
-      opacity: 1 !important;
-      transform: scale(1) !important;
-      pointer-events: auto !important;
-    }
-    .settings-modal-bg .settings-modal {
-      background: #222845;
-      border: 1px solid #464f63;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 20rem;
-      position: relative;
-      opacity: 0;
-      transform: scale(0.97);
-      transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
-    }
-    .settings-modal-bg.modal-show .settings-modal {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .settings-modal label { cursor:pointer; }
-    .settings-btn{background:#232a45;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;transition:background .2s;border:none;box-shadow:0 2px 8px #232a4533}
-    .settings-btn:focus-visible{outline:2px solid #8ec4ff;outline-offset:2px}
-    .settings-btn:hover,.settings-btn:active{background:#293967!important}
-    /* Support section styles */
-    .support-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 2.5em;
-      margin-bottom: 1.3em;
-      width: 100%;
-    }
-    .support-btn {
-      margin: 0.7em 0 0.2em 0;
-      padding: 0.45em 1.2em;
-      background: #F7A98B;
-      color: #222;
-      font-size: 1em;
-      font-weight: 600;
-      border: none;
-      border-radius: 2em;
-      box-shadow: 0 2px 10px #0002;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .support-btn span { font-size: 1.1em;}
-    .support-desc {
-      color: #fff;
-      font-size: .97em;
-      opacity: .9;
-      text-align: center;
-    }
-    #supportModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: #0008;
-      z-index: 10000;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transform: scale(0.96);
-      pointer-events: none;
-      transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
-    }
-    #supportModal.modal-show {
-      display: flex;
-      opacity: 1 !important;
-      transform: scale(1) !important;
-      pointer-events: auto !important;
-    }
-    #supportModal .modal-inner {
-      background: #222;
-      color: #fff;
-      padding: 2em 1.5em 1.5em 1.5em;
-      border-radius: 1.5em;
-      min-width: 300px;
-      box-shadow: 0 4px 32px #0008;
-      text-align: center;
-      position: relative;
-      opacity: 0;
-      transform: scale(0.97);
-      transition: opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
-    }
-    #supportModal.modal-show .modal-inner {
-      opacity: 1;
-      transform: scale(1);
-    }
-    #supportModal .close-btn {
-      position: absolute;
-      top: 1.1em;
-      right: 1.2em;
-      font-size: 1.7em;
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-    }
+html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#242a43 0%,#232a45 25%,#2e3453 60%,#384063 100%)!important;position:relative;font-size:16px;}.item-list{gap:1.25rem;position:relative;transition:grid-template-columns .2s;display:grid;grid-template-columns:repeat(var(--item-cols,4),minmax(0,1fr));}.item-card{position:relative;overflow:visible;z-index:2;border-radius:1rem;background:#232a45;box-shadow:none!important;border:none!important;transition:background .17s,color .14s,opacity .12s,box-shadow .14s,width .2s,min-width .2s;min-width:0;cursor:pointer;}.item-card:focus-visible{outline:2px solid #8ec4ff;outline-offset:2px;}.item-card.in-stock{background:rgba(60,247,155,.11)!important;color:#232a45!important;}.item-card.not-in-stock{background:rgba(180,180,180,.12)!important;color:#bcbcbc!important;opacity:.8;}.item-card.in-stock:hover,.item-card.in-stock:focus-within,.item-card.glow-green:hover,.item-card.glow-green:focus-within,.item-card.glow-cosmetic.in-stock:hover,.item-card.glow-cosmetic.in-stock:focus-within{box-shadow:0 0 0 1.5px #3cf79b55,0 1px 2px #232a4522;background:rgba(60,247,155,.17)!important;color:#232a45!important;border:none!important;}.item-card.not-in-stock:hover,.item-card.not-in-stock:focus-within,.item-card.glow-gray:hover,.item-card.glow-gray:focus-within,.item-card.glow-cosmetic.not-in-stock:hover,.item-card.glow-cosmetic.not-in-stock:focus-within{box-shadow:0 0 0 1.5px #aaa7,0 1px 2px #232a4522;background:rgba(180,180,180,.19)!important;color:#bcbcbc!important;border:none!important;}.item-card.selected.in-stock,.item-card.selected.glow-green,.item-card.selected.glow-cosmetic.in-stock{box-shadow:0 0 0 2.5px #3cf79b99,0 2px 4px #232a4540;background:rgba(60,247,155,.23)!important;color:#232a45!important;border:none!important;}.item-card.selected.not-in-stock,.item-card.selected.glow-gray,.item-card.selected.glow-cosmetic.not-in-stock{box-shadow:0 0 0 2.5px #aaa,0 2px 4px #232a4540;background:rgba(180,180,180,.27)!important;color:#bcbcbc!important;border:none!important;}.item-card.glow-yellow:hover,.item-card.glow-yellow:focus-within{background:rgba(255,224,102,.14)!important;color:#222!important;box-shadow:0 0 0 1.5px #ffe06633,0 1px 2px #232a4522;border:none!important;}.item-card.selected.glow-yellow{background:rgba(255,224,102,.23)!important;color:#222!important;box-shadow:0 0 0 2.5px #ffe06699,0 2px 4px #232a4540;border:none!important;}.in-stock-text,.not-in-stock-text{display:block;font-size:.85em;font-weight:700;margin-top:.3em;letter-spacing:.01em;text-align:center;transition:color .14s;}.in-stock-text{color:#21af7d;}.not-in-stock-text{color:#999;}.item-card.not-in-stock .in-stock-text{display:none;}.item-card.in-stock .not-in-stock-text{display:none;}.item-card.not-in-stock .item-icon img,.item-card.not-in-stock .item-name,.item-card.not-in-stock .in-stock-badge{filter:grayscale(1) brightness(.72)!important;color:#bcbcbc!important;opacity:.75;transition:color .14s,filter .14s,opacity .14s;}.item-card.selected.not-in-stock .item-icon img,.item-card.selected.not-in-stock .item-name,.item-card.selected.not-in-stock .in-stock-badge{filter:grayscale(1) brightness(.7)!important;color:#bcbcbc!important;opacity:1;}.star-btn,.star-btn .material-symbols-rounded{filter:none!important;opacity:1!important;color:#b6caf7!important;transition:color .2s;}.star-btn.starred .material-symbols-rounded{color:#ffe066!important;}.glow-btn,.category-tab,.settings-btn,.star-btn,.support-btn,.hover-effect{transition:box-shadow .14s,background .14s,color .14s;}.glow-btn:hover,.glow-btn:focus-visible,.category-tab:hover,.category-tab:focus-visible,.settings-btn:hover,.settings-btn:focus-visible,.star-btn:hover,.star-btn:focus-visible,.support-btn:hover,.support-btn:focus-visible,.hover-effect:hover,.hover-effect:focus-visible{box-shadow:0 0 0 1.5px #3cf79b33,0 1px 2px #232a4522;z-index:2;}@media (max-width:900px){.item-list{--item-cols:3 !important;}}@media (max-width:640px){.item-list{--item-cols:2 !important;}.item-card{padding-left:.7rem!important;padding-right:.7rem!important;padding-top:1.5rem!important;padding-bottom:1.5rem!important;}.item-icon{width:2.5rem!important;height:2.5rem!important;min-width:2.5rem!important;min-height:2.5rem!important;}.item-name{font-size:.95em!important;}.item-card .in-stock-badge{font-size:1em!important;}}.out-of-stock{position:relative;}.out-of-stock::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:5;background:rgba(44,58,85,.62);backdrop-filter:grayscale(1) brightness(.7);border-radius:inherit}.pretty-hover{transition:box-shadow .25s,background .2s,opacity .18s;}.star-btn{position:absolute;top:.7rem;right:.7rem;z-index:10;background:transparent!important;border-radius:50%;border:none;pointer-events:auto;}.star-btn .material-symbols-rounded{font-size:2.2em;}.category-tab{transition:box-shadow .15s,background .15s,color .15s}.category-tab:hover,.category-tab:active{box-shadow:0 0 0 2px #43cffc88,0 1.5px 3px #232a45;background:#293967!important;color:#fff!important}.tabs-center{justify-content:center!important}.tabs-separator{display:inline-block;margin:0 .5rem;height:1.75rem;border-left:1.5px solid #384063;vertical-align:middle;opacity:.8}.settings-modal-bg{background:rgba(30,36,62,.65);z-index:1000;transition:background .2s;}.modal-fade{opacity:0;transform:scale(.95);pointer-events:none;transition:opacity .25s cubic-bezier(.4,0,.2,1),transform .25s cubic-bezier(.4,0,.2,1);}.modal-show{opacity:1!important;transform:scale(1)!important;pointer-events:auto!important;}.settings-modal-bg .settings-modal{background:#222845;border:1px solid #464f63;border-radius:1rem;padding:1.5rem;width:100%;max-width:20rem;position:relative;opacity:0;transform:scale(.97);transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);}.settings-modal-bg.modal-show .settings-modal{opacity:1;transform:scale(1);}.settings-modal label{cursor:pointer;}.settings-btn{background:#232a45;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;transition:background .2s;border:none;box-shadow:0 2px 8px #232a4533}.settings-btn:focus-visible{outline:2px solid #8ec4ff;outline-offset:2px}.settings-btn:hover,.settings-btn:active{background:#293967!important}.support-section{display:flex;flex-direction:column;align-items:center;margin-top:2.5em;margin-bottom:1.3em;width:100%;}.support-btn{margin:0.7em 0 0.2em 0;padding:0.45em 1.2em;background:#F7A98B;color:#222;font-size:1em;font-weight:600;border:none;border-radius:2em;box-shadow:0 2px 10px #0002;cursor:pointer;transition:background .2s;}.support-btn span{font-size:1.1em;}.ko-fi-btn{margin:0.2em 0 0.2em 0;padding:0.45em 1.2em;background:#e6647c;color:#fff!important;font-size:1em;font-weight:600;border:none;border-radius:2em;box-shadow:0 2px 10px #0002;cursor:pointer;transition:background .2s;text-align:center;text-decoration:none;display:inline-block;}.ko-fi-btn span{font-size:1.1em;}.support-desc,.support-note{color:#fff;font-size:.82em;opacity:.88;text-align:center;line-height:1.5;}#supportModal{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;z-index:10000;align-items:center;justify-content:center;opacity:0;transform:scale(.96);pointer-events:none;transition:opacity .25s cubic-bezier(.4,0,.2,1),transform .25s cubic-bezier(.4,0,.2,1);}#supportModal.modal-show{display:flex;opacity:1!important;transform:scale(1)!important;pointer-events:auto!important;}#supportModal .modal-inner{background:#222;color:#fff;padding:2em 1.5em 1.5em 1.5em;border-radius:1.5em;min-width:300px;box-shadow:0 4px 32px #0008;text-align:center;position:relative;opacity:0;transform:scale(.97);transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);}#supportModal.modal-show .modal-inner{opacity:1;transform:scale(1);}}#supportModal .close-btn{position:absolute;top:1.1em;right:1.2em;font-size:1.7em;background:none;border:none;color:#fff;cursor:pointer;}
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center font-inter">
   <div class="bg-transparent border border-[#464f63] rounded-xl p-2 sm:p-5 w-full max-w-[1200px] min-h-[95vh] flex flex-col relative justify-start" style="box-shadow:0 4px 34px #10193377;z-index:1;">
     <div class="flex items-center justify-end w-full">
-      <button id="settingsBtn" class="settings-btn" aria-label="Settings" title="Settings">
+      <button id="settingsBtn" class="settings-btn glow-btn" aria-label="Settings" title="Settings">
         <span class="material-symbols-rounded text-2xl text-[#8ec4ff]">settings</span>
       </button>
     </div>
     <div class="flex flex-row gap-2 flex-wrap mt-3 mb-4 tabs-center" id="tabsRow">
-      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="seeds"><span class="material-symbols-rounded text-lg align-middle">eco</span>Seeds</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="gear"><span class="material-symbols-rounded text-lg align-middle">build</span>Gear</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="eggs"><span class="material-symbols-rounded text-lg align-middle">egg</span>Eggs</button>
-      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="cosmetics"><span class="material-symbols-rounded text-lg align-middle">auto_awesome</span>Cosmetics</button>
+      <button class="category-tab glow-btn flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="seeds"><span class="material-symbols-rounded text-lg align-middle">eco</span>Seeds</button>
+      <button class="category-tab glow-btn flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="gear"><span class="material-symbols-rounded text-lg align-middle">build</span>Gear</button>
+      <button class="category-tab glow-btn flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="eggs"><span class="material-symbols-rounded text-lg align-middle">egg</span>Eggs</button>
+      <button class="category-tab glow-btn flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="cosmetics"><span class="material-symbols-rounded text-lg align-middle">auto_awesome</span>Cosmetics</button>
       <span class="tabs-separator"></span>
-      <button class="category-tab hover-effect flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="weather"><span class="material-symbols-rounded text-lg align-middle">cloud</span>Weather</button>
+      <button class="category-tab glow-btn flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg font-semibold text-[#b6caf7] bg-[#232a45]" data-tab="weather"><span class="material-symbols-rounded text-lg align-middle">cloud</span>Weather</button>
     </div>
     <div class="flex items-center gap-4 bg-[#232a45] rounded-lg px-4 sm:px-6 py-4 mb-6 border border-[#394464]">
       <span class="material-symbols-rounded text-[#b6caf7] mr-2 text-xl">schedule</span>
@@ -203,7 +33,7 @@
       <span class="ml-auto text-xs text-[#b6caf7] select-none"><span id="restockAgo" class="ml-1"></span></span>
     </div>
     <div id="cosmeticsStocksNote" class="mb-4 text-blue-300 font-semibold hidden">Only Showing Stocks</div>
-    <div class="item-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5" id="itemList" style="position:relative;"></div>
+    <div class="item-list" id="itemList" style="position:relative;"></div>
     <!-- Settings Modal -->
     <div id="settingsModalBg" class="settings-modal-bg fixed inset-0 hidden flex items-center justify-center modal-fade">
       <div class="settings-modal">
@@ -216,29 +46,41 @@
           <input id="toggleActiveText" type="checkbox" class="toggle-checkbox rounded accent-[#2ec6fa]" checked>
           <label for="toggleActiveText" class="text-[#b6caf7] font-medium">Show "Active" text</label>
         </div>
-        <div class="mb-4 flex gap-2 items-center">
+        <div class="mb-2 flex gap-2 items-center">
+          <input id="toggleInStockText" type="checkbox" class="toggle-checkbox rounded accent-[#2ec6fa]" checked>
+          <label for="toggleInStockText" class="text-[#b6caf7] font-medium">Show "In Stock" / "Not In Stock" text</label>
+        </div>
+        <div class="mb-2 flex gap-2 items-center">
           <input id="toggleNameText" type="checkbox" class="toggle-checkbox rounded accent-[#2ec6fa]" checked>
           <label for="toggleNameText" class="text-[#b6caf7] font-medium">Show Item Name</label>
         </div>
-        <button id="closeSettingsBtn" class="hover-effect bg-[#353c5c] px-4 py-2 rounded-lg text-[#8ec4ff] font-semibold w-full mt-2">Close</button>
+        <div class="mb-4 flex gap-2 items-center">
+          <label for="colsSetting" class="text-[#b6caf7] font-medium">Cards Per Row:</label>
+          <select id="colsSetting" class="rounded p-1 bg-[#20294c] text-[#b6caf7] border border-[#394464]" style="width:4.2em;">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+        <button id="closeSettingsBtn" class="hover-effect bg-[#353c5c] px-4 py-2 rounded-lg text-[#8ec4ff] font-semibold w-full mt-2 glow-btn">Close</button>
       </div>
     </div>
-    <!-- Support section (above footer) -->
     <div class="support-section">
-      <button id="supportBtn" class="support-btn">
-        Support <span>☕</span>
-      </button>
+      <button id="supportBtn" class="support-btn glow-btn">Support <span>💖</span></button>
       <div class="support-desc">Enjoying the tool? Your support helps cover server costs!</div>
+      <div class="support-note">Data provided by JoshLei's API.</div>
     </div>
-    <!-- Support Modal -->
     <div id="supportModal" class="modal-fade">
       <div class="modal-inner">
         <button onclick="closeSupportModal()" class="close-btn">&times;</button>
-        <h2 style="margin-top:0;">Support Us 💖</h2>
+        <h2 style="margin-top:0;">Support Me 💖</h2>
         <div style="margin-bottom:1.3em;">Complete tasks to help keep the website online</div>
         <div style="display:flex; flex-direction:column; gap:.7em;">
           <a id="lootlabsLink" href="https://loot-link.com/s?3MfF8pCH" target="_blank" rel="noopener"
             style="background:#F7A98B; color:#222; font-weight:bold; padding:.65em 1.2em; border-radius:1em; text-decoration:none; display:inline-block; transition:background .2s;">Lootlabs</a>
+          <a id="koFiBtnModal" href="https://ko-fi.com/lildanlid" target="_blank" rel="noopener"
+             class="ko-fi-btn glow-btn" style="margin-top:0.5em;">Ko-fi <span>❤️</span></a>
         </div>
       </div>
     </div>
@@ -248,7 +90,7 @@
   </div>
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
-    // Settings modal animated open/close
+
     const settingsModalBg = document.getElementById("settingsModalBg");
     const settingsBtn2 = document.getElementById("settingsBtn");
     const closeSettingsBtn = document.getElementById("closeSettingsBtn");
@@ -265,17 +107,16 @@
       }, 350);
     };
     settingsModalBg.onclick = e => {
-      if(e.target===settingsModalBg) {
+      if (e.target === settingsModalBg) {
         settingsModalBg.classList.remove("modal-show");
         setTimeout(() => {
           settingsModalBg.classList.add("hidden");
         }, 350);
       }
     };
-    // Support modal animated open/close
     const supportBtn = document.getElementById('supportBtn');
     const supportModal = document.getElementById('supportModal');
-    supportBtn.onclick = function() {
+    supportBtn.onclick = function () {
       supportModal.style.display = "flex";
       setTimeout(() => {
         supportModal.classList.add('modal-show');
@@ -287,75 +128,146 @@
         supportModal.style.display = "none";
       }, 250);
     }
-    supportModal.onclick = function(e) {
+    supportModal.onclick = function (e) {
       if (e.target === supportModal) {
         closeSupportModal();
       }
     };
   </script>
   <script>
+
+    function requestNotificationPermission() {
+      if (window.Notification && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    }
+    function playNotificationSound() {
+      const audio = document.getElementById("notify-audio");
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+    }
+    function sendNotification(item, opts = {}) {
+      if (!window.Notification || Notification.permission !== "granted") return;
+      let title, body;
+      if (opts.type === "weather") {
+        title = `${item.weather_name || "Weather"} is now active!`;
+        body = `A new event is happening: ${item.weather_name}`;
+      } else {
+        title = `${item.display_name || "Item"} is in stock!`;
+        body = `Quantity: ${item.quantity}`;
+      }
+      playNotificationSound();
+      new Notification(title, { body });
+    }
+    let notifiedItems = {}, notifiedWeather = {};
+    setInterval(async function () {
+      let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
+      try {
+
+        const sres = await fetch('https://api.joshlei.com/v2/growagarden/stock');
+        if (sres.ok) {
+          const stockData = await sres.json();
+          const allStock = [
+            ...(stockData.seed_stock || []),
+            ...(stockData.gear_stock || []),
+            ...(stockData.egg_stock || []),
+            ...(stockData.cosmetic_stock || [])
+          ];
+          for (const item of allStock) {
+            const key = item.display_name;
+            const shouldNotify = notifyList.includes(key);
+            if (shouldNotify && item.quantity > 0 && !notifiedItems[key]) {
+              sendNotification(item);
+              notifiedItems[key] = true;
+            } else if (item.quantity <= 0) {
+              notifiedItems[key] = false;
+            }
+          }
+        }
+
+        const wres = await fetch('https://api.joshlei.com/v2/growagarden/weather');
+        if (wres.ok) {
+          const weatherData = (await wres.json()).weather || [];
+          for (const weather of weatherData) {
+            const key = weather.weather_name;
+            const shouldNotify = notifyList.includes(key);
+            if (shouldNotify && weather.active && !notifiedWeather[key]) {
+              sendNotification(weather, { type: "weather" });
+              notifiedWeather[key] = true;
+            } else if (!weather.active) {
+              notifiedWeather[key] = false;
+            }
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }, 2000);
+    document.addEventListener("DOMContentLoaded", requestNotificationPermission);
+  </script>
+  <script>
+
     function saveSetting(key, value) {
       localStorage.setItem(key, JSON.stringify(value));
     }
-    function loadSetting(key, def=true) {
+    function loadSetting(key, def = true) {
       const v = localStorage.getItem(key);
       return v === null ? def : JSON.parse(v);
     }
-    function formatCountdown(ms){
+    function formatCountdown(ms) {
       ms = Math.max(0, ms);
-      let s = Math.floor(ms / 1000);
-      const h = Math.floor(s / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      const sec = s % 60;
-      if (h > 0) {
-        return `${h}:${m.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
-      } else {
-        return `${m}:${sec.toString().padStart(2,"0")}`;
-      }
+      let s = Math.floor(ms / 1000),
+        h = Math.floor(s / 3600),
+        m = Math.floor((s % 3600) / 60),
+        sec = s % 60;
+      return h > 0
+        ? `${h}:${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`
+        : `${m}:${sec.toString().padStart(2, "0")}`;
     }
-    function getRestockCategoryForTab(tab){
-      if(tab==="seeds") return "seeds";
-      if(tab==="gear") return "gear";
-      if(tab==="eggs") return "egg";
-      if(tab==="weather") return "SwarmEvent";
-      if(tab==="cosmetics") return "cosmetic";
+    function getRestockCategoryForTab(tab) {
+      if (tab === "seeds") return "seeds";
+      if (tab === "gear") return "gear";
+      if (tab === "eggs") return "egg";
+      if (tab === "weather") return "SwarmEvent";
+      if (tab === "cosmetics") return "cosmetic";
       return null;
     }
-    function getRestockLabel(tab){
-      if(tab==="seeds") return "Seeds Restock";
-      if(tab==="gear") return "Gear Restock";
-      if(tab==="eggs") return "Eggs Restock";
-      if(tab==="cosmetics") return "Cosmetics Restock";
+    function getRestockLabel(tab) {
+      if (tab === "seeds") return "Seeds Restock";
+      if (tab === "gear") return "Gear Restock";
+      if (tab === "eggs") return "Eggs Restock";
+      if (tab === "cosmetics") return "Cosmetics Restock";
       return "";
     }
-    function calculateRestockTimes(){
-      const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-      function getResetTimes(interval){
-        const timeSinceStartOfDay = now.getTime()-today.getTime();
-        const lastReset = today.getTime() + Math.floor(timeSinceStartOfDay/interval)*interval;
-        const nextReset = today.getTime() + Math.ceil(timeSinceStartOfDay/interval)*interval;
-        return {lastReset,nextReset};
+    function calculateRestockTimes() {
+      const now = new Date(),
+        today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      function getResetTimes(interval) {
+        const timeSinceStartOfDay = now.getTime() - today.getTime(),
+          lastReset = today.getTime() + Math.floor(timeSinceStartOfDay / interval) * interval,
+          nextReset = today.getTime() + Math.ceil(timeSinceStartOfDay / interval) * interval;
+        return { lastReset, nextReset };
       }
-      const eggInterval = 30*60*1000;
-      const gearInterval = 5*60*1000;
-      const cosmeticInterval = 4*3600*1000;
-      const nightInterval = 3600*1000;
-      const {lastReset:eggLastReset,nextReset:eggNextReset} = getResetTimes(eggInterval);
-      const {lastReset:gearLastReset,nextReset:gearNextReset} = getResetTimes(gearInterval);
-      const {lastReset:cosmeticLastReset,nextReset:cosmeticNextReset} = getResetTimes(cosmeticInterval);
-      const {lastReset:nightLastReset,nextReset:nightNextReset} = getResetTimes(nightInterval);
-      function timeSince(timestamp){
-        const nowMs = Date.now();
-        const diff = nowMs - timestamp;
-        const seconds = Math.floor(diff/1000);
-        if(seconds<60) return `${seconds}s ago`;
-        const minutes = Math.floor(seconds/60);
-        if(minutes<60) return `${minutes}m ago`;
-        const hours = Math.floor(minutes/60);
+      const eggInterval = 1800000,
+        gearInterval = 300000,
+        cosmeticInterval = 14400000,
+        nightInterval = 3600000,
+        { lastReset: eggLastReset, nextReset: eggNextReset } = getResetTimes(eggInterval),
+        { lastReset: gearLastReset, nextReset: gearNextReset } = getResetTimes(gearInterval),
+        { lastReset: cosmeticLastReset, nextReset: cosmeticNextReset } = getResetTimes(cosmeticInterval),
+        { lastReset: nightLastReset, nextReset: nightNextReset } = getResetTimes(nightInterval);
+      function timeSince(timestamp) {
+        const nowMs = Date.now(),
+          diff = nowMs - timestamp,
+          seconds = Math.floor(diff / 1000);
+        if (seconds < 60) return `${seconds}s ago`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
         return `${hours}h ago`;
       }
-      function formatTime(timestamp){
-        return new Date(timestamp).toLocaleString("en-NZ",{hour:"numeric",minute:"2-digit",hour12:true});
+      function formatTime(timestamp) {
+        return new Date(timestamp).toLocaleString("en-NZ", { hour: "numeric", minute: "2-digit", hour12: true });
       }
       return {
         egg: {
@@ -385,118 +297,76 @@
         }
       };
     }
-    let currentTab="seeds";
-    let notifyList = JSON.parse(localStorage.getItem('notifyList')||'[]');
-    let notifiedItems = {};
-    function playNotificationSound() {
-      const audio = document.getElementById("notify-audio");
-      if (!audio) return;
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    }
-    function requestNotificationPermission(){
-      if(window.Notification && Notification.permission !== "granted"){
-        Notification.requestPermission().then(function(permission){
-          if(permission === "granted") {
-            notifyList = JSON.parse(localStorage.getItem('notifyList')||'[]');
-          }
-        });
-      }
-    }
-    function sendNotification(item, opts={}) {
-      if(!window.Notification || Notification.permission !== "granted") return;
-      let key = opts.type==="weather" ? "weather-"+item.weather_name : item.display_name+"-"+(item.item_id||"");
-      if(notifiedItems[key]) return;
-      notifiedItems[key]=true;
-      let title = opts.type==="weather"
-        ? (item.weather_name||"Weather")+" is now active!"
-        : (item.display_name||"Item")+" is in stock!";
-      let body = opts.type==="weather"
-        ? (item.weather_name+" is now happening in Grow a Garden!")
-        : ("Quantity: "+item.quantity);
-      let icon = item.icon||"";
-      playNotificationSound();
-      new Notification(title, {body, icon});
-    }
-    function saveNotifyList() {
-      localStorage.setItem('notifyList', JSON.stringify(notifyList));
-    }
-    function updateRestockBar(){
+    let currentTab = "seeds",
+      selectedCards = new Set();
+    function updateRestockBar() {
       const restockData = calculateRestockTimes(),
         cat = getRestockCategoryForTab(currentTab),
         timerBar = document.getElementById("restockTimerBar"),
         restockAgo = document.getElementById("restockAgo"),
         restockLabel = document.getElementById("restockLabel");
-      restockLabel.textContent = getRestockLabel(currentTab)+":";
-      if(currentTab==="weather") {
-        timerBar.style.display="none";
-        restockAgo.textContent="";
+      restockLabel.textContent = getRestockLabel(currentTab) + ":";
+      if (currentTab === "weather") {
+        timerBar.style.display = "none";
+        restockAgo.textContent = "";
         return;
       } else {
-        timerBar.style.display="";
+        timerBar.style.display = "";
       }
       if (!cat || !restockData[cat]) {
-        timerBar.textContent="No restock data available.";
-        restockAgo.textContent="";
+        timerBar.textContent = "No restock data available.";
+        restockAgo.textContent = "";
         return;
       }
       const ms = restockData[cat].timestamp - Date.now();
       timerBar.textContent = formatCountdown(ms);
       restockAgo.textContent = restockData[cat].timeSinceLastRestock ?? "";
     }
-    setInterval(updateRestockBar,1000);
-
-    function applySettings() {
-      const showStock = loadSetting("ggn-setting-showStock", true);
-      const showActive = loadSetting("ggn-setting-showActive", true);
-      const showName = loadSetting("ggn-setting-showName", true);
-      document.querySelectorAll('.in-stock-badge').forEach(el=>{
-        el.style.display = showStock ? "" : "none";
-      });
-      document.querySelectorAll('.active-badge').forEach(el=>{
-        el.style.display = showActive ? "" : "none";
-      });
-      document.querySelectorAll('.item-name').forEach(el=>{
-        el.style.display = showName ? "" : "none";
-      });
+    function setCols(num) {
+      num = Math.max(2, Math.min(5, Number(num) || 4));
+      document.documentElement.style.setProperty('--item-cols', num);
+      saveSetting("ggn-setting-cols", num);
     }
-
-    document.addEventListener("DOMContentLoaded",function(){
+    setInterval(updateRestockBar, 1000);
+    function applySettings() {
+      const showStock = loadSetting("ggn-setting-showStock", true),
+        showActive = loadSetting("ggn-setting-showActive", true),
+        showName = loadSetting("ggn-setting-showName", true),
+        showInStockText = loadSetting("ggn-setting-showInStockText", true);
+      document.querySelectorAll('.in-stock-badge').forEach(el => { el.style.display = showStock ? "" : "none"; });
+      document.querySelectorAll('.active-badge').forEach(el => { el.style.display = showActive ? "" : "none"; });
+      document.querySelectorAll('.item-name').forEach(el => { el.style.display = showName ? "" : "none"; });
+      document.querySelectorAll('.in-stock-text').forEach(el => { el.style.display = showInStockText ? "" : "none"; });
+      document.querySelectorAll('.not-in-stock-text').forEach(el => { el.style.display = showInStockText ? "" : "none"; });
+      const cols = loadSetting("ggn-setting-cols", 4);
+      setCols(cols);
+      const colsSetting = document.getElementById('colsSetting');
+      if (colsSetting) colsSetting.value = cols.toString();
+    }
+    document.addEventListener("DOMContentLoaded", function () {
       updateRestockBar();
-      requestNotificationPermission();
-
-      // SETTINGS MODAL
       document.getElementById("toggleStockText").checked = loadSetting("ggn-setting-showStock", true);
       document.getElementById("toggleActiveText").checked = loadSetting("ggn-setting-showActive", true);
       document.getElementById("toggleNameText").checked = loadSetting("ggn-setting-showName", true);
-      document.getElementById("toggleStockText").onchange = function() {
-        saveSetting("ggn-setting-showStock", this.checked);
-        applySettings();
-      };
-      document.getElementById("toggleActiveText").onchange = function() {
-        saveSetting("ggn-setting-showActive", this.checked);
-        applySettings();
-      };
-      document.getElementById("toggleNameText").onchange = function() {
-        saveSetting("ggn-setting-showName", this.checked);
-        applySettings();
-      };
-
-      const SEED_NAMES=["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","Green apple","Avocado","Banana","Pineapple","Kiwi","Bell pepper","Prickly pear","Loquat","Feijoa","Sugar Apple"];
-      const GEAR_NAMES=["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Tanning Mirror","Master Sprinkler","Cleaning Spray","Favorite Tool","Harvest Tool","Friendship Pot"];
-      const EGG_NAMES=["Summer Common Egg","Rare Summer Egg","Common Egg","Uncommon Egg","Rare Egg","Paradise Egg","Legendary Egg","Mythical Egg","Bug Egg"];
-      const IMAGE_OVERRIDES={
-        "Summer Common Egg":"common_summer_egg","Rare Summer Egg":"rare_summer_egg","Paradise Egg":"paradise_egg",
-        "Legendary Egg":"legendary_egg","Uncommon Egg":"uncommon_egg","Prickly pear":"prickly_pear",
-        "Prikily pear":"prickly_pear"
-      };
-      function getImageId(name){
-        return IMAGE_OVERRIDES[name] || name.toLowerCase().replace(/ /g,"_").replace("prikily_pear","prickly_pear").replace("summer_rare_egg","rare_summer_egg");
+      document.getElementById("toggleInStockText").checked = loadSetting("ggn-setting-showInStockText", true);
+      document.getElementById("colsSetting").value = loadSetting("ggn-setting-cols", 4);
+      document.getElementById("toggleStockText").onchange = function () { saveSetting("ggn-setting-showStock", this.checked); applySettings(); };
+      document.getElementById("toggleActiveText").onchange = function () { saveSetting("ggn-setting-showActive", this.checked); applySettings(); };
+      document.getElementById("toggleNameText").onchange = function () { saveSetting("ggn-setting-showName", this.checked); applySettings(); };
+      document.getElementById("toggleInStockText").onchange = function () { saveSetting("ggn-setting-showInStockText", this.checked); applySettings(); };
+      document.getElementById("colsSetting").onchange = function () { setCols(this.value); applySettings(); };
+      const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Cauliflower", "Watermelon", "Green apple", "Avocado", "Banana", "Pineapple", "Kiwi", "Bell pepper", "Prickly pear", "Loquat", "Feijoa", "Sugar Apple"],
+        GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"],
+        EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg"],
+        IMAGE_OVERRIDES = {
+          "Summer Common Egg": "common_summer_egg", "Rare Summer Egg": "rare_summer_egg", "Paradise Egg": "paradise_egg",
+          "Legendary Egg": "legendary_egg", "Uncommon Egg": "uncommon_egg", "Prickly pear": "prickly_pear",
+          "Prikily pear": "prickly_pear"
+        };
+      function getImageId(name) {
+        return IMAGE_OVERRIDES[name] || name.toLowerCase().replace(/ /g, "_").replace("prikily_pear", "prickly_pear").replace("summer_rare_egg", "rare_summer_egg");
       }
-      let stockData = {};
-      let weatherData = [];
-      let loading = false;
-
+      let stockData = {}, weatherData = {}, loading = false;
       async function fetchStock() {
         loading = true;
         document.getElementById('itemList').innerHTML = '<div class="text-center text-blue-200 py-8">Loading...</div>';
@@ -505,12 +375,11 @@
           if (!res.ok) throw new Error("API error: " + res.status);
           stockData = await res.json();
         } catch (err) {
-          document.getElementById('itemList').innerHTML = '<span style="color:#f76;">Failed to load stocks.<br>'+err.message+'</span>';
+          document.getElementById('itemList').innerHTML = '<span style="color:#f76;">Failed to load stocks.<br>' + err.message + '</span>';
           stockData = {};
         }
         loading = false;
         renderCurrentTab();
-        checkNotify(stockData);
         applySettings();
       }
       async function fetchWeather() {
@@ -523,29 +392,6 @@
           weatherData = [];
         }
       }
-      function checkNotify(stockData) {
-        let t=[...(stockData.seed_stock||[]),...(stockData.gear_stock||[]),...(stockData.egg_stock||[])];
-        let a={};
-        for(const n of t){
-          let key=`${n.display_name}-${n.item_id||getImageId(n.display_name)}`;
-          if(notifyList.includes(n.display_name) && n.quantity>0 && !a[key]) {
-            sendNotification(n,{type:"stock"});
-            a[key]=true;
-          } else if(n.quantity<=0) notifiedItems[key]=false;
-        }
-      }
-      function checkWeatherNotify(weatherData){
-        if(!Array.isArray(weatherData))return;
-        for(const weather of weatherData){
-          let key="weather-"+weather.weather_name;
-          if(notifyList.includes(weather.weather_name) && weather.active && !notifiedItems[key]) {
-            sendNotification(weather,{type:"weather"});
-            notifiedItems[key]=true;
-          } else if(!weather.active) {
-            notifiedItems[key]=false;
-          }
-        }
-      }
       function renderCurrentTab() {
         if (currentTab === "seeds") renderSeeds();
         else if (currentTab === "gear") renderGear();
@@ -556,32 +402,40 @@
       }
       function renderSeeds() {
         if (!stockData.seed_stock) { fetchStock(); return; }
-        let items = SEED_NAMES.map(name=>{
-          let item = (stockData.seed_stock||[]).find(e=>e.display_name===name);
-          return item||{display_name:name,quantity:0};
+        let items = SEED_NAMES.map(name => {
+          let item = (stockData.seed_stock || []).find(e => e.display_name === name);
+          return item || { display_name: name, quantity: 0 };
         });
-        drawItems(items,"seeds");
+        drawItems(items, "seeds");
       }
       function renderGear() {
         if (!stockData.gear_stock) { fetchStock(); return; }
-        let items = GEAR_NAMES.map(name=>{
-          let item = (stockData.gear_stock||[]).find(e=>e.display_name===name);
-          return item||{display_name:name,quantity:0};
+        let items = GEAR_NAMES.map(name => {
+          let item = (stockData.gear_stock || []).find(e => e.display_name === name);
+          return item || { display_name: name, quantity: 0 };
         });
-        drawItems(items,"gear");
+        drawItems(items, "gear");
       }
       function renderEggs() {
         if (!stockData.egg_stock) { fetchStock(); return; }
-        let items = EGG_NAMES.map(name=>{
-          let item = (stockData.egg_stock||[]).find(e=>e.display_name===name);
-          return item||{display_name:name,quantity:0};
+        let items = EGG_NAMES.map(name => {
+          let item = (stockData.egg_stock || []).find(e => e.display_name === name);
+          return item || { display_name: name, quantity: 0 };
         });
-        drawItems(items,"eggs");
+        drawItems(items, "eggs");
       }
       function renderCosmetics() {
         if (!stockData.cosmetic_stock) { fetchStock(); return; }
-        let items = (stockData.cosmetic_stock||[]).filter(e=>e.quantity>0);
-        drawItems(items,"cosmetics");
+        let allCosmetics = [
+          ...(stockData.cosmetic_stock || []).map(x => x.display_name)
+        ];
+        let uniqueCosmetics = Array.from(new Set(allCosmetics.concat((stockData.cosmetic_stock || []).map(e => e.display_name))));
+        let items = uniqueCosmetics.map(name => {
+          let item = (stockData.cosmetic_stock || []).find(e => e.display_name === name);
+          if (!item) return { display_name: name, quantity: 0 };
+          return item;
+        });
+        drawItems(items, "cosmetics");
       }
       async function renderWeather() {
         document.getElementById("cosmeticsStocksNote").classList.add("hidden");
@@ -592,38 +446,41 @@
           return;
         }
         let html = "";
-        weatherData.forEach(item=>{
+        weatherData.forEach(item => {
+          let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
           const isNotified = notifyList.includes(item.weather_name);
           let glowClass = "glow-yellow";
-          html += `<div class="item-card border pretty-hover weather-glow flex flex-col items-center py-7 px-4 rounded-xl shadow border-[#394464] ${glowClass}${item.active?'':' bg-[#232a45]/80 out-of-stock weather-inactive'}" tabindex="0">
-            <button class="star-btn star-corner rounded-full p-0 m-0${isNotified?' starred':''}" title="${isNotified?'Unnotify':'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
-              <span class="material-symbols-rounded align-middle">${isNotified?'star':'star'}</span>
+          html += `<div class="item-card border pretty-hover weather-glow flex flex-col items-center py-7 px-4 rounded-xl shadow ${glowClass} ${(item.active ? "in-stock" : "not-in-stock")}" tabindex="0">
+            <button class="star-btn star-corner glow-btn rounded-full p-0 m-0${isNotified ? ' starred' : ''}" title="${isNotified ? 'Unnotify' : 'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
+              <span class="material-symbols-rounded align-middle">${isNotified ? 'star' : 'star'}</span>
             </button>
             <div class="item-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4">
-              <img src="https://api.joshlei.com/v2/growagarden/image/${getImageId(item.weather_name||'')}" loading="lazy" alt="${item.weather_name||''}" onerror="this.style.display='none'">
+              <img src="https://api.joshlei.com/v2/growagarden/image/${getImageId(item.weather_name || '')}" loading="lazy" alt="${item.weather_name || ''}" onerror="this.style.display='none'">
             </div>
-            <div class="item-name font-semibold text-white text-[1.1em] text-center">${item.weather_name||"(unknown)"}</div>
-            ${item.active?'<div class="mt-2 mb-0.5 active-badge bg-[#2ec6fa]/80 text-white rounded px-2 py-0.5 text-sm font-semibold text-center w-max mx-auto">Active</div>':''}
+            <div class="item-name font-semibold text-white text-[1.1em] text-center">${item.weather_name || "(unknown)"}</div>
+            ${item.active ? '<div class="mt-2 mb-0.5 active-badge bg-[#2ec6fa]/80 text-white rounded px-2 py-0.5 text-sm font-semibold text-center w-max mx-auto">Active</div>' : ''}
+            <span class="in-stock-text"${!item.active ? ' style="display:none;"' : ''}>In Stock</span>
+            <span class="not-in-stock-text"${item.active ? ' style="display:none;"' : ''}>Not In Stock</span>
           </div>`;
         });
         document.getElementById('itemList').innerHTML = html;
-        document.querySelectorAll('.item-card .star-btn').forEach((btn,idx)=>{
-          btn.onclick = function(ev){
+        document.querySelectorAll('.item-card .star-btn').forEach((btn, idx) => {
+          btn.onclick = function (ev) {
             ev.stopPropagation();
+            let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
             const weather = weatherData[idx];
-            if(!weather) return;
+            if (!weather) return;
             const wn = weather.weather_name;
-            if(notifyList.includes(wn)){
-              notifyList = notifyList.filter(x=>x!==wn);
+            if (notifyList.includes(wn)) {
+              notifyList = notifyList.filter(x => x !== wn);
             } else {
               notifyList.push(wn);
             }
-            saveNotifyList();
+            localStorage.setItem('notifyList', JSON.stringify(notifyList));
             renderWeather();
           }
         });
         applyCardGlowClasses('weather', weatherData);
-        checkWeatherNotify(weatherData);
         applySettings();
       }
       function drawItems(items, tab) {
@@ -634,71 +491,104 @@
         }
         let html = '';
         items.forEach((item, idx) => {
+          let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
           const isNotified = notifyList.includes(item.display_name);
-          let glowClass = "";
-          if(tab === "cosmetics") glowClass = "glow-cosmetic";
-          else if(tab === "gear" || tab === "eggs" || tab === "seeds") glowClass = item.quantity > 0 ? "glow-green" : "glow-gray";
-          else glowClass = "glow-gray";
-          html += `<div class="item-card border pretty-hover flex flex-col items-center py-7 px-4 rounded-xl shadow border-[#394464] ${glowClass} ${item.quantity > 0 ? "bg-green-900/60" : "bg-[#232a45]/80 out-of-stock"}" tabindex="0">
-            <button class="star-btn star-corner rounded-full p-0 m-0${isNotified?' starred':''}" title="${isNotified?'Unnotify':'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
-              <span class="material-symbols-rounded align-middle">${isNotified?'star':'star'}</span>
-            </button>
+          let glowClass = "", starBtn = "", inStock = (item.quantity > 0);
+          if (tab === "cosmetics") {
+            glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
+            starBtn = "";
+          } else if (tab === "weather") {
+
+          } else {
+            glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
+            starBtn = `<button class="star-btn star-corner glow-btn rounded-full p-0 m-0${isNotified ? ' starred' : ''}" title="${isNotified ? 'Unnotify' : 'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
+              <span class="material-symbols-rounded align-middle">${isNotified ? 'star' : 'star'}</span>
+            </button>`;
+          }
+          let displayName = (tab === "eggs")
+            ? item.display_name.replace(/egg/gi, '').trim()
+            : item.display_name;
+          html += `<div class="item-card border pretty-hover flex flex-col items-center py-7 px-4 rounded-xl shadow ${glowClass}${selectedCards.has(tab + "-" + idx) ? ' selected' : ''}" tabindex="0" data-index="${idx}" data-tab="${tab}">
+            ${starBtn}
             <div class="item-icon bg-transparent w-14 h-14 flex items-center justify-center mb-4">
-              <img src="https://api.joshlei.com/v2/growagarden/image/${getImageId(item.display_name||'')}" loading="lazy" alt="${item.display_name||''}" onerror="this.style.display='none'">
+              <img src="https://api.joshlei.com/v2/growagarden/image/${getImageId(item.display_name || '')}" loading="lazy" alt="${item.display_name || ''}" onerror="this.style.display='none'">
             </div>
-            <div class="item-name font-semibold text-white text-[1.1em] text-center">${item.display_name}</div>
-            <div class="mt-2 mb-0.5 in-stock-badge font-bold text-lg text-center w-max mx-auto" style="color:${item.quantity>0?'#3cf79b':'#aaa'}">${item.quantity}</div>
+            <div class="item-name font-semibold text-white text-[1.1em] text-center">${displayName}</div>
+            <div class="mt-2 mb-0.5 in-stock-badge font-bold text-lg text-center w-max mx-auto" style="color:${inStock ? '#3cf79b' : '#aaa'}">${item.quantity}</div>
+            <span class="in-stock-text"${!inStock ? ' style="display:none;"' : ''}>In Stock</span>
+            <span class="not-in-stock-text"${inStock ? ' style="display:none;"' : ''}>Not In Stock</span>
           </div>`;
         });
         list.innerHTML = html;
-        if(currentTab==="cosmetics")document.getElementById("cosmeticsStocksNote").classList.remove("hidden");
+        if (currentTab === "cosmetics") document.getElementById("cosmeticsStocksNote").classList.remove("hidden");
         else document.getElementById("cosmeticsStocksNote").classList.add("hidden");
-        document.querySelectorAll('.item-card .star-btn').forEach((btn,idx)=>{
-          btn.onclick = function(ev){
-            ev.stopPropagation();
-            const item = items[idx];
-            if(!item) return;
-            const dn = item.display_name;
-            if(notifyList.includes(dn)){
-              notifyList = notifyList.filter(x=>x!==dn);
-            } else {
-              notifyList.push(dn);
+        if (tab !== "cosmetics" && tab !== "weather") {
+          document.querySelectorAll('.item-card .star-btn').forEach((btn, idx) => {
+            btn.onclick = function (ev) {
+              ev.stopPropagation();
+              let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
+              const item = items[idx];
+              if (!item) return;
+              const dn = item.display_name;
+              if (notifyList.includes(dn)) {
+                notifyList = notifyList.filter(x => x !== dn);
+              } else {
+                notifyList.push(dn);
+              }
+              localStorage.setItem('notifyList', JSON.stringify(notifyList));
+              renderCurrentTab();
             }
-            saveNotifyList();
-            renderCurrentTab();
+          });
+        }
+        document.querySelectorAll('.item-card').forEach((card, idx) => {
+          card.onclick = function (ev) {
+            if (ev.target.closest('.star-btn')) return;
+            let tabAttr = card.getAttribute('data-tab'),
+              index = card.getAttribute('data-index'),
+              key = tabAttr + "-" + index;
+            if (selectedCards.has(key)) {
+              selectedCards.delete(key);
+              card.classList.remove("selected");
+            } else {
+              selectedCards.add(key);
+              card.classList.add("selected");
+            }
           }
         });
         applyCardGlowClasses(tab, items);
-        if(tab === "seeds" || tab === "gear" || tab === "eggs") checkNotify(stockData);
         applySettings();
       }
       function applyCardGlowClasses(tab, items) {
         document.querySelectorAll('.item-card').forEach((card, idx) => {
           let glowClass = "";
-          if(tab === "cosmetics") glowClass = "glow-cosmetic";
-          else if(tab === "weather") glowClass = "glow-yellow";
-          else if(tab === "gear" || tab === "eggs" || tab === "seeds") {
+          if (tab === "cosmetics") {
+            glowClass = (items[idx] && items[idx].quantity > 0) ? "glow-green in-stock" : "glow-gray not-in-stock";
+          } else if (tab === "weather") {
+            glowClass = (items[idx] && items[idx].active) ? "glow-yellow in-stock" : "glow-gray not-in-stock";
+          } else if (tab === "gear" || tab === "eggs" || tab === "seeds") {
             const item = items[idx];
-            glowClass = item && item.quantity > 0 ? "glow-green" : "glow-gray";
-          } else glowClass = "glow-gray";
-          card.classList.remove("glow-green","glow-gray","glow-yellow","glow-purple","glow-cosmetic");
-          card.classList.add(glowClass);
+            glowClass = item && item.quantity > 0 ? "glow-green in-stock" : "glow-gray not-in-stock";
+          } else glowClass = "glow-gray not-in-stock";
+          card.classList.remove("glow-green", "glow-gray", "glow-yellow", "glow-purple", "glow-cosmetic", "in-stock", "not-in-stock");
+          card.classList.add(...glowClass.split(" "));
         });
       }
-      document.querySelectorAll('.category-tab').forEach(tab=>{
+      document.querySelectorAll('.category-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-          document.querySelectorAll('.category-tab').forEach(t=>{
-            t.classList.remove("bg-[#464f88]","text-white");
-            t.classList.add("bg-[#232a45]","text-[#b6caf7]");
+          document.querySelectorAll('.category-tab').forEach(t => {
+            t.classList.remove("bg-[#464f88]", "text-white");
+            t.classList.add("bg-[#232a45]", "text-[#b6caf7]");
           });
-          tab.classList.add("bg-[#464f88]","text-white");
-          tab.classList.remove("bg-[#232a45]","text-[#b6caf7]");
+          tab.classList.add("bg-[#464f88]", "text-white");
+          tab.classList.remove("bg-[#232a45]", "text-[#b6caf7]");
           currentTab = tab.getAttribute('data-tab');
           updateRestockBar();
-          if(currentTab==="weather") renderWeather();
+          selectedCards = new Set();
+          if (currentTab === "weather") renderWeather();
           else renderCurrentTab();
         });
       });
+      setCols(loadSetting("ggn-setting-cols", 4));
       fetchStock();
     });
   </script>
