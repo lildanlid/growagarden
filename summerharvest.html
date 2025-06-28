@@ -3,61 +3,140 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Time Notifier</title>
+  <title>Summer Harvest Notifier</title>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #1e1e2f, #12121b);
+      color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background-color: #222;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      padding: 2rem;
       text-align: center;
-      padding-top: 10%;
-      background-color: #111;
-      color: #f9f9f9;
+      width: 90%;
+      max-width: 400px;
+      transition: transform 0.3s ease;
     }
-    h1 {
-      font-size: 2.5rem;
+
+    .card:hover {
+      transform: scale(1.01);
     }
-    #time {
-      font-size: 4rem;
-      margin-top: 1rem;
+
+    .time-display {
+      font-size: 3.5rem;
+      background-color: #333;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      margin: 1rem 0;
     }
-    #timezoneSelect {
-      margin-top: 2rem;
+
+    .settings {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    select {
+      padding: 0.5rem 1rem;
       font-size: 1rem;
-      padding: 0.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      background-color: #2d2d3d;
+      color: #fff;
+      appearance: none;
+      transition: all 0.3s ease;
+    }
+
+    select:hover, select:focus {
+      background-color: #444;
+      outline: none;
+      transform: scale(1.03);
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #444;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #555;
+      transform: translateY(-2px);
+    }
+
+    .fa-gear {
+      font-size: 1.2rem;
+      color: #aaa;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
     }
   </style>
 </head>
 <body>
-  <h1>Current Time</h1>
-  <div id="time">--:--:--</div>
-  <select id="timezoneSelect">
-    <option value="local">Your Local Time</option>
-    <option value="America/New_York">New York (EST)</option>
-    <option value="Europe/London">London (GMT)</option>
-    <option value="Asia/Tokyo">Tokyo (JST)</option>
-    <option value="UTC">UTC</option>
-  </select>
+  <div class="card">
+    <h1>Summer Harvest Notifier</h1>
+
+    <div class="time-display" id="time">--:--:--</div>
+
+    <div class="settings">
+      <select id="timezoneSelect">
+        <option value="local">Your Local Time</option>
+        <option value="America/New_York">New York (EST)</option>
+        <option value="Europe/London">London (GMT)</option>
+        <option value="Asia/Tokyo">Tokyo (JST)</option>
+        <option value="UTC">UTC</option>
+      </select>
+      <i class="fas fa-gear"></i>
+    </div>
+
+    <button id="notifyBtn">Request Notifications</button>
+    <button id="toggleClockBtn">Clock: 24 Hour</button>
+  </div>
 
   <script>
     const DateTime = luxon.DateTime;
     const timeDisplay = document.getElementById('time');
     const timezoneSelect = document.getElementById('timezoneSelect');
+    const notifyBtn = document.getElementById('notifyBtn');
+    const toggleClockBtn = document.getElementById('toggleClockBtn');
+
     let currentZone = 'local';
-
-    if (Notification && Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-
     let notifiedHour = null;
+    let use24Hour = true;
 
     function updateTime() {
       const zone = currentZone === 'local' ? undefined : currentZone;
       const now = DateTime.now().setZone(zone);
-      timeDisplay.textContent = now.toFormat('HH:mm:ss');
+
+      const format = use24Hour ? "HH:mm:ss" : "hh:mm:ss a";
+      timeDisplay.textContent = now.toFormat(format);
 
       if (now.minute === 50 && now.hour !== notifiedHour) {
         if (Notification.permission === 'granted') {
-          new Notification(`Upcoming Hour Alert!`, {
+          new Notification("Upcoming Hour Alert!", {
             body: `It will be ${String((now.hour + 1) % 24).padStart(2, '0')}:00 in 10 minutes.`,
           });
         }
@@ -71,6 +150,21 @@
 
     timezoneSelect.addEventListener('change', () => {
       currentZone = timezoneSelect.value;
+    });
+
+    notifyBtn.addEventListener('click', () => {
+      if (Notification && Notification.permission !== 'granted') {
+        Notification.requestPermission().then(result => {
+          alert("Notification permission: " + result);
+        });
+      } else {
+        alert("Notifications are already enabled or unsupported.");
+      }
+    });
+
+    toggleClockBtn.addEventListener('click', () => {
+      use24Hour = !use24Hour;
+      toggleClockBtn.textContent = `Clock: ${use24Hour ? "24 Hour" : "12 Hour"}`;
     });
 
     setInterval(updateTime, 1000);
