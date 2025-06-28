@@ -124,9 +124,9 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       <div class="support-desc">Enjoying the tool? Your support helps cover server costs!</div>
       <div class="support-note">Data provided by JoshLei's API.</div>
     </div>
-    <div id="supportModal" class="modal-fade">
+    <div id="supportModal" class="modal-fade" style="display:none;">
       <div class="modal-inner">
-        <button onclick="closeSupportModal()" class="close-btn">&times;</button>
+        <button id="closeSupportBtn" class="close-btn">&times;</button>
         <h2 style="margin-top:0;">Support Us 💖</h2>
         <div style="margin-bottom:1.3em;">Complete tasks to help keep the website online</div>
         <div style="display:flex; flex-direction:column; gap:.7em;">
@@ -144,6 +144,39 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
 
+    document.getElementById("settingsBtn").onclick = function() {
+      document.getElementById("settingsModalBg").classList.remove("hidden");
+      setTimeout(() => document.getElementById("settingsModalBg").classList.add("modal-show"), 10);
+    };
+    document.getElementById("closeSettingsBtn").onclick = function() {
+      document.getElementById("settingsModalBg").classList.remove("modal-show");
+      setTimeout(() => document.getElementById("settingsModalBg").classList.add("hidden"), 350);
+    };
+    document.getElementById("settingsModalBg").addEventListener("click", function(e) {
+      if (e.target === this) {
+        this.classList.remove("modal-show");
+        setTimeout(() => this.classList.add("hidden"), 350);
+      }
+    });
+    document.getElementById("supportBtn").onclick = function() {
+      const m = document.getElementById("supportModal");
+      m.style.display = "flex";
+      setTimeout(() => m.classList.add("modal-show"), 10);
+    };
+    document.getElementById("closeSupportBtn").onclick = function() {
+      const m = document.getElementById("supportModal");
+      m.classList.remove('modal-show');
+      setTimeout(() => m.style.display = "none", 250);
+    };
+    document.getElementById("supportModal").onclick = function(e) {
+      if (e.target === this) {
+        this.classList.remove('modal-show');
+        setTimeout(() => this.style.display = "none", 250);
+      }
+    };
+  </script>
+  <script>
+
     function getItemIconUrl(name) {
       const IMAGE_OVERRIDES = {
         "Summer Common Egg": "common_summer_egg", "Rare Summer Egg": "rare_summer_egg", "Paradise Egg": "paradise_egg",
@@ -153,8 +186,8 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       return `https://api.joshlei.com/v2/growagarden/image/${imgName}`;
     }
     function getWeatherIconUrl(name) { return getItemIconUrl(name); }
-    let notifiedItemsRestock = {};  
-    let notifiedWeatherRestock = {}; 
+    let notifiedItemsRestock = {};
+    let notifiedWeatherRestock = {};
     function playNotificationSound() {
       const audio = document.getElementById("notify-audio");
       if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
@@ -190,6 +223,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           for (const item of allStock) {
             const key = item.display_name;
             const lastSeen = Number(item.last_seen || 0);
+
             if (!notifiedItemsRestock[key] || notifiedItemsRestock[key].lastSeen !== lastSeen) {
               notifiedItemsRestock[key] = { lastSeen, notified: false };
             }
@@ -226,7 +260,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       }
       document.getElementById("copyright-year").textContent = new Date().getFullYear();
     });
-
     const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Cauliflower", "Watermelon", "Green apple", "Avocado", "Banana", "Pineapple", "Kiwi", "Bell pepper", "Prickly pear", "Loquat", "Feijoa", "Sugar Apple"];
     const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"];
     const EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg"];
@@ -514,7 +547,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
           starBtn = "";
         } else if (tab === "weather") {
-
+          // handled in renderWeather
         } else {
           glowClass = inStock ? "glow-green in-stock" : "glow-gray not-in-stock";
           starBtn = `<button class="star-btn star-corner glow-btn rounded-full p-0 m-0${isNotified ? ' starred' : ''}" title="${isNotified ? 'Unnotify' : 'Notify'}" tabindex="0" aria-label="Notify" onclick="event.stopPropagation();">
@@ -592,6 +625,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
 
     setCols(loadSetting("ggn-setting-cols", 4));
     fetchStock();
-</script>
+  </script>
 </body>
 </html>
