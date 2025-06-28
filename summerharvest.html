@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time Notifier</title>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 10%;
+      background-color: #111;
+      color: #f9f9f9;
+    }
+    h1 {
+      font-size: 2.5rem;
+    }
+    #time {
+      font-size: 4rem;
+      margin-top: 1rem;
+    }
+    #timezoneSelect {
+      margin-top: 2rem;
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Current Time</h1>
+  <div id="time">--:--:--</div>
+  <select id="timezoneSelect">
+    <option value="local">Your Local Time</option>
+    <option value="America/New_York">New York (EST)</option>
+    <option value="Europe/London">London (GMT)</option>
+    <option value="Asia/Tokyo">Tokyo (JST)</option>
+    <option value="UTC">UTC</option>
+  </select>
+
+  <script>
+    const DateTime = luxon.DateTime;
+    const timeDisplay = document.getElementById('time');
+    const timezoneSelect = document.getElementById('timezoneSelect');
+    let currentZone = 'local';
+
+    if (Notification && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
+    let notifiedHour = null;
+
+    function updateTime() {
+      const zone = currentZone === 'local' ? undefined : currentZone;
+      const now = DateTime.now().setZone(zone);
+      timeDisplay.textContent = now.toFormat('HH:mm:ss');
+
+      if (now.minute === 50 && now.hour !== notifiedHour) {
+        if (Notification.permission === 'granted') {
+          new Notification(`Upcoming Hour Alert!`, {
+            body: `It will be ${String((now.hour + 1) % 24).padStart(2, '0')}:00 in 10 minutes.`,
+          });
+        }
+        notifiedHour = now.hour;
+      }
+
+      if (now.minute < 50) {
+        notifiedHour = null;
+      }
+    }
+
+    timezoneSelect.addEventListener('change', () => {
+      currentZone = timezoneSelect.value;
+    });
+
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+</body>
+</html>
