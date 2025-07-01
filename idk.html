@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grow A Garden Stock</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      padding: 1rem;
+      color: white;
+      text-align: center;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+      cursor: pointer;
+      background-color: #ddd;
+      border-radius: 5px;
+    }
+    .tab.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .content {
+      display: none;
+      padding: 1rem;
+    }
+    .content.active {
+      display: block;
+    }
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .item-card {
+      background: white;
+      padding: 0.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .item-card img {
+      max-width: 80px;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grow A Garden - Stock Viewer</h1>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="tab-contents"></div>
+
+  <script>
+    const API_URL = "https://api.joshlei.com/v2/growagarden/stock";
+    const SECTIONS = {
+      seed_stock: "Seeds",
+      gear_stock: "Gear",
+      egg_stock: "Eggs",
+      cosmetic_stock: "Cosmetics",
+      eventshop_stock: "Event Shop"
+    };
+
+    async function fetchStockData() {
+      try {
+        const response = await fetch(API_URL);
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching stock:", error);
+        return {};
+      }
+    }
+
+    function createTabs(data) {
+      const tabsContainer = document.getElementById("tabs");
+      const contentsContainer = document.getElementById("tab-contents");
+      tabsContainer.innerHTML = "";
+      contentsContainer.innerHTML = "";
+
+      let first = true;
+      for (const [key, label] of Object.entries(SECTIONS)) {
+        const tab = document.createElement("div");
+        tab.className = "tab" + (first ? " active" : "");
+        tab.innerText = label;
+        tab.dataset.tab = key;
+        tab.onclick = () => switchTab(key);
+        tabsContainer.appendChild(tab);
+
+        const content = document.createElement("div");
+        content.id = `tab-${key}`;
+        content.className = "content" + (first ? " active" : "");
+        content.innerHTML = generateItems(data[key]);
+        contentsContainer.appendChild(content);
+        first = false;
+      }
+    }
+
+    function generateItems(items) {
+      if (!items || !items.length) return "<p>No items available.</p>";
+      return `<div class="item-grid">` + items.map(item => `
+        <div class="item-card">
+          <img src="${item.icon}" alt="${item.display_name}" />
+          <strong>${item.display_name}</strong><br>
+          Qty: ${item.quantity}<br>
+          <small>${new Date(item.Date_Start).toLocaleTimeString()} - ${new Date(item.Date_End).toLocaleTimeString()}</small>
+        </div>`).join("") + `</div>`;
+    }
+
+    function switchTab(tabKey) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+      document.querySelector(`.tab[data-tab="${tabKey}"]`).classList.add("active");
+      document.getElementById(`tab-${tabKey}`).classList.add("active");
+    }
+
+    function notifyItems(data) {
+      if (!("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+
+      for (const section in data) {
+        const group = data[section];
+        group.forEach(item => {
+          const now = Date.now();
+          const end = new Date(item.Date_End).getTime();
+          if (end > now) {
+            new Notification(`${item.display_name} (${section.replace("_stock", "")})`, {
+              body: `Quantity: ${item.quantity}`,
+              icon: item.icon
+            });
+          }
+        });
+      }
+    }
+
+    async function update() {
+      const data = await fetchStockData();
+      createTabs(data);
+      notifyItems(data);
+    }
+
+    async function init() {
+      if ("Notification" in window && Notification.permission !== "granted") {
+        await Notification.requestPermission();
+      }
+      update();
+      setInterval(update, 300000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
