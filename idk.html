@@ -86,10 +86,12 @@
     <h1>Stock Monitor</h1>
   </header>
   <div class="content" id="app">
+    <!-- Filled by JavaScript -->
   </div>
 
   <script>
-    const API_URL = '/api/stock';
+    const API_URL = '/api/stock'; // Replace this with actual API if needed
+
     const CATEGORIES = {
       seeds: [
         "Carrot", "Strawberry", "Blueberry", "Tomato", "Cauliflower", "Watermelon", "Rafflesia",
@@ -111,8 +113,9 @@
     let selectedNotifications = JSON.parse(localStorage.getItem('notifyList') || '{}');
     let lastNotified = {};
 
+    // Fetch data from the API
     async function fetchData() {
-      const res = await fetch('/api/stock');
+      const res = await fetch(API_URL);
       return await res.json();
     }
 
@@ -158,6 +161,7 @@
         const container = document.getElementById(`items_${category}`);
         if (!container) continue;
 
+        // Reset notification flags on restock
         const now = Date.now();
         if (!lastNotified[category] || stockData[category]?.timestamp > lastNotified[category].resetTime) {
           lastNotified[category] = {
@@ -168,7 +172,7 @@
 
         container.innerHTML = '';
         items.forEach(name => {
-          const amount = Math.floor(Math.random() * 5);
+          const amount = Math.floor(Math.random() * 5); // Fake stock
           const inStock = amount > 0;
 
           const card = document.createElement('div');
