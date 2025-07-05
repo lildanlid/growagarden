@@ -180,9 +180,9 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     function getItemIconUrl(name) {
       const IMAGE_OVERRIDES = {
         "Summer Common Egg": "common_summer_egg", "Rare Summer Egg": "rare_summer_egg", "Paradise Egg": "paradise_egg",
-        "Legendary Egg": "legendary_egg", "Uncommon Egg": "uncommon_egg", "Prickly pear": "prickly_pear", "Prikily pear": "prickly_pear"
+        "Legendary Egg": "legendary_egg", "Uncommon Egg": "uncommon_egg"
       };
-      let imgName = IMAGE_OVERRIDES[name] || name.toLowerCase().replace(/ /g, "_").replace("prikily_pear", "prickly_pear").replace("summer_rare_egg","rare_summer_egg");
+      let imgName = IMAGE_OVERRIDES[name] || name.toLowerCase().replace(/ /g, "_").replace("summer_rare_egg","rare_summer_egg");
       return `https://api.joshlei.com/v2/growagarden/image/${imgName}`;
     }
     function getWeatherIconUrl(name) { return getItemIconUrl(name); }
