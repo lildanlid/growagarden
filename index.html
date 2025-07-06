@@ -133,7 +133,9 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           <a id="lootlabsLink" href="https://loot-link.com/s?3MfF8pCH" target="_blank" rel="noopener"
             style="background:#F7A98B; color:#222; font-weight:bold; padding:.65em 1.2em; border-radius:1em; text-decoration:none; display:inline-block; transition:background .2s;">Lootlabs</a>
           <a id="koFiBtnModal" href="https://ko-fi.com/lildanlid" target="_blank" rel="noopener"
-             class="ko-fi-btn glow-btn" style="margin-top:0.5em;">Ko-fi <span>❤️</span></a>
+             class="ko-fi-btn glow-btn" style="margin-top:0.5em;">Ko-fi <span></span></a>
+            <a id="youtubeBtnModal" href="https://www.youtube.com/@lildanlid?sub_confirmation=1" target="_blank" rel="noopener"
+             class="ko-fi-btn glow-btn" style="margin-top:0.5em;background:#ff0000;">YouTube <span style="font-size:1.1em;"></span></a>
         </div>
       </div>
     </div>
@@ -143,7 +145,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
   </div>
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
-
+    // Modal logic
     document.getElementById("settingsBtn").onclick = function() {
       document.getElementById("settingsModalBg").classList.remove("hidden");
       setTimeout(() => document.getElementById("settingsModalBg").classList.add("modal-show"), 10);
@@ -176,7 +178,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     };
   </script>
   <script>
-
     function getItemIconUrl(name) {
       const IMAGE_OVERRIDES = {
         "Summer Common Egg": "common_summer_egg", "Rare Summer Egg": "rare_summer_egg", "Paradise Egg": "paradise_egg",
@@ -209,7 +210,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     }
     setInterval(async function () {
       let notifyList = JSON.parse(localStorage.getItem('notifyList') || '[]');
-
       try {
         const sres = await fetch('https://api.joshlei.com/v2/growagarden/stock');
         if (sres.ok) {
@@ -223,7 +223,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           for (const item of allStock) {
             const key = item.display_name;
             const lastSeen = Number(item.last_seen || 0);
-
             if (!notifiedItemsRestock[key] || notifiedItemsRestock[key].lastSeen !== lastSeen) {
               notifiedItemsRestock[key] = { lastSeen, notified: false };
             }
@@ -234,7 +233,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           }
         }
       } catch (e) {}
-
       try {
         const wres = await fetch('https://api.joshlei.com/v2/growagarden/weather');
         if (wres.ok) {
@@ -260,26 +258,16 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       }
       document.getElementById("copyright-year").textContent = new Date().getFullYear();
     });
+  </script>
+  <script>
     const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud"];
     const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"];
     const EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg", "Bee Egg"];
-
-    function saveSetting(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-    function loadSetting(key, def = true) {
-      const v = localStorage.getItem(key);
-      return v === null ? def : JSON.parse(v);
-    }
-    function setCols(num) {
-      num = Math.max(2, Math.min(5, Number(num) || 4));
-      document.documentElement.style.setProperty('--item-cols', num);
-      saveSetting("ggn-setting-cols", num);
-    }
-
+    function saveSetting(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    function loadSetting(key, def = true) { const v = localStorage.getItem(key); return v === null ? def : JSON.parse(v);}
+    function setCols(num) { num = Math.max(2, Math.min(5, Number(num) || 4)); document.documentElement.style.setProperty('--item-cols', num); saveSetting("ggn-setting-cols", num);}
     let currentTab = "seeds";
     let selectedCards = new Set();
-
     function formatCountdown(ms) {
       ms = Math.max(0, ms);
       let s = Math.floor(ms / 1000),
@@ -290,12 +278,10 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
         ? `${h}:${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`
         : `${m}:${sec.toString().padStart(2, "0")}`;
     }
-
     function getRestockCategoryForTab(tab) {
       if (tab === "seeds") return "seeds";
       if (tab === "gear") return "gear";
       if (tab === "eggs") return "egg";
-      if (tab === "weather") return "SwarmEvent";
       if (tab === "cosmetics") return "cosmetic";
       return null;
     }
@@ -314,11 +300,10 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           nextReset = today.getTime() + Math.ceil(timeSinceStartOfDay / interval) * interval;
         return { lastReset, nextReset };
       }
-      const eggInterval = 1800000, gearInterval = 300000, cosmeticInterval = 14400000, nightInterval = 3600000,
+      const eggInterval = 1800000, gearInterval = 300000, cosmeticInterval = 14400000,
         { lastReset: eggLastReset, nextReset: eggNextReset } = getResetTimes(eggInterval),
         { lastReset: gearLastReset, nextReset: gearNextReset } = getResetTimes(gearInterval),
-        { lastReset: cosmeticLastReset, nextReset: cosmeticNextReset } = getResetTimes(cosmeticInterval),
-        { lastReset: nightLastReset, nextReset: nightNextReset } = getResetTimes(nightInterval);
+        { lastReset: cosmeticLastReset, nextReset: cosmeticNextReset } = getResetTimes(cosmeticInterval);
       function timeSince(timestamp) {
         const nowMs = Date.now(),
           diff = nowMs - timestamp,
@@ -352,11 +337,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
           timestamp: cosmeticNextReset,
           LastRestock: formatTime(cosmeticLastReset),
           timeSinceLastRestock: timeSince(cosmeticLastReset)
-        },
-        SwarmEvent: {
-          timestamp: nightNextReset,
-          LastRestock: formatTime(nightLastReset),
-          timeSinceLastRestock: timeSince(nightLastReset)
         }
       };
     }
@@ -367,13 +347,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
         restockAgo = document.getElementById("restockAgo"),
         restockLabel = document.getElementById("restockLabel");
       restockLabel.textContent = getRestockLabel(currentTab) + ":";
-      if (currentTab === "weather") {
-        timerBar.style.display = "none";
-        restockAgo.textContent = "";
-        return;
-      } else {
-        timerBar.style.display = "";
-      }
       if (!cat || !restockData[cat]) {
         timerBar.textContent = "No restock data available.";
         restockAgo.textContent = "";
@@ -384,7 +357,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       restockAgo.textContent = restockData[cat].timeSinceLastRestock ?? "";
     }
     setInterval(updateRestockBar, 1000);
-
     function applySettings() {
       const showStock = loadSetting("ggn-setting-showStock", true),
         showActive = loadSetting("ggn-setting-showActive", true),
@@ -414,17 +386,13 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       document.getElementById("colsSetting").onchange = function () { setCols(this.value); applySettings(); };
       setCols(loadSetting("ggn-setting-cols", 4));
     });
-
     let stockData = {}, weatherData = {};
-
     async function fetchStock() {
-      document.getElementById('itemList').innerHTML = '<div class="text-center text-blue-200 py-8">Loading...</div>';
       try {
         const res = await fetch('https://api.joshlei.com/v2/growagarden/stock');
         if (!res.ok) throw new Error("API error: " + res.status);
         stockData = await res.json();
       } catch (err) {
-        document.getElementById('itemList').innerHTML = '<span style="color:#f76;">Failed to load stocks.<br>' + err.message + '</span>';
         stockData = {};
       }
       renderCurrentTab();
@@ -440,7 +408,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
         weatherData = [];
       }
     }
-
     function renderCurrentTab() {
       if (currentTab === "seeds") renderSeeds();
       else if (currentTab === "gear") renderGear();
@@ -450,7 +417,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       applySettings();
     }
     function renderSeeds() {
-      if (!stockData.seed_stock) { fetchStock(); return; }
+      if (!stockData.seed_stock) { return; }
       let items = SEED_NAMES.map(name => {
         let item = (stockData.seed_stock || []).find(e => e.display_name === name);
         return item || { display_name: name, quantity: 0 };
@@ -458,7 +425,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       drawItems(items, "seeds");
     }
     function renderGear() {
-      if (!stockData.gear_stock) { fetchStock(); return; }
+      if (!stockData.gear_stock) { return; }
       let items = GEAR_NAMES.map(name => {
         let item = (stockData.gear_stock || []).find(e => e.display_name === name);
         return item || { display_name: name, quantity: 0 };
@@ -466,7 +433,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       drawItems(items, "gear");
     }
     function renderEggs() {
-      if (!stockData.egg_stock) { fetchStock(); return; }
+      if (!stockData.egg_stock) { return; }
       let items = EGG_NAMES.map(name => {
         let item = (stockData.egg_stock || []).find(e => e.display_name === name);
         return item || { display_name: name, quantity: 0 };
@@ -474,7 +441,7 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       drawItems(items, "eggs");
     }
     function renderCosmetics() {
-      if (!stockData.cosmetic_stock) { fetchStock(); return; }
+      if (!stockData.cosmetic_stock) { return; }
       let allCosmetics = [
         ...(stockData.cosmetic_stock || []).map(x => x.display_name)
       ];
@@ -531,7 +498,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       });
       applySettings();
     }
-
     function drawItems(items, tab) {
       let list = document.getElementById('itemList');
       if (!items.length) {
@@ -606,7 +572,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
       });
       applySettings();
     }
-
     document.querySelectorAll('.category-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.category-tab').forEach(t => {
@@ -622,9 +587,9 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
         else renderCurrentTab();
       });
     });
-
     setCols(loadSetting("ggn-setting-cols", 4));
     fetchStock();
+    setInterval(fetchStock, 2000);
   </script>
 </body>
 </html>
