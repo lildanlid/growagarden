@@ -145,7 +145,6 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
   </div>
   <audio id="notify-audio" src="media/notify.mp3" preload="auto"></audio>
   <script>
-    // Modal logic
     document.getElementById("settingsBtn").onclick = function() {
       document.getElementById("settingsModalBg").classList.remove("hidden");
       setTimeout(() => document.getElementById("settingsModalBg").classList.add("modal-show"), 10);
@@ -260,8 +259,8 @@ html,body{min-height:100vh;min-width:100vw;background:linear-gradient(180deg,#24
     });
   </script>
   <script>
-    const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud"];
-    const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot"];
+    const SEED_NAMES = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone"];
+    const GEAR_NAMES = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
     const EGG_NAMES = ["Summer Common Egg", "Rare Summer Egg", "Common Egg", "Uncommon Egg", "Rare Egg", "Paradise Egg", "Legendary Egg", "Mythical Egg", "Bug Egg", "Bee Egg"];
     function saveSetting(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
     function loadSetting(key, def = true) { const v = localStorage.getItem(key); return v === null ? def : JSON.parse(v);}
