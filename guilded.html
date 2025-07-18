@@ -1,112 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Status</title>
+  <meta charset="UTF-8">
+  <title>Grow A Garden Status</title>
   <style>
     body {
-      background-color: #111827;
-      color: #ffffff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
       margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: repeating-linear-gradient(
+        45deg,
+        #1e1e1e,
+        #1e1e1e 10px,
+        #222222 10px,
+        #222222 20px
+      );
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
     }
-
-    .card {
-      background-color: #1f2937;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    .container {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 30px;
       max-width: 500px;
       width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
-
-    .card h1 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      font-weight: bold;
-      color: #60a5fa;
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
-
     .status-line {
-      margin: 0.5rem 0;
-      font-size: 1.05rem;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
     }
-
     .label {
-      color: #9ca3af;
+      font-weight: 600;
+      color: #ccc;
     }
-
     .value {
-      color: #f3f4f6;
+      color: #f0f0f0;
     }
-
-    .footer {
-      margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid #374151;
-    }
-
-    .error {
-      color: #f87171;
+    .button-link {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 10px 20px;
+      background: #4ade80;
+      color: #111;
+      border-radius: 8px;
+      text-decoration: none;
       font-weight: bold;
       text-align: center;
-      margin-top: 1rem;
+      transition: background 0.3s;
+    }
+    .button-link:hover {
+      background: #22c55e;
     }
   </style>
 </head>
 <body>
-  <div class="card" id="statusCard">
-    <h1>🤖 Grow A Garden Status</h1>
-    <div class="status-line"><span class="label">📅 Created:</span> <span class="value" id="created">Loading...</span></div>
-    <div class="status-line"><span class="label">🕓 Last Online:</span> <span class="value" id="lastOnline">Loading...</span></div>
-
-    <div class="footer">
-      <div class="status-line"><span class="label">📂 Servers Added:</span> <span class="value" id="servers">Loading...</span></div>
-      <div class="status-line"><span class="label">🔁 Uptime:</span> <span class="value" id="uptime">Loading...</span></div>
-      <div class="status-line"><span class="label">✅ Active Servers:</span> <span class="value" id="active">Loading...</span></div>
-<div style="margin-top: 2rem;">
-  <a href="https://www.guilded.gg/Grow-A-Garden-" target="_blank" style="color:#60a5fa; text-decoration:underline;">🌱 Join the Grow A Garden server</a>
-</div>
-
-    </div>
+  <div class="container">
+    <h1>🌱 Grow A Garden Bot Status</h1>
+    <div class="status-line"><span class="label">📶 Bot Status:</span> <span class="value" id="status">Loading...</span></div>
+    <div class="status-line"><span class="label">🕓 Last Online:</span> <span class="value" id="last-online">Loading...</span></div>
+    <div class="status-line"><span class="label">⚙️ Uptime:</span> <span class="value" id="uptime">Loading...</span></div>
+    <div class="status-line"><span class="label">📡 Servers Added:</span> <span class="value" id="servers">Loading...</span></div>
+    <div class="status-line"><span class="label">✅ Active Servers:</span> <span class="value" id="active">Loading...</span></div>
+    <a href="https://www.guilded.gg/Grow-A-Garden-" class="button-link" target="_blank">🌱 Join the Grow A Garden server</a>
   </div>
 
   <script>
-    const statusUrl = "https://33a45175-ccaa-4e2d-bcdd-e51582a9fab8-00-1x8e4xix52jnj.spock.replit.dev/api/status";
+    const statusEl = document.getElementById("status");
+    const uptimeEl = document.getElementById("uptime");
+    const lastOnlineEl = document.getElementById("last-online");
+    const serversEl = document.getElementById("servers");
+    const activeEl = document.getElementById("active");
 
-    function formatUptime(ms) {
-      const s = Math.floor(ms / 1000) % 60;
-      const m = Math.floor(ms / 60000) % 60;
-      const h = Math.floor(ms / 3600000) % 24;
-      const d = Math.floor(ms / 86400000);
-      return `${d}d ${h}h ${m}m ${s}s`;
+    function msToTime(ms) {
+      let seconds = Math.floor(ms / 1000);
+      let minutes = Math.floor(seconds / 60);
+      let hours = Math.floor(minutes / 60);
+      minutes %= 60;
+      seconds %= 60;
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function timeAgo(date) {
+      const now = new Date();
+      const diff = now - new Date(date);
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+
+      if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+      return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
     }
 
     async function updateStatus() {
       try {
-        const res = await fetch(statusUrl);
-        if (!res.ok) throw new Error("API not responding");
+        const response = await fetch("/api/status");
+        if (!response.ok) throw new Error("Offline");
 
-        const data = await res.json();
+        const data = await response.json();
+        statusEl.textContent = "🟢 Online";
+        statusEl.style.color = "#4ade80";
 
-        document.getElementById("uptime").textContent = formatUptime(data.uptime);
-        document.getElementById("created").textContent = new Date(data.creationDate).toLocaleString();
-        document.getElementById("lastOnline").textContent = new Date(data.lastOnline).toLocaleString();
-        document.getElementById("servers").textContent = data.servers.length;
-      } catch (e) {
-        const card = document.getElementById("statusCard");
-        card.innerHTML = `<h1>⚠️ Failed to load status</h1><p class="error">${e.message}</p>`;
-        console.error("Fetch error:", e);
+        uptimeEl.textContent = msToTime(data.uptime);
+        lastOnlineEl.textContent = timeAgo(data.lastOnline);
+        serversEl.textContent = data.servers.length;
+        activeEl.textContent = data.activeServers.length;
+      } catch (err) {
+        statusEl.textContent = "🔴 Offline";
+        statusEl.style.color = "#f87171";
+        uptimeEl.textContent = "—";
+        lastOnlineEl.textContent = "—";
+        serversEl.textContent = "—";
+        activeEl.textContent = "—";
       }
     }
 
-    setInterval(updateStatus, 1000);
     updateStatus();
+    setInterval(updateStatus, 30000);
   </script>
 </body>
 </html>
