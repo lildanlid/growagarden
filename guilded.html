@@ -1,131 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Grow A Garden Bot Status</title>
   <style>
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background: repeating-linear-gradient(
-        45deg,
-        #1e1e1e,
-        #1e1e1e 10px,
-        #222222 10px,
-        #222222 20px
-      );
-      color: #f0f0f0;
+      background: repeating-linear-gradient(135deg, #1e1e1e, #1e1e1e 10px, #2a2a2a 10px, #2a2a2a 20px);
+      color: #f1f1f1;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 40px 20px;
+      min-height: 100vh;
     }
-    .container {
-      background: #2a2a2a;
-      border-radius: 12px;
+
+    .card {
+      background-color: #2b2b2b;
       padding: 30px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-    h1 {
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      width: 350px;
       text-align: center;
+    }
+
+    .status {
+      font-size: 1.2em;
       margin-bottom: 20px;
     }
-    .status-line {
-      margin: 10px 0;
-      display: flex;
-      justify-content: space-between;
-      font-size: 1rem;
-    }
-    .label {
-      font-weight: 600;
-      color: #ccc;
-    }
-    .value {
-      color: #f0f0f0;
-    }
-    .button-link {
-      display: inline-block;
-      margin-top: 25px;
-      padding: 10px 20px;
-      background: #4ade80;
-      color: #111;
-      border-radius: 8px;
-      text-decoration: none;
+
+    .status span {
       font-weight: bold;
-      text-align: center;
-      transition: background 0.3s;
     }
-    .button-link:hover {
-      background: #22c55e;
+
+    .dot {
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .dot.online { background-color: #4caf50; }
+    .dot.offline { background-color: #f44336; }
+
+    .uptime {
+      font-size: 0.95em;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌱 Grow A Garden Bot Status</h1>
-    <div class="status-line"><span class="label">📶 Bot Status:</span> <span class="value" id="status">Loading...</span></div>
-    <div class="status-line"><span class="label">🕓 Last Online:</span> <span class="value" id="last-online">Loading...</span></div>
-    <div class="status-line"><span class="label">⚙️ Uptime:</span> <span class="value" id="uptime">Loading...</span></div>
-    <div class="status-line"><span class="label">📡 Servers Added:</span> <span class="value" id="servers">Loading...</span></div>
-    <div class="status-line"><span class="label">✅ Active Servers:</span> <span class="value" id="active">Loading...</span></div>
-    <a href="https://www.guilded.gg/Grow-A-Garden-" class="button-link" target="_blank">🌱 Join the Grow A Garden server</a>
+  <div class="card">
+    <h2>🌱 Grow A Garden Bot</h2>
+    <div class="status" id="status">
+      <span class="dot offline"></span>Checking...
+    </div>
+    <div class="uptime" id="uptime">⏱️ Uptime: --</div>
   </div>
 
   <script>
-    const statusEl = document.getElementById("status");
-    const uptimeEl = document.getElementById("uptime");
-    const lastOnlineEl = document.getElementById("last-online");
-    const serversEl = document.getElementById("servers");
-    const activeEl = document.getElementById("active");
+    async function fetchStatus() {
+      const statusEl = document.getElementById("status");
+      const uptimeEl = document.getElementById("uptime");
 
-    function msToTime(ms) {
-      let seconds = Math.floor(ms / 1000);
-      let minutes = Math.floor(seconds / 60);
-      let hours = Math.floor(minutes / 60);
-      minutes %= 60;
-      seconds %= 60;
-      return `${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    function timeAgo(date) {
-      const now = new Date();
-      const diff = now - new Date(date);
-      const seconds = Math.floor(diff / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-
-      if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-      if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-      return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
-    }
-
-    async function updateStatus() {
       try {
-        const response = await fetch("/api/status");
-        if (!response.ok) throw new Error("Offline");
+        const res = await fetch("https://33a45175-ccaa-4e2d-bcdd-e51582a9fab8-00-1x8e4xix52jnj.spock.replit.dev/api/status");
+        if (!res.ok) throw new Error("Failed to fetch");
 
-        const data = await response.json();
-        statusEl.textContent = "🟢 Online";
-        statusEl.style.color = "#4ade80";
+        const data = await res.json();
 
-        uptimeEl.textContent = msToTime(data.uptime);
-        lastOnlineEl.textContent = timeAgo(data.lastOnline);
-        serversEl.textContent = data.servers.length;
-        activeEl.textContent = data.activeServers.length;
-      } catch (err) {
-        statusEl.textContent = "🔴 Offline";
-        statusEl.style.color = "#f87171";
-        uptimeEl.textContent = "—";
-        lastOnlineEl.textContent = "—";
-        serversEl.textContent = "—";
-        activeEl.textContent = "—";
+        const status = data.status === "online" ? "🟢 Online" : "🔴 Offline";
+        const dotClass = data.status === "online" ? "dot online" : "dot offline";
+
+        const uptimeMs = data.uptime;
+        const seconds = Math.floor((uptimeMs / 1000) % 60);
+        const minutes = Math.floor((uptimeMs / 1000 / 60) % 60);
+        const hours = Math.floor((uptimeMs / 1000 / 60 / 60));
+
+        const uptimeStr = `${hours}h ${minutes}m ${seconds}s`;
+
+        statusEl.innerHTML = `<span class="${dotClass}"></span>${status}`;
+        uptimeEl.textContent = `⏱️ Uptime: ${uptimeStr}`;
+      } catch (e) {
+        statusEl.innerHTML = `<span class="dot offline"></span>🔴 Offline`;
+        uptimeEl.textContent = "⏱️ Uptime: --";
       }
     }
 
-    updateStatus();
-    setInterval(updateStatus, 30000);
+    fetchStatus();
+    setInterval(fetchStatus, 10000); // Refresh every 10s
   </script>
 </body>
 </html>
