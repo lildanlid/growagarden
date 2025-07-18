@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guilded Bot Status</title>
+  <style>
+    body {
+      background-color: #111827;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background-color: #1f2937;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .card h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+      color: #60a5fa;
+    }
+
+    .status-line {
+      margin: 0.5rem 0;
+      font-size: 1.05rem;
+    }
+
+    .label {
+      color: #9ca3af;
+    }
+
+    .value {
+      color: #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🤖 Guilded Bot Status</h1>
+    <div class="status-line"><span class="label">🔁 Uptime:</span> <span class="value" id="uptime">Loading...</span></div>
+    <div class="status-line"><span class="label">📅 Created:</span> <span class="value" id="created">Loading...</span></div>
+    <div class="status-line"><span class="label">🕓 Last Online:</span> <span class="value" id="lastOnline">Loading...</span></div>
+    <div class="status-line"><span class="label">📂 Servers Added:</span> <span class="value" id="servers">Loading...</span></div>
+  </div>
+
+  <script>
+    const statusUrl = "https://33a45175-ccaa-4e2d-bcdd-e51582a9fab8-00-1x8e4xix52jnj.spock.replit.dev/";
+
+    function formatUptime(ms) {
+      const s = Math.floor(ms / 1000) % 60;
+      const m = Math.floor(ms / 60000) % 60;
+      const h = Math.floor(ms / 3600000) % 24;
+      const d = Math.floor(ms / 86400000);
+      return `${d}d ${h}h ${m}m ${s}s`;
+    }
+
+    async function updateStatus() {
+      try {
+        const res = await fetch(statusUrl);
+        const data = await res.json();
+
+        document.getElementById("uptime").textContent = formatUptime(data.uptime);
+        document.getElementById("created").textContent = new Date(data.creationDate).toLocaleString();
+        document.getElementById("lastOnline").textContent = new Date(data.lastOnline).toLocaleString();
+        document.getElementById("servers").textContent = data.servers.length + " server(s)";
+      } catch (e) {
+        document.querySelector(".card").innerHTML = "<h1>⚠️ Failed to load status</h1>";
+        console.error(e);
+      }
+    }
+
+    setInterval(updateStatus, 1000);
+    updateStatus();
+  </script>
+</body>
+</html>
