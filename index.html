@@ -49,10 +49,10 @@
   <div id="restockTimer"></div>
   <footer><a href="https://www.guilded.gg/growagarden-" target="_blank" style="color:#00aaff">Join the GrowAGarden Guilded Server</a></footer>
   <script>
-    const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone"];
+    const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone", "Elder Strawberry"];
     const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
     const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
-    const EVENTS = ["Zen Seed Pack", "Zen Egg", "Hot Springs", "Zen Sand", "Tranquil Radar", "Zenflare", "Zen Crate", "Soft Sunshine", "Koi", "Zen Gnome Crate", "Spiked Mango", "Pet Shard Tranquil"];
+    const EVENTS = ["Zen Seed Pack", "Zen Egg", "Hot Springs", "Zen Sand", "Tranquil Radar", "Zenflare", "Zen Crate", "Sakura Bush", "Soft Sunshine", "Koi", "Zen Gnome Crate", "Spiked Mango", "Pet Shard Tranquil", "Pet Shard Corrupted", "Raiju"];
     let stockData=[], weatherData=[], currentType='seed_stock', notifyMap=JSON.parse(localStorage.getItem('notifyMap')||'{}'), lastStockState={}, weatherTimers=[];
 
     const dropdown = document.getElementById('dropdown'), stocksBtn = document.getElementById('stocksBtn'), settingsBtn = document.getElementById('settingsBtn'), settingsMenu = document.getElementById('settingsMenu'), viewMode = document.getElementById('viewMode'), homeBtn = document.getElementById('homeBtn'), weatherTab = document.getElementById('weatherTab');
