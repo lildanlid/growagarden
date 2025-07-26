@@ -53,7 +53,7 @@
     const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
     const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
     const EVENTS = ["Zen Seed Pack", "Zen Egg", "Hot Springs", "Zen Sand", "Tranquil Radar", "Zenflare", "Zen Crate", "Soft Sunshine", "Koi", "Zen Gnome Crate", "Spiked Mango", "Pet Shard Tranquil"];
-    let stockData=[], weatherData=[], currentType='seed_stock', notifyMap=JSON.parse(localStorage.getItem('notifyMap')||'{}'), lastStockState={};
+    let stockData=[], weatherData=[], currentType='seed_stock', notifyMap=JSON.parse(localStorage.getItem('notifyMap')||'{}'), lastStockState={}, weatherTimers=[];
 
     const dropdown = document.getElementById('dropdown'), stocksBtn = document.getElementById('stocksBtn'), settingsBtn = document.getElementById('settingsBtn'), settingsMenu = document.getElementById('settingsMenu'), viewMode = document.getElementById('viewMode'), homeBtn = document.getElementById('homeBtn'), weatherTab = document.getElementById('weatherTab');
 
@@ -80,7 +80,21 @@
       document.getElementById('restockTimer').textContent = txt;
     }, 3000);
 
-    setInterval(() => loadStock(currentType), 3000);
+    setInterval(() => {
+      if (currentType === 'weather') loadWeather();
+      else loadStock(currentType);
+    }, 3000);
+
+    setInterval(() => {
+      if (currentType === 'weather') updateWeatherTimers();
+    }, 1000);
+
+    function updateWeatherTimers() {
+      document.querySelectorAll('.weather-timer').forEach(timerEl => {
+        const end = parseInt(timerEl.dataset.end);
+        timerEl.textContent = 'Time Left: ' + formatCountdown(end - Date.now());
+      });
+    }
 
     async function loadStock(type) {
       currentType = type;
@@ -103,6 +117,32 @@
       const j = await resp.json();
       weatherData = j.weather || [];
       renderWeather();
+    }
+
+    function renderWeather() {
+      const disp = document.getElementById('stockDisplay');
+      disp.innerHTML = '';
+      weatherData.forEach(w => {
+        const active = w.active ? ' active-weather' : '';
+        const card = document.createElement('div');
+        card.className = 'stock-card' + active;
+        card.innerHTML = `<img src="${w.icon || ''}"/><div>${w.weather_name}</div>`;
+        if (w.active) {
+          const end = w.start_duration_unix * 1000 + w.duration * 1000;
+          const timer = document.createElement('div');
+          timer.className = 'weather-timer';
+          timer.dataset.end = end;
+          timer.textContent = 'Time Left: ' + formatCountdown(end - Date.now());
+          card.appendChild(timer);
+        }
+        const btn = document.createElement('button');
+        btn.className = 'sub-btn';
+        btn.dataset.id = w.weather_name;
+        btn.textContent = notifyMap[w.weather_name] ? 'Notifying' : 'Notify';
+        card.appendChild(btn);
+        disp.append(card);
+      });
+      addNotify();
     }
 
     function renderStock(type) {
@@ -138,30 +178,6 @@
           btn.textContent = notifyMap[btn.dataset.id] ? 'Notifying' : 'Notify';
           card.appendChild(btn);
         }
-        disp.append(card);
-      });
-      addNotify();
-    }
-
-    function renderWeather() {
-      const disp = document.getElementById('stockDisplay');
-      disp.innerHTML = '';
-      weatherData.forEach(w => {
-        const active = w.active ? ' active-weather' : '';
-        const card = document.createElement('div');
-        card.className = 'stock-card' + active;
-        card.innerHTML = `<img src="${w.icon || ''}"/><div>${w.weather_name}</div>`;
-        if (w.active) {
-          const end = w.start_duration_unix * 1000 + w.duration * 1000;
-          const timer = document.createElement('div');
-          timer.textContent = 'Time Left: ' + formatCountdown(end - Date.now());
-          card.appendChild(timer);
-        }
-        const btn = document.createElement('button');
-        btn.className = 'sub-btn';
-        btn.dataset.id = w.weather_name;
-        btn.textContent = notifyMap[w.weather_name] ? 'Notifying' : 'Notify';
-        card.appendChild(btn);
         disp.append(card);
       });
       addNotify();
