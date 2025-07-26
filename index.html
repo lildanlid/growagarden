@@ -1,129 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Currently Unavailable</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>GrowAGarden</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    :root {
-      --background-gradient: linear-gradient(135deg, #5a77fa 0%, #6a51a6 100%);
-      --card-bg: #171e2b;
-      --accent: #6a8bff;
-      --text-light: #eaf1fb;
-      --text-muted: #b3b9c6;
-      --box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-      --radius: 14px;
-      --info-bg: #222d3c;
-      --info-accent: #35b8ff;
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      background: var(--background-gradient);
-      min-height: 100vh;
-    }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--box-shadow);
-      padding: 64px 36px 36px 36px; /* Increased top padding only */
-      max-width: 420px;
-      min-height: 470px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 28px;
-      /* Move box up */
-      position: relative;
-      top: -30px;
-    }
-    .icon-circle {
-      background: #eaf1fb;
-      border-radius: 50%;
-      width: 70px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 32px;
-      margin-top: -50px;
-      box-shadow: 0 4px 16px rgba(90,119,250,0.11);
-      font-size: 2.3rem;
-    }
-    h1 {
-      color: var(--text-light);
-      font-size: 2rem;
-      font-weight: 700;
-      margin: 0 0 12px 0;
-      text-align: center;
-    }
-    .subtitle {
-      color: var(--accent);
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-align: center;
-      margin-bottom: 22px;
-    }
-    .info-box {
-      background: var(--info-bg);
-      border-radius: 8px;
-      margin-top: 32px;
-      width: 100%;
-      padding: 18px 18px 14px 18px;
-      text-align: left;
-      border-left: 4px solid var(--info-accent);
-      box-sizing: border-box;
-      color: var(--text-light);
-    }
-    .info-title {
-      color: var(--info-accent);
-      font-weight: bold;
-      letter-spacing: 1px;
-      font-size: 1.04rem;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .info-body {
-      color: var(--text-muted);
-      font-size: 1.01rem;
-      margin-top: 2px;
-    }
-    @media (max-width: 600px) {
-      .card {
-        padding: 32px 10px 18px 10px;
-        max-width: 98vw;
-        min-height: 370px;
-        top: -10px;
-      }
-      .icon-circle {
-        width: 56px;
-        height: 56px;
-        margin-bottom: 20px;
-        font-size: 1.6rem;
-      }
-    }
+    body{margin:0;font-family:Arial,sans-serif;background:#1f1f2e;color:#fff;}
+    nav{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(21,34,61,0.95);padding:10px 20px;border-radius:16px;display:flex;gap:12px;z-index:1000;}
+    .primary-button,.nav-link,.settings-button{background:none;border:none;color:#ccc;cursor:pointer;}
+    .primary-button{font-weight:700;font-size:16px;background:rgba(0,123,255,0.3);padding:6px 10px;border-radius:8px;color:#00aaff;}
+    .dropdown{position:absolute;top:50px;left:50%;transform:translateX(-50%) translateY(-10px);background:#1c1c28;padding:8px;border-radius:8px;display:flex;gap:8px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;flex-wrap:wrap;justify-content:center;}
+    .dropdown.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+    .dropdown button{background:#2b2b3a;border:none;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;}
+    .settings-menu{position:absolute;top:50px;right:20px;background:#1c1c28;padding:10px;border-radius:8px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .3s,transform .3s;}
+    .settings-menu.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+    .stock-display{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:80px;padding:20px;}
+    .stock-card{background:#2a2a3d;padding:12px;border-radius:10px;width:140px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:transform .2s,box-shadow .2s;}
+    .stock-card:hover{transform:translateY(-4px);}
+    .stock-card.out{opacity:.4;filter:grayscale(100%);}
+    .stock-card.active-weather{box-shadow:0 0 8px 2px #ffe066;}
+    .stock-card img{width:50px;height:50px;object-fit:contain;margin-bottom:6px;}
+    .sub-btn{margin-top:8px;background:#2196F3;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;}
+    #restockTimer{text-align:center;color:#ccc;margin:10px;font-size:14px;}
+    footer{position:fixed;bottom:0;width:100%;text-align:center;color:#888;padding:8px;background:#1c1c28;}
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon-circle">🔧</div>
-    <h1>Currently Unavailable</h1>
-    <div class="subtitle">Site Temporarily Unavailable</div>
-    <div class="info-box">
-      <div class="info-title">INFO</div>
-      <div class="info-body">There is currently maintenance to update the website there will be a better interface and more stuff sutch as suggested features (Last Seen).</div>
+  <nav>
+    <button class="primary-button" id="homeBtn">GrowAGarden</button>
+    <button class="nav-link" id="stocksBtn">Stocks</button>
+    <i class="material-icons settings-button" id="settingsBtn">settings</i>
+    <div id="dropdown" class="dropdown">
+      <button data-type="seed_stock">Seeds</button>
+      <button data-type="gear_stock">Gears</button>
+      <button data-type="egg_stock">Eggs</button>
+      <button data-type="cosmetic_stock">Cosmetics</button>
+      <button data-type="eventshop_stock">Event</button>
+      <button data-type="travelingmerchant_stock">Merchant Night</button>
+      <button data-type="weather">Weather</button>
     </div>
-  </div>
+    <div id="settingsMenu" class="settings-menu">
+      <label><input type="checkbox" id="viewMode"> Show Out-of-Stock</label>
+    </div>
+  </nav>
+  <div id="stockDisplay" class="stock-display"></div>
+  <div id="restockTimer"></div>
+  <footer>&copy; lildanlid</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded',()=>{
+    const infoMap={} ;
+    fetch('https://api.joshlei.com/v2/growagarden/info')
+      .then(r=>r.json()).then(items=>items.forEach(i=>infoMap[i.display_name]=i));
+
+    const SEEDS=["Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember lily","Sugar Apple","Burning Bud","Giant Pinecone"];
+    const GEARS=["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Tanning Mirror","Master Sprinkler","Cleaning Spray","Favorite Tool","Harvest Tool","Friendship Pot","Levelup Lolipop"];
+    const EGGS=["Common Egg","Common Summer Egg","Rare Summer Egg","Mythical Egg","Paradise Egg","Bug Egg"];
+    const EVENTS=["Zen Seed Pack","Zen Egg","Hot Springs","Zen Sand","Tranquil Radar","Zenflare","Zen Crate","Soft Sunshine","Koi","Zen Gnome Crate","Spiked Mango","Pet Shard Tranquil"];
+    let stockData=[],weatherData=[],currentType='seed_stock',notifyMap={},lastStock={};
+
+    const dd=document.getElementById('dropdown'),
+          sb=document.getElementById('stocksBtn'),
+          setb=document.getElementById('settingsBtn'),
+          sm=document.getElementById('settingsMenu'),
+          vm=document.getElementById('viewMode'),
+          home=document.getElementById('homeBtn'),
+          disp=document.getElementById('stockDisplay');
+
+    home.onclick=()=>location.reload();
+    sb.onclick=()=>dd.classList.toggle('show');
+    setb.onclick=()=>sm.classList.toggle('show');
+    document.addEventListener('click',e=>{if(!e.target.closest('nav')){dd.classList.remove('show');sm.classList.remove('show');}});
+    dd.querySelectorAll('button').forEach(b=>b.onclick=()=>{dd.classList.remove('show');if(b.dataset.type==='weather')loadWeather();else loadStock(b.dataset.type);});
+
+    function fmt(ms){const t=Math.max(0,Math.floor(ms/1e3)),d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60,p=[];if(d)p.push(d+'d');if(h)p.push(h+'h');if(m)p.push(m+'m');if(!p.length||s)p.push(s+'s');return p.join(' ');}
+    function calc(){const n=new Date(),o=new Date(n.getFullYear(),n.getMonth(),n.getDate()),f=i=>o.getTime()+Math.ceil((n.getTime()-o.getTime())/i)*i;return{seed_stock:f(300e3),gear_stock:f(300e3),egg_stock:f(18e5),cosmetic_stock:f(144e5),eventshop_stock:f(36e5),travelingmerchant_stock:f(144e5),weather:0};}
+    setInterval(()=>{const r=calc(),now=Date.now();let txt;if(currentType==='weather')txt='Weather durations';else{const v=r[currentType]||0;txt=`${currentType.replace('_',' ')} restocks in: ${fmt(v-now)}`;}document.getElementById('restockTimer').textContent=txt;},3e3);
+    setInterval(()=>loadStock(currentType),3e3);
+
+    async function loadStock(type){currentType=type;const r=await fetch('https://api.joshlei.com/v2/growagarden/stock'),j=await r.json();stockData=j[type]||[];stockData.forEach(it=>{if(notifyMap[it.item_id]&&it.quantity>0&&!lastStock[it.item_id]&&Notification.permission==='granted')new Notification('GrowAGarden',{body:it.display_name+' in stock!'});});lastStock={};stockData.forEach(it=>lastStock[it.item_id]=it.quantity>0);render();}
+    async function loadWeather(){currentType='weather';const r=await fetch('https://api.joshlei.com/v2/growagarden/weather'),j=await r.json();weatherData=j.weather||[];render();}
+
+    function render(){disp.innerHTML='';const showAll=vm.checked;const names= currentType==='weather'?weatherData.map(w=>w.weather_name)
+      : currentType==='seed_stock'?SEEDS
+      : currentType==='gear_stock'?GEARS
+      : currentType==='egg_stock'?EGGS
+      : currentType==='eventshop_stock'?EVENTS
+      : currentType==='travelingmerchant_stock'?['Merchant Night']:[];
+    names.forEach(name=>{
+      let icon='',inStock=false,html='';
+      if(currentType==='weather'){
+        const w=weatherData.find(x=>x.weather_name===name);
+        icon=w?.icon;inStock=w.active;
+        const time=w.active?`<div>Time Left: ${fmt((w.start_duration_unix*1e3+w.duration*1e3)-Date.now())}</div>`:'';
+        html=`<img src="${icon||''}"/><div>${name}</div>${time}<button class="sub-btn" data-id="${name}">Notify</button>`;
+      } else {
+        const it=stockData.find(x=>x.display_name===name);
+        icon=infoMap[name]?.icon;inStock=it?it.quantity>0:false;
+        if(!inStock&&!showAll) return;
+        html=`<img src="${icon||''}"/><div>${name}</div>`+(currentType!=='cosmetic_stock'?`<button class="sub-btn" data-id="${it?.item_id||name}">${inStock?'In Stock':'Notify'}</button>`:'');
+      }
+      const c=document.createElement('div');c.className='stock-card'+(inStock?'':currentType==='weather'?'':' out')+(currentType==='weather'&&inStock?' active-weather':'');c.innerHTML=html;disp.appendChild(c);
+    });addNotify();}
+
+    function addNotify(){
+      document.querySelectorAll('.sub-btn').forEach(b=>b.onclick=async e=>{
+        if(Notification.permission!=='granted')await Notification.requestPermission();
+        notifyMap[e.target.dataset.id]=true;
+        e.target.textContent='Notifying';
+        e.target.disabled=true;
+      });
+    }
+
+    loadStock('seed_stock');
+  });
+</script>
 </body>
 </html>
