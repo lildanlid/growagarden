@@ -78,7 +78,7 @@
       const r = calculateRestock(), now = Date.now();
       let txt = currentType === 'weather' ? '' : (currentType.replace('_', ' ') + ' restocks in: ' + formatCountdown(r[currentType] - now));
       document.getElementById('restockTimer').textContent = txt;
-    }, 3000);
+    }, 1000);
 
     setInterval(() => {
       if (currentType === 'weather') loadWeather();
@@ -126,7 +126,7 @@
         const active = w.active ? ' active-weather' : '';
         const card = document.createElement('div');
         card.className = 'stock-card' + active;
-        card.innerHTML = `<img src="${w.icon || ''}"/><div>${w.weather_name}</div>`;
+        card.innerHTML = `<img src="${w.icon || ''}" onerror="this.style.display='none'"/><div>${w.weather_name}</div>`;
         if (w.active) {
           const end = w.start_duration_unix * 1000 + w.duration * 1000;
           const timer = document.createElement('div');
@@ -166,6 +166,7 @@
           const img = document.createElement('img');
           img.src = item.icon;
           img.alt = name;
+          img.onerror = () => img.style.display = 'none';
           card.appendChild(img);
         }
         const nameDiv = document.createElement('div');
@@ -187,10 +188,16 @@
       document.querySelectorAll('.sub-btn').forEach(b => b.onclick = async e => {
         if (Notification.permission !== 'granted') await Notification.requestPermission();
         const id = e.target.dataset.id;
-        notifyMap[id] = true;
+        if (notifyMap[id]) {
+          delete notifyMap[id];
+          e.target.textContent = 'Notify';
+          e.target.disabled = false;
+        } else {
+          notifyMap[id] = true;
+          e.target.textContent = 'Notifying';
+          e.target.disabled = true;
+        }
         localStorage.setItem('notifyMap', JSON.stringify(notifyMap));
-        e.target.textContent = 'Notifying';
-        e.target.disabled = true;
       });
     }
   </script>
