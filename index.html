@@ -103,8 +103,9 @@
       stockData = j[type] || [];
       stockData.forEach(it => {
         const prev = lastStockState[it.item_id];
-        if (notifyMap[it.item_id] && it.quantity > 0 && !prev && Notification.permission === 'granted')
-          new Notification('Grow a Garden', { body: it.display_name + ' is back in stock!' });
+        if (notifyMap[it.item_id] && it.quantity > 0 && !prev && Notification.permission === 'granted') {
+          new Notification('Grow a Garden', { body: `${it.display_name} is back in stock!` });
+        }
       });
       lastStockState = {};
       stockData.forEach(it => lastStockState[it.item_id] = it.quantity > 0);
@@ -186,7 +187,9 @@
 
     function addNotify() {
       document.querySelectorAll('.sub-btn').forEach(b => b.onclick = async e => {
-        if (Notification.permission !== 'granted') await Notification.requestPermission();
+        if (Notification.permission !== 'granted') {
+          await Notification.requestPermission();
+        }
         const id = e.target.dataset.id;
         if (notifyMap[id]) {
           delete notifyMap[id];
