@@ -5,18 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grow a Garden Stock Monitor</title>
 <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; }
-    h1 { text-align: center; }
-    .category { margin-bottom: 30px; }
-    .category h2 { background: #474951; color: #fff; padding: 10px; border-radius: 5px; }
-    .items { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
-    .item { background: #fff; padding: 10px; border-radius: 5px; width: 150px; text-align: center; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    .item img { width: 80px; height: 80px; object-fit: contain; }
-    .quantity { font-weight: bold; margin-top: 5px; }
+body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; }
+h1 { text-align: center; }
+.category { margin-bottom: 30px; }
+.category h2 { background: #474951; color: #fff; padding: 10px; border-radius: 5px; }
+.items { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+.item { background: #fff; padding: 10px; border-radius: 5px; width: 150px; text-align: center; box-shadow: 0 0 5px rgba(0,0,0,0.1); transition: 0.3s; }
+.item img { width: 80px; height: 80px; object-fit: contain; }
+.item.out-of-stock { opacity: 0.4; }
+.quantity { font-weight: bold; margin-top: 5px; }
+#notifications { margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+#notifications h2 { margin-top: 0; }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.checkbox-group label { display: flex; align-items: center; gap: 5px; background: #eee; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+.checkbox-group input { cursor: pointer; }
 </style>
 </head>
 <body>
 <h1>Grow a Garden Stock Monitor</h1>
+
+<div id="notifications">
+  <h2>Select items for notifications:</h2>
+  <div>
+    <strong>Seeds:</strong>
+    <div class="checkbox-group" id="seed-notifications"></div>
+  </div>
+  <div>
+    <strong>Gears:</strong>
+    <div class="checkbox-group" id="gear-notifications"></div>
+  </div>
+  <div>
+    <strong>Eggs:</strong>
+    <div class="checkbox-group" id="egg-notifications"></div>
+  </div>
+</div>
 
 <div id="stock"></div>
 
@@ -28,13 +50,47 @@ const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Water
 const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
 const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
 
+// Keep track of selected notification items
+let selectedNotifications = { seeds: new Set(), gears: new Set(), eggs: new Set() };
+
+// Populate checkboxes for notification selection
+function createCheckboxes() {
+    const seedDiv = document.getElementById('seed-notifications');
+    SEEDS.forEach(name => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${name}"> ${name}`;
+        seedDiv.appendChild(label);
+        label.querySelector('input').addEventListener('change', e => {
+            e.target.checked ? selectedNotifications.seeds.add(name) : selectedNotifications.seeds.delete(name);
+        });
+    });
+
+    const gearDiv = document.getElementById('gear-notifications');
+    GEARS.forEach(name => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${name}"> ${name}`;
+        gearDiv.appendChild(label);
+        label.querySelector('input').addEventListener('change', e => {
+            e.target.checked ? selectedNotifications.gears.add(name) : selectedNotifications.gears.delete(name);
+        });
+    });
+
+    const eggDiv = document.getElementById('egg-notifications');
+    EGGS.forEach(name => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${name}"> ${name}`;
+        eggDiv.appendChild(label);
+        label.querySelector('input').addEventListener('change', e => {
+            e.target.checked ? selectedNotifications.eggs.add(name) : selectedNotifications.eggs.delete(name);
+        });
+    });
+}
+
+// Fetch stock data and display
 async function fetchStock() {
     try {
         const res = await fetch(API_URL, {
-            headers: {
-                'accept': 'application/json',
-                'jstudio-key': API_KEY
-            }
+            headers: { 'accept': 'application/json', 'jstudio-key': API_KEY }
         });
         const data = await res.json();
         displayStock(data);
@@ -44,14 +100,14 @@ async function fetchStock() {
     }
 }
 
+// Display all stock items
 function displayStock(data) {
     const stockDiv = document.getElementById('stock');
     stockDiv.innerHTML = '';
-
     const categories = [
-        {name: 'Seeds', items: data.seed_stock},
-        {name: 'Gears', items: data.gear_stock},
-        {name: 'Eggs', items: data.egg_stock},
+        {name: 'Seeds', items: data.seed_stock, key: 'seeds'},
+        {name: 'Gears', items: data.gear_stock, key: 'gears'},
+        {name: 'Eggs', items: data.egg_stock, key: 'eggs'},
         {name: 'Cosmetics', items: data.cosmetic_stock},
         {name: 'Event Shop', items: data.eventshop_stock}
     ];
@@ -66,6 +122,7 @@ function displayStock(data) {
         cat.items.forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item';
+            if (item.quantity === 0) itemDiv.classList.add('out-of-stock');
             itemDiv.innerHTML = `
                 <img src="${item.icon}" alt="${item.display_name}">
                 <div>${item.display_name}</div>
@@ -79,15 +136,20 @@ function displayStock(data) {
     });
 }
 
-// Check for notifications
+// Trigger notifications only for selected items
 function checkNotifications(data) {
-    const allItems = [...data.seed_stock, ...data.gear_stock, ...data.egg_stock];
-    allItems.forEach(item => {
-        if (SEEDS.includes(item.display_name) || GEARS.includes(item.display_name) || EGGS.includes(item.display_name)) {
-            if (item.quantity > 0) {
+    const allItems = [
+        {items: data.seed_stock, type: 'seeds'},
+        {items: data.gear_stock, type: 'gears'},
+        {items: data.egg_stock, type: 'eggs'}
+    ];
+
+    allItems.forEach(group => {
+        group.items.forEach(item => {
+            if (item.quantity > 0 && selectedNotifications[group.type].has(item.display_name)) {
                 notify(item.display_name, item.quantity);
             }
-        }
+        });
     });
 }
 
@@ -98,16 +160,15 @@ function notify(name, qty) {
         new Notification(`${name} in stock!`, { body: `Quantity: ${qty}` });
     } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                new Notification(`${name} in stock!`, { body: `Quantity: ${qty}` });
-            }
+            if (permission === "granted") new Notification(`${name} in stock!`, { body: `Quantity: ${qty}` });
         });
     }
 }
 
-// Refresh every 30 seconds
+// Initialize
+createCheckboxes();
 fetchStock();
-setInterval(fetchStock, 995);
+setInterval(fetchStock, 990);
 </script>
 </body>
 </html>
