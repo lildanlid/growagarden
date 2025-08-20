@@ -1,184 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grow a Garden Notifier</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f0f11;
-      --bg2: #1a1a1f;
-      --text: #f0f0f0;
-      --accent: #ffde59;
-      --muted: #888;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    header {
-      background: var(--bg2);
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      border-bottom: 1px solid #222;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-    }
-    .category-tab {
-      background: none;
-      border: none;
-      color: var(--text);
-      padding: 0.5rem 1rem;
-      margin: 0.25rem;
-      cursor: pointer;
-      border-radius: 0.5rem;
-      transition: background 0.2s;
-    }
-    .category-tab.active {
-      background: var(--accent);
-      color: #000;
-    }
-    .item-list {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 1rem;
-      justify-content: center;
-      gap: 1rem;
-    }
-    .item-card {
-      background: var(--bg2);
-      padding: 1rem;
-      border-radius: 1rem;
-      width: 180px;
-      text-align: center;
-      position: relative;
-      transition: box-shadow 0.3s;
-    }
-    .item-card img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-      margin-bottom: 0.5rem;
-    }
-    .item-card.weather.active {
-      box-shadow: 0 0 15px 3px var(--accent);
-    }
-    .item-card.merchant.empty::after {
-      content: 'Merchant has not arrived';
-      display: block;
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-    .restock-bar {
-      text-align: center;
-      padding: 0.5rem;
-      background: var(--bg2);
-      border-bottom: 1px solid #222;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grow a Garden Stock Monitor</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; }
+    h1 { text-align: center; }
+    .category { margin-bottom: 30px; }
+    .category h2 { background: #474951; color: #fff; padding: 10px; border-radius: 5px; }
+    .items { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+    .item { background: #fff; padding: 10px; border-radius: 5px; width: 150px; text-align: center; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .item img { width: 80px; height: 80px; object-fit: contain; }
+    .quantity { font-weight: bold; margin-top: 5px; }
+</style>
 </head>
 <body>
-  <header>
-    <button class="category-tab" data-tab="seeds">Seeds</button>
-    <button class="category-tab" data-tab="gears">Gears</button>
-    <button class="category-tab" data-tab="eggs">Eggs</button>
-    <button class="category-tab" data-tab="weather">Weather</button>
-    <button class="category-tab" data-tab="event">Event</button>
-    <button class="category-tab" data-tab="merchant">Merchant</button>
-  </header>
-  <div class="restock-bar" id="restockBar"></div>
-  <div class="item-list" id="itemList"></div>
+<h1>Grow a Garden Stock Monitor</h1>
 
-  <script>
-    const itemListEl = document.getElementById("itemList");
-    const restockBar = document.getElementById("restockBar");
-    const TABS = ['seeds', 'gears', 'eggs', 'weather', 'event', 'merchant'];
-    let currentTab = 'seeds';
+<div id="stock"></div>
 
-    const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone", "Elder Strawberry"];
-    const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
-    const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
-    const EVENTS = ["Zen Seed Pack", "Zen Egg", "Hot Springs", "Zen Sand", "Tranquil Radar", "Zenflare", "Zen Crate", "Sakura Bush", "Soft Sunshine", "Koi", "Zen Gnome Crate", "Spiked Mango", "Pet Shard Tranquil", "Pet Shard Corrupted", "Raiju"];
+<script>
+const API_URL = 'https://api.joshlei.com/v2/growagarden/stock';
+const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
 
-    function formatCountdown(ms) {
-      const t = Math.max(0, Math.floor(ms / 1000)), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), s = t % 60, p = [];
-      if (d) p.push(d + 'd'); if (h) p.push(h + 'h'); if (m) p.push(m + 'm'); if (!p.length || s) p.push(s + 's');
-      return p.join(' ');
+const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone", "Elder Strawberry","Romanesco"];
+const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
+const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
+
+async function fetchStock() {
+    try {
+        const res = await fetch(API_URL, {
+            headers: {
+                'accept': 'application/json',
+                'jstudio-key': API_KEY
+            }
+        });
+        const data = await res.json();
+        displayStock(data);
+        checkNotifications(data);
+    } catch (err) {
+        console.error('Error fetching stock:', err);
     }
+}
 
-    function calculateRestock() {
-      const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()), n = i => today.getTime() + Math.ceil((now.getTime() - today.getTime()) / i) * i;
-      return {
-        seeds: n(300000),
-        gears: n(300000),
-        eggs: n(1800000),
-        events: n(3600000),
-        merchant: n(14400000),
-      };
-    }
+function displayStock(data) {
+    const stockDiv = document.getElementById('stock');
+    stockDiv.innerHTML = '';
 
-    const restockTimes = calculateRestock();
+    const categories = [
+        {name: 'Seeds', items: data.seed_stock},
+        {name: 'Gears', items: data.gear_stock},
+        {name: 'Eggs', items: data.egg_stock},
+        {name: 'Cosmetics', items: data.cosmetic_stock},
+        {name: 'Event Shop', items: data.eventshop_stock}
+    ];
 
-    function updateRestockBar() {
-      const now = Date.now();
-      const t = formatCountdown(restockTimes[currentTab] - now);
-      restockBar.textContent = `Next ${currentTab.charAt(0).toUpperCase() + currentTab.slice(1)} Restock: ${t}`;
-    }
+    categories.forEach(cat => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'category';
+        catDiv.innerHTML = `<h2>${cat.name}</h2>`;
+        const itemsDiv = document.createElement('div');
+        itemsDiv.className = 'items';
 
-    function renderList() {
-      itemListEl.innerHTML = "";
-      const list = {
-        seeds: SEEDS,
-        gears: GEARS,
-        eggs: EGGS,
-        weather: ["Sunny", "Rainy", "Windy", "Snowy"],
-        event: EVENTS,
-        merchant: [] // can be filled dynamically from API or data later
-      }[currentTab];
+        cat.items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.innerHTML = `
+                <img src="${item.icon}" alt="${item.display_name}">
+                <div>${item.display_name}</div>
+                <div class="quantity">Qty: ${item.quantity}</div>
+            `;
+            itemsDiv.appendChild(itemDiv);
+        });
 
-      if (currentTab === 'merchant' && list.length === 0) {
-        const card = document.createElement('div');
-        card.className = 'item-card merchant empty';
-        itemListEl.appendChild(card);
-        return;
-      }
-
-      list.forEach(name => {
-        const card = document.createElement('div');
-        card.className = `item-card ${currentTab}`;
-        const img = document.createElement('img');
-        img.src = `https://api.joshlei.com/v2/growagarden/image/${encodeURIComponent(name)}`;
-        img.onerror = () => img.style.display = 'none';
-        card.appendChild(img);
-        const title = document.createElement('div');
-        title.textContent = name;
-        card.appendChild(title);
-        if(currentTab === 'weather') card.classList.add('active');
-        itemListEl.appendChild(card);
-      });
-    }
-
-    document.querySelectorAll('.category-tab').forEach(btn => {
-      btn.onclick = () => {
-        currentTab = btn.dataset.tab;
-        document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderList();
-        updateRestockBar();
-      };
+        catDiv.appendChild(itemsDiv);
+        stockDiv.appendChild(catDiv);
     });
+}
 
-    renderList();
-    updateRestockBar();
-    setInterval(updateRestockBar, 1000);
-  </script>
+// Check for notifications
+function checkNotifications(data) {
+    const allItems = [...data.seed_stock, ...data.gear_stock, ...data.egg_stock];
+    allItems.forEach(item => {
+        if (SEEDS.includes(item.display_name) || GEARS.includes(item.display_name) || EGGS.includes(item.display_name)) {
+            if (item.quantity > 0) {
+                notify(item.display_name, item.quantity);
+            }
+        }
+    });
+}
+
+// Browser notification
+function notify(name, qty) {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+        new Notification(`${name} in stock!`, { body: `Quantity: ${qty}` });
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification(`${name} in stock!`, { body: `Quantity: ${qty}` });
+            }
+        });
+    }
+}
+
+// Refresh every 30 seconds
+fetchStock();
+setInterval(fetchStock, 995);
+</script>
 </body>
 </html>
