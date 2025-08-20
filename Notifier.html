@@ -21,53 +21,18 @@ body {
   color: var(--fg);
   padding: 0;
   opacity: 0;
-  animation: fadeIn 1s forwards;
+  animation: fadeInBody 1s forwards;
   transition: background var(--transition-duration), color var(--transition-duration);
 }
 
-body.dark {
-  --bg: #232323;
-  --panel: #303136;
-  --fg: #f8f8f8;
-  --header: #23232c;
-}
-
-/* Fade in animation for body */
-@keyframes fadeIn {
+/* Fade in the entire body */
+@keyframes fadeInBody {
   to { opacity: 1; }
 }
 
-/* Loader styles */
+/* Loader styles (removed for no initial loading overlay) */
 #loaderBg {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  opacity: 1;
-  animation: fadeInLoader 1s forwards;
-}
-@keyframes fadeInLoader {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-#loaderBg.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s;
-}
-.loader {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 8px solid #bbb3;
-  border-top: 8px solid var(--accent);
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  display: none;
 }
 
 /* Top bar styles */
@@ -241,10 +206,6 @@ body.dark .checkbox-group label {
   background: #363a44;
   color: #fff;
 }
-.checkbox-group input {
-  cursor: pointer;
-}
-
 /* Smooth color transitions for theme changes */
 body {
   transition: background var(--transition-duration), color var(--transition-duration);
@@ -253,10 +214,7 @@ body {
 </head>
 <body>
 
-<!-- Loading overlay -->
-<div id="loaderBg">
-  <div class="loader"></div>
-</div>
+<!-- Optional: no loading overlay needed. Removed loader overlay for immediate page load -->
 
 <!-- Top bar -->
 <div class="topbar">
@@ -415,7 +373,6 @@ function timeAgo(epochStr) {
 // Fetch stock data
 let lastStockData = null;
 async function fetchStock() {
-  showLoader(true);
   try {
     const res = await fetch(API_STOCK_URL, {
       headers: {
@@ -429,14 +386,7 @@ async function fetchStock() {
     renderNotificationPanel(data);
   } catch (err) {
     console.error('Error fetching stock:', err);
-  } finally {
-    showLoader(false);
   }
-}
-
-// Show/hide loader
-function showLoader(show) {
-  document.getElementById('loaderBg').classList.toggle('hidden', !show);
 }
 
 // Render main stock categories
@@ -535,7 +485,7 @@ async function renderNotificationPanel(data) {
 // Initial fetch
 fetchStock();
 // Refresh every 12 seconds
-setInterval(fetchStock, 12000);
+setInterval(fetchStock, 995);
 </script>
 </body>
 </html>
