@@ -1,7 +1,547 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grow a Garden Stock Monitor</title>
+<style>
+:root {
+  --bg: #f0f0f0;
+  --panel: #fff;
+  --fg: #222;
+  --accent: #8dcf91;
+  --header: #474951;
+  --transition-duration: 0.4s;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  color: var(--fg);
+  padding: 0;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  transition: background var(--transition-duration), color var(--transition-duration);
+}
+
+body.dark {
+  --bg: #232323;
+  --panel: #303136;
+  --fg: #f8f8f8;
+  --header: #23232c;
+}
+
+/* Fade in animation for body */
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Loader styles */
+#loaderBg {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  animation: fadeInLoader 1s forwards;
+}
+@keyframes fadeInLoader {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+#loaderBg.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.loader {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 8px solid #bbb3;
+  border-top: 8px solid var(--accent);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Top bar styles */
+h1 {
+  text-align: center;
+  margin: 18px 0 8px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0 20px;
+  transition: background var(--transition-duration);
+}
+.toggle-btn {
+  background: var(--panel);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  color: var(--fg);
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0001;
+  transition: background 0.3s, color 0.3s;
+  padding: 8px 14px;
+  margin-right: 10px;
+}
+#notifSide {
+  position: fixed;
+  top: 0;
+  right: -370px;
+  height: 100%;
+  width: 330px;
+  background: var(--panel);
+  box-shadow: -2px 0 24px #0004;
+  z-index: 8000;
+  transition: right 0.45s cubic-bezier(.24,.69,.27,1.01), background 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+#notifSide.open {
+  right: 0;
+}
+#notifSideHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 23px 7px 23px;
+}
+#notifItems {
+  padding: 0 25px;
+  overflow-y: auto;
+  flex: 1;
+  transition: opacity 0.3s;
+}
+.notifEntry {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 13px 0;
+  transition: opacity 0.3s;
+}
+.notifEntry img {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.notifEntry span {
+  display: flex;
+  flex-direction: column;
+}
+.notifEntry .notifStatus {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+.notifEntry .notifLast {
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* Categories styles with smooth toggle */
+.cat {
+  margin: 10px 0 26px;
+  background: var(--panel);
+  border-radius: 7px;
+  box-shadow: 0 0 7px #0001;
+  transition: background 0.3s;
+  overflow: hidden;
+}
+.catHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 13px 20px;
+  background: var(--header);
+  color: #fff;
+  font-size: 1.12em;
+  font-weight: 600;
+  user-select: none;
+  transition: background 0.3s, color 0.3s;
+}
+.catHeader i {
+  font-style: normal;
+  transition: transform 0.35s;
+}
+.cat.open .catHeader i {
+  transform: rotate(180deg);
+}
+.catContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(.75,0,.32,1);
+}
+.cat.open .catContent {
+  max-height: 800px; /* large enough to show all content */
+  transition: max-height 0.5s cubic-bezier(.22,.68,.38,1.06);
+}
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px 15px;
+  margin: 14px 10px 14px 20px;
+}
+.item {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 0 5px #0001;
+  width: 145px;
+  padding: 8px;
+  text-align: center;
+  position: relative;
+  transition: background 0.3s, color 0.3s, opacity 0.4s, transform 0.3s;
+}
+body.dark .item {
+  background: #272a2f;
+}
+.item:hover {
+  transform: scale(1.02);
+}
+.item img {
+  width: 74px;
+  height: 74px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+.item .quantity {
+  font-weight: bold;
+  margin-top: 5px;
+}
+.item.out-of-stock {
+  opacity: 0.4;
+}
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 11px 0 17px 0;
+}
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #eee;
+  border-radius: 7px;
+  cursor: pointer;
+  padding: 5px 11px;
+  transition: background 0.2s;
+}
+body.dark .checkbox-group label {
+  background: #363a44;
+  color: #fff;
+}
+.checkbox-group input {
+  cursor: pointer;
+}
+
+/* Smooth color transitions for theme changes */
+body {
+  transition: background var(--transition-duration), color var(--transition-duration);
+}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loaderBg">
+  <div class="loader"></div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <h1>Grow a Garden Stock Monitor</h1>
+  <div>
+    <button class="toggle-btn" id="toggleNotif" title="Open Notifications">🔔</button>
+    <button class="toggle-btn" id="darkBtn" title="Dark mode">🌙</button>
+  </div>
+</div>
+
+<!-- Notifications side menu -->
+<div id="notifSide">
+  <div id="notifSideHeader">
+    <span style="font-size:1.2em;font-weight:600">Notifications</span>
+    <button class="toggle-btn" onclick="toggleNotifMenu()" style="padding:3px 12px 1px;font-size:1.26em;">✖</button>
+  </div>
+  <div id="notifItems"></div>
+</div>
+
+<!-- Notifications checkboxes -->
+<div style="max-width: 850px; margin: 0 auto; padding: 10px;">
+  <div>
+    <strong>Seeds:</strong>
+    <div class="checkbox-group" id="seed-notifications"></div>
+  </div>
+  <div>
+    <strong>Gears:</strong>
+    <div class="checkbox-group" id="gear-notifications"></div>
+  </div>
+  <div>
+    <strong>Eggs:</strong>
+    <div class="checkbox-group" id="egg-notifications"></div>
+  </div>
+</div>
+
+<!-- Main stock display -->
+<div style="max-width: 850px; margin: 0 auto; padding: 10px;">
+  <div id="stock"></div>
+</div>
+
+<script>
+const API_STOCK_URL = 'https://growagarden.gg/api/stock';
+const API_INFO_URL = 'https://api.joshlei.com/v2/growagarden/info/';
+const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
+
+// Image data (can be fetched dynamically or hardcoded)
+const IMAGE_DATA = {
+  "Carrot": "https://i.postimg.cc/sgCqpP6L/image.png",
+  "Strawberry": "https://i.postimg.cc/XYv0kNG/image2.png",
+  "Blueberry": "https://i.postimg.cc/8zV0pQX/image3.png",
+  "Tomato": "https://i.postimg.cc/XYZ123/tomato.png",
+  "Daffodil": "https://i.postimg.cc/abc123/daffodil.png",
+  "Watermelon": "https://i.postimg.cc/wxYZ123/watermelon.png",
+  "Pumpkin": "https://i.postimg.cc/xyz789/pumpkin.png",
+  "Apple": "https://i.postimg.cc/apple.png",
+  "Bamboo": "https://i.postimg.cc/bamboo.png",
+  "Coconut": "https://i.postimg.cc/coconut.png",
+  "Cactus": "https://i.postimg.cc/cactus.png",
+  "Dragon Fruit": "https://i.postimg.cc/dragonfruit.png",
+  "Mango": "https://i.postimg.cc/mango.png",
+  "Grape": "https://i.postimg.cc/grape.png",
+  "Mushroom": "https://i.postimg.cc/mushroom.png",
+  "Pepper": "https://i.postimg.cc/pepper.png",
+  "Cacao": "https://i.postimg.cc/cacao.png",
+  "Beanstalk": "https://i.postimg.cc/beanstalk.png",
+  "Ember lily": "https://i.postimg.cc/emberlily.png",
+  "Sugar Apple": "https://i.postimg.cc/sugarapple.png",
+  "Burning Bud": "https://i.postimg.cc/burningbud.png",
+  "Giant Pinecone": "https://i.postimg.cc/pinecone.png",
+  "Elder Strawberry": "https://i.postimg.cc/elderstrawberry.png",
+  "Romanesco": "https://i.postimg.cc/romanesco.png"
+  // Add more as needed
+};
+
+// Notification arrays
+const SEEDS = ["Carrot", "Strawberry", "Blueberry", "Tomato", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember lily", "Sugar Apple", "Burning Bud", "Giant Pinecone", "Elder Strawberry","Romanesco"];
+const GEARS = ["Watering Can", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Tanning Mirror", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Levelup Lolipop"];
+const EGGS = ["Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg"];
+
+// Local Storage helpers
+function saveToStorage(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+function loadFromStorage(key, defaultValue) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) || defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+// Saved states
+let selectedNotifications = loadFromStorage('selectedNotifs', { seeds: [], gears: [], eggs: [] });
+let openCats = loadFromStorage('openCats', {});
+let darkMode = loadFromStorage('dark', '1') === '1';
+
+// Set dark mode
+function setDark(on) {
+  if (on) document.body.classList.add('dark');
+  else document.body.classList.remove('dark');
+  document.getElementById('darkBtn').textContent = on ? "☀️" : "🌙";
+  saveToStorage('dark', on ? '1' : '0');
+}
+function toggleDark() {
+  setDark(!document.body.classList.contains('dark'));
+}
+setDark(darkMode);
+
+// Toggle notification drawer
+function toggleNotifMenu() {
+  document.getElementById('notifSide').classList.toggle('open');
+}
+document.getElementById('toggleNotif').onclick = toggleNotifMenu;
+
+// Create checkboxes for notifications
+function createCheckboxes(divId, items, key) {
+  const container = document.getElementById(divId);
+  container.innerHTML = '';
+  items.forEach(name => {
+    const label = document.createElement('label');
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.value = name;
+    chk.checked = selectedNotifications[key]?.includes(name);
+    chk.onchange = () => {
+      if (chk.checked) {
+        if (!selectedNotifications[key]?.includes(name))
+          selectedNotifications[key]?.push(name);
+      } else {
+        selectedNotifications[key] = selectedNotifications[key]?.filter(n => n !== name);
+      }
+      saveToStorage('selectedNotifs', selectedNotifications);
+      renderNotificationPanel(lastStockData);
+    };
+    label.appendChild(chk);
+    label.appendChild(document.createTextNode(' ' + name));
+    container.appendChild(label);
+  });
+}
+createCheckboxes('seed-notifications', SEEDS, 'seeds');
+createCheckboxes('gear-notifications', GEARS, 'gears');
+createCheckboxes('egg-notifications', EGGS, 'eggs');
+
+// Utility to get time ago from timestamp
+function timeAgo(epochStr) {
+  if (!epochStr) return '';
+  const epoch = parseInt(epochStr);
+  const now = Math.floor(Date.now() / 1000);
+  const diff = now - epoch;
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// Fetch stock data
+let lastStockData = null;
+async function fetchStock() {
+  showLoader(true);
+  try {
+    const res = await fetch(API_STOCK_URL, {
+      headers: {
+        'accept': 'application/json',
+        'jstudio-key': API_KEY
+      }
+    });
+    const data = await res.json();
+    lastStockData = data;
+    renderStock(data);
+    renderNotificationPanel(data);
+  } catch (err) {
+    console.error('Error fetching stock:', err);
+  } finally {
+    showLoader(false);
+  }
+}
+
+// Show/hide loader
+function showLoader(show) {
+  document.getElementById('loaderBg').classList.toggle('hidden', !show);
+}
+
+// Render main stock categories
+function renderStock(data) {
+  const categories = [
+    { name: 'Seeds', items: data.seed_stock, key: 'seeds' },
+    { name: 'Gears', items: data.gear_stock, key: 'gears' },
+    { name: 'Eggs', items: data.egg_stock, key: 'eggs' },
+    { name: 'Cosmetics', items: data.cosmetic_stock },
+    { name: 'Event Shop', items: data.eventshop_stock }
+  ];
+  const container = document.getElementById('stock');
+  container.innerHTML = '';
+
+  categories.forEach(cat => {
+    if (!cat.items?.length) return;
+    const catId = cat.name.toLowerCase().replace(/\s+/g, '');
+    const isOpen = !!openCats[catId];
+    const catDiv = document.createElement('div');
+    catDiv.className = 'cat' + (isOpen ? ' open' : '');
+    catDiv.innerHTML = `
+      <div class="catHeader" onclick="toggleCategory('${catId}')">${cat.name} <i>${isOpen ? '▲' : '▼'}</i></div>
+      <div class="catContent"></div>
+    `;
+    const itemsDiv = catDiv.querySelector('.catContent');
+    if (isOpen) {
+      itemsDiv.innerHTML = cat.items.map(item => {
+        const name = item.display_name;
+        const iconUrl = IMAGE_DATA[name] || item.icon || '';
+        return `
+        <div class="item ${item.quantity===0?'out-of-stock':''}">
+          <img src="${iconUrl}" alt="${name}">
+          <div>${name}</div>
+          <div class="quantity">Qty: ${item.quantity}</div>
+        </div>`;
+      }).join('');
+    }
+    container.appendChild(catDiv);
+  });
+}
+
+// Toggle category open/close
+function toggleCategory(catId) {
+  openCats[catId] = !openCats[catId];
+  saveToStorage('openCats', openCats);
+  renderStock(lastStockData);
+}
+
+// Render notification panel
+async function renderNotificationPanel(data) {
+  const container = document.getElementById('notifItems');
+  container.innerHTML = '';
+  if (!data) return;
+
+  const itemsToNotify = [
+    ...(data.seed_stock || []).filter(i => selectedNotifications.seeds?.includes(i.display_name)),
+    ...(data.gear_stock || []).filter(i => selectedNotifications.gears?.includes(i.display_name)),
+    ...(data.egg_stock || []).filter(i => selectedNotifications.eggs?.includes(i.display_name))
+  ];
+
+  for (const item of itemsToNotify) {
+    const name = item.display_name;
+    const iconUrl = IMAGE_DATA[name] || item.icon || '';
+    // Fetch last seen info
+    let lastSeenStr = '';
+    try {
+      const res = await fetch(`${API_INFO_URL}${encodeURIComponent(name.toLowerCase().replace(/ /g, '_'))}`, {
+        headers: {
+          'accept': 'application/json',
+          'jstudio-key': API_KEY
+        }
+      });
+      if (res.ok) {
+        const info = await res.json();
+        if (info.last_seen) {
+          lastSeenStr = timeAgo(info.last_seen);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching info:', err);
+    }
+    const statusSymbol = (item.quantity > 0) ? '✔️' : '❌';
+    const notifHTML = `
+      <div class="notifEntry">
+        <img src="${iconUrl}" alt="${name}">
+        <div>
+          <strong>${name}</strong>
+          <span>Status: ${statusSymbol}</span>
+          <span style="font-size:0.8em; opacity:0.7;">${lastSeenStr}</span>
+        </div>
+      </div>`;
+    container.innerHTML += notifHTML;
+  }
+}
+
+// Initial fetch
+fetchStock();
+// Refresh every 12 seconds
+setInterval(fetchStock, 12000);
+</script>
+</body>
+</html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grow a Garden Stock Monitor</title>
 <style>
