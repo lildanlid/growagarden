@@ -2,697 +2,393 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Trade Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trade App</title>
+<!-- Google Fonts for a modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --color-bg: #0f1224;
-    --color-bg-alt: #1a1c36;
-    --color-primary-purple: #8a4fff;
-    --color-secondary-purple: #6b4bbb;
-    --color-text-light: #f0f0f7;
-    --color-text-muted: #999bb2;
-    --color-accent-green: #3baa55;
-    --color-accent-red: #a63939;
-    --color-border: #333554;
-    --color-button-bg: #2a2c48;
-    --color-button-hover: #44476b;
-    --color-chat-bg: #1f203e;
-    --ease: cubic-bezier(0.6,0.2,0.1,1);
-  }
-
   body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--color-text-light);
-    background: var(--color-bg);
-    min-height: 100vh;
-    transition: background 0.7s var(--ease);
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+  }
+  h2 {
+    margin-top: 0;
   }
 
-  a {
-    color: var(--color-primary-purple);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s var(--ease);
+  /* Container styles */
+  #auth-section, #app-section {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   }
-  a:hover {
-    text-decoration: underline;
+  #auth-section h2, #app-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
   }
-  header { text-align: center; padding: 2rem 1rem 1rem; }
-  header h1 { margin: 0; font-weight: 900; font-size:2.5rem; }
-  header h1 span { color: var(--color-primary-purple);}
-  header p {margin-top:0.3rem; color:var(--color-text-muted);}
-  .top-buttons {
-    display: flex; justify-content: center; gap: 0.75rem; margin: 1.5rem 0 1rem;
-    animation: slideIn 0.7s var(--ease) both;
+  input[type="email"], input[type="password"], textarea, input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
   }
-  @keyframes slideIn {
-    from { opacity:0; transform:translateY(-30px);}
-    to { opacity:1; transform:none;}
+  input[type="email"]:focus, input[type="password"]:focus, textarea:focus, input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
   }
   button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background-color: #007bff;
+    color: #fff;
     border: none;
-    border-radius: 4px;
-    padding: 0.6rem 1.25rem;
-    background: var(--color-button-bg);
-    color: var(--color-text-light);
+    border-radius: 8px;
+    font-size: 1em;
     cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s var(--ease), box-shadow 0.2s, transform 0.08s;
-    box-shadow: 0 2px 8px #0002;
+    transition: background-color 0.2s;
   }
-  button:hover { background: var(--color-button-hover); transform: translateY(-2px) scale(1.03);}
-  button.primary { background: var(--color-primary-purple);}
-  button.primary:hover { background: var(--color-secondary-purple);}
-  button[disabled] { opacity: 0.5; pointer-events: none;}
+  button:hover {
+    background-color: #0056b3;
+  }
 
-  .search-bar {
-    max-width: 700px; margin: 0 auto 1rem; display: flex; gap: 0.75rem;
-    animation: fadeIn 1s 0.5s var(--ease) both;
+  /* Trades list styles */
+  #trades {
+    margin-top: 20px;
   }
-  @keyframes fadeIn { from { opacity:0 } to { opacity: 1 } }
-  .search-bar input[type="text"], .search-bar select {
-    background: var(--color-button-bg); color: var(--color-text-light);
-    border-radius: 4px; border: 1px solid var(--color-border);
-    padding: 0.5rem 0.75rem; font-size: 1rem;
-    transition: border-color 0.3s var(--ease);
+  .trade {
+    background: #fafafa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-  .trade-list-container {
-    max-width: 900px; margin: 1rem auto 3rem; padding:0 1rem;
-    animation: fadeIn 1.3s 0.4s var(--ease) both;
+  .trade button {
+    margin-top: 10px;
+    background-color: #17a2b8;
   }
-  .trade-card {
-    background: var(--color-bg-alt);
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 1px 14px #14143c11;
-    opacity:0; transform: translateY(40px) scale(0.98);
-    animation: tradePopIn 0.7s var(--ease) forwards;
+  .trade button:hover {
+    background-color: #138496;
   }
-  @keyframes tradePopIn {
-    to { opacity:1; transform:none;}
-  }
-  .trade-card-header { display:flex; justify-content: space-between; align-items: center; margin-bottom:0.75rem; }
-  .trade-user { font-weight:700; color:var(--color-primary-purple); font-size:1.1rem;}
-  .trade-time { font-size:0.8rem; color:var(--color-text-muted);}
-  .trade-items { display: flex; gap: 1rem;}
-  .trade-items > div {
-    flex: 1; background: var(--color-button-bg); border-radius: 6px;
-    padding: 0.5rem; border: 1px solid var(--color-border); transition: background .4s;
-  }
-  .trade-section-header { font-weight: 700; margin-bottom:0.4rem; color:var(--color-primary-purple);}
-  .trade-item {
-    background: #282b4f;
-    border-radius: 6px;
-    margin: 0.2rem 0;
-    font-size: 0.85rem;
-    display: flex; align-items: center; gap:0.4rem;
-    transition:box-shadow 0.3s var(--ease), background 0.3s var(--ease);
-    box-shadow: 0 1px 7px #0002;
-    padding: 0.3rem 0.5rem;
-    animation: fadeIn .5s 0.1s var(--ease) both;
-  }
-  .trade-item img {
-    width: 36px; height: 36px; border-radius: 7px; margin-right: 10px; background:#181838; object-fit: contain;
-  }
-  .trade-item-name { font-weight:600;}
-  .trade-item-qty { font-size: 0.73rem; color: var(--color-text-muted); }
-  #chat-panel {
-    display: none;
+
+  /* Chat overlay styles */
+  #chat-fullscreen {
     position: fixed;
-    right: 22px;
-    bottom: 80px;
-    width: 330px; max-height: 410px;
-    background-color: var(--color-chat-bg);
-    border-radius: 14px;
-    box-shadow: 0px 0px 14px #000c;
-    overflow: hidden;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #fff;
+    display: none;
     flex-direction: column;
-    z-index: 23;
-    opacity:0; transform:scale(0.93);
-    transition: opacity .37s var(--ease), transform .28s var(--ease);
-  }
-  #chat-panel.open {
-    display: flex; opacity:1;transform:none;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
   }
   #chat-header {
-    background-color: var(--color-primary-purple);
-    color: white; padding: 12px; font-weight: 700;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  #chat-close { cursor: pointer; font-size: 1.3rem; font-weight: 900; }
-  #chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; font-size: 0.97rem; color: var(--color-text-light);}
-  #chat-input-container { display: flex; border-top: 1px solid var(--color-border); }
-  #chat-input { flex-grow: 1; border: none; padding: 10px; font-size: 1rem; background: var(--color-button-bg); color: var(--color-text-light);}
-  #chat-send { background-color: var(--color-primary-purple); border: none; color: white; padding: 10px 16px; cursor: pointer; font-weight: 700;}
-  #trade-modal {
-    display: none;
-    position: fixed;
-    left: 0; top: 0; width: 100vw; height: 100vh;
-    background-color: rgba(0,0,0,0.78);
-    justify-content: center;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    z-index: 100;
-    opacity:0; pointer-events:none;
-    transition:opacity 0.36s var(--ease);
-  }
-  #trade-modal.open { display:flex; opacity:1; pointer-events:all; }
-  #trade-modal-content {
-    background-color: var(--color-bg-alt);
-    padding: 1.5rem;
-    border-radius: 16px;
-    max-width: 870px;
-    width: 95vw;
-    transition:box-shadow 0.3s;
-    box-shadow: 0 8px 64px #000a;
-    animation: modalBounce 0.45s var(--ease);
-  }
-  @keyframes modalBounce {
-    from { transform: scale(0.82);}
-    to { transform: none;}
-  }
-  #trade-modal-content h2 { margin-top: 0; color: var(--color-primary-purple);}
-  #trade-modal-content p { color: var(--color-text-muted);font-size:.97rem;}
-  .trade-form-container { display: flex; gap: 1.1rem; flex-wrap: wrap;}
-  .trade-section { flex: 1 1 45%; }
-  .trade-section-title { font-weight: 800; margin-bottom: 0.5rem;}
-  .items-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65rem 1rem;
-  }
-  .item-box {
-    background: var(--color-button-bg);
-    border: 2px dashed var(--color-border);
-    border-radius: 10px;
-    height: 94px; min-width:105px;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    font-weight: 600;
-    font-size: 0.94rem;
-    position: relative;
-    box-shadow: 0 2px 14px #0001;
-    transition: background .29s var(--ease), border-color .22s var(--ease), box-shadow .26s var(--ease);
-    user-select: none;
-    animation: fadeIn .38s 0.07s var(--ease) both;
-  }
-  .item-box:hover {
-    background-color: var(--color-primary-purple);
+    padding: 14px 20px;
+    background-color: #343a40;
     color: #fff;
-    box-shadow: 0 2px 18px #8a4fff22;
-    border-color: var(--color-primary-purple);
+    border-bottom: 1px solid #ddd;
   }
-  .item-img-wrap {
-    width: 46px; height: 46px; margin-bottom:0.4rem; display:flex;justify-content:center;align-items:center;
+  #chat-header h3 {
+    margin: 0;
   }
-  .item-box .qty {
-    position: absolute;
-    bottom: 5px; right: 10px;
-    font-size: 0.78rem; background-color: var(--color-bg);
-    border-radius: 3px; padding: 1px 7px;
-    pointer-events:none; color:var(--color-primary-purple);
-    font-weight:700;
+  #close-chat {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.3em;
+    cursor: pointer;
   }
-  .item-box .box-remove {
-    position: absolute; top:7px; right:9px; color: var(--color-accent-red); cursor: pointer; font-size: 1.2rem; display:none;
-    transition:color 0.2s;
+  #chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
   }
-  .item-box:hover .box-remove {display:block;}
-  .button-row {
-    margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap:wrap;
-    animation: fadeIn 1s 0.16s both var(--ease);
+  #chat-messages div {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   }
-  .btn-small { padding:0.34rem 1.04rem;font-size:0.88rem;}
-  .btn-upgrade { background: #3baa55; color: white;}
-  .btn-downgrade { background: #a63939; color: white;}
-  .btn-adds { background: #37518f; color: white;}
-  .btn-offers { background: #d6b53c; color: black;}
-  .btn-or { background: #8a4fff; color: white;}
-  .btn-no-sheckles { background: #2aa285; color: white;}
-  .btn-reset {
-    background: transparent;
-    border: 1.4px solid #a63939;
-    color: #a63939;
+  #chat-input-container {
+    display: flex;
+    padding: 10px 20px;
+    border-top: 1px solid #ddd;
   }
-  .btn-reset:hover { background: #a63939; color: white;}
-  .btn-black { background: #222; color: white; }
-  #trade-modal footer { margin-top: 1.2rem; text-align: right;}
-  /* Animations for insert/remove items */
-  .item-box.add-in {
-    animation: popItemIn 0.5s cubic-bezier(0.72,1.56,0,1) both;
+  #chat-input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    margin-right: 10px;
   }
-  @keyframes popItemIn {
-    0% { opacity:0;transform: scale(0.7);}
-    70% { opacity:1;transform: scale(1.1);}
-    100% { opacity:1;transform: none;}
+  #send-btn {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
   }
-  .item-box.remove-out {
-    animation: fadeOut .35s both;
+  #send-btn:hover {
+    background-color: #218838;
   }
-  @keyframes fadeOut {
-    0% { opacity:1;}
-    100% { opacity:0;transform: scale(0.7);}
-  }
-  @media (max-width: 700px) {
-    .trade-form-container { flex-direction: column;}
-    .trade-section { flex: 1 1 100%;}
-    .items-grid { grid-template-columns: repeat(1, 1fr);}
-    #trade-modal-content { max-width:98vw;}
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 </style>
 </head>
 <body>
-<header>
-<h1>Trade <span>Hub</span></h1>
-<p>Connect with thousands of traders in the Grow a Garden community. Find rare items, make fair trades, and build your collection.</p>
-<div class="top-buttons">
-  <button id="btn-create-trade" class="primary">+ Create Trade Ad</button>
-  <button id="btn-browse-trades">Browse Trades</button>
-  <button id="btn-refresh-trades">Refresh Trades</button>
-</div>
-<div class="search-bar">
-  <input type="text" id="search-input" placeholder="Search items..." autocomplete="off"/>
-  <label style="color: var(--color-text-light);display:flex;align-items:center;gap:0.3rem;">
-    Sort By
-    <select id="sort-select" style="margin-left:0.4rem;">
-      <option value="newest" selected>Newest First</option>
-      <option value="oldest">Oldest First</option>
-      <option value="user_asc">User A-Z</option>
-      <option value="user_desc">User Z-A</option>
-    </select>
-  </label>
-  <button id="btn-search-refresh" title="Refresh Search">Refresh</button>
-</div>
-</header>
-<main>
-<section class="trade-list-container" id="trade-list">
-<!-- Trades will appear here -->
-</section>
-</main>
 
-<!-- Trade Creation Modal -->
-<div id="trade-modal"><div id="trade-modal-content">
-<h2>Create Trade Ad</h2>
-<p>Set up your trade offer and find the perfect match for your items.</p>
-<form id="trade-form" onsubmit="return false;">
-  <div class="trade-form-container">
-    <section class="trade-section" id="section-have">
-      <div class="trade-section-title">I Have</div>
-      <div class="items-grid" id="items-have" aria-label="Items you have for trade"></div>
-      <div class="button-row">
-        <button type="button" class="btn-small btn-upgrade" onclick="alert('Modifier demo')">↑ Upgrade</button>
-        <button type="button" class="btn-small btn-downgrade" onclick="alert('Modifier demo')">↓ Downgrade</button>
-        <button type="button" class="btn-small btn-adds" onclick="alert('Modifier demo')">+ Adds</button>
-        <button type="button" class="btn-small btn-offers" onclick="alert('Modifier demo')">💰 Offers</button>
-        <button type="button" class="btn-small btn-or" onclick="alert('Modifier demo')">🌓 Or</button>
-        <button type="button" class="btn-small btn-no-sheckles" onclick="alert('Modifier demo')">🌵 No Sheckles</button>
-      </div>
-    </section>
-    <section class="trade-section" id="section-want">
-      <div class="trade-section-title">I Want</div>
-      <div class="items-grid" id="items-want" aria-label="Items you want for trade"></div>
-      <div class="button-row">
-        <button type="button" class="btn-small btn-upgrade" onclick="alert('Modifier demo')">↑ Upgrade</button>
-        <button type="button" class="btn-small btn-downgrade" onclick="alert('Modifier demo')">↓ Downgrade</button>
-        <button type="button" class="btn-small btn-adds" onclick="alert('Modifier demo')">+ Adds</button>
-        <button type="button" class="btn-small btn-offers" onclick="alert('Modifier demo')">💰 Offers</button>
-        <button type="button" class="btn-small btn-or" onclick="alert('Modifier demo')">🌓 Or</button>
-        <button type="button" class="btn-small btn-no-sheckles" onclick="alert('Modifier demo')">🌵 No Sheckles</button>
-      </div>
-    </section>
+<!-- Authentication UI -->
+<div id="auth-section">
+  <h2>Create Account</h2>
+  <input type="email" id="signup-email" placeholder="Email" />
+  <input type="password" id="signup-password" placeholder="Password" />
+  <button onclick="handleSignUp()">Sign Up</button>
+
+  <h2>Already have an account?</h2>
+  <input type="email" id="signin-email" placeholder="Email" />
+  <input type="password" id="signin-password" placeholder="Password" />
+  <button onclick="handleSignIn()">Sign In</button>
+</div>
+
+<!-- Main App UI -->
+<div id="app-section" style="display:none;">
+  <h2 style="text-align:center;">Welcome, <span id="user-email"></span></h2>
+  <div style="display:flex; justify-content:space-around; margin-top:20px;">
+    <button onclick="signOut()">Sign Out</button>
+    <button onclick="loadTrades()">Refresh Trades</button>
   </div>
-  <footer>
-    <button type="button" id="btn-reset-form" class="btn-reset btn-small">Reset</button>
-    <button type="submit" id="btn-publish-trade" class="primary">Publish Trade Ad</button>
-    <button type="button" id="btn-save-draft" class="btn-black btn-small">Save as Draft</button>
-  </footer>
-</form>
-</div></div>
+  <h3 style="margin-top:30px;">Post a Trade</h3>
+  <textarea id="have-items" rows="3" placeholder="Items you have..."></textarea>
+  <textarea id="want-items" rows="3" placeholder="Items you want..."></textarea>
+  <button onclick="createTrade()">Post Trade</button>
 
-<!-- Chat Panel -->
-<div id="chat-panel" aria-live="polite">
+  <div id="trades"></div>
+</div>
+
+<!-- Chat Overlay -->
+<div id="chat-fullscreen">
   <div id="chat-header">
-    <span id="chat-title">Chat</span>
-    <span id="chat-close" tabindex="0" aria-label="Close chat panel">&times;</span>
+    <h3 id="chat-title">Chat</h3>
+    <button id="close-chat" onclick="closeChat()">×</button>
   </div>
   <div id="chat-messages"></div>
   <div id="chat-input-container">
-    <input type="text" id="chat-input" placeholder="Type message..." autocomplete="off"/>
-    <button id="chat-send">Send</button>
+    <input type="text" id="chat-input" placeholder="Type a message..." />
+    <button id="send-btn" onclick="sendChatMessage()">Send</button>
   </div>
 </div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase-js.min.js"></script>
 <script>
-const API_URL = 'https://api.joshlei.com/v2/growagarden/info';
-const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
+  let supabase;
 
-let itemsList = [];
-let trades = [];
-let chatMessagesData = {};
-let currentDraft = null, currentChatTradeId = null;
-
-const $ = id => document.getElementById(id);
-const itemsHaveContainer = $("items-have"), itemsWantContainer = $("items-want");
-const tradeModal = $("trade-modal"), btnCreateTrade = $("btn-create-trade");
-const btnRefreshTrades = $("btn-refresh-trades"), btnBrowseTrades = $("btn-browse-trades");
-const tradeListContainer = $("trade-list"), btnResetForm = $("btn-reset-form");
-const tradeForm = $("trade-form");
-const chatPanel = $("chat-panel"), chatMessages = $("chat-messages");
-const chatInput = $("chat-input"), chatSend = $("chat-send"), chatClose = $("chat-close");
-const searchInput = $("search-input"), sortSelect = $("sort-select"), btnSearchRefresh = $("btn-search-refresh");
-
-function genId() { return 't'+Math.random().toString(36).substr(2,9);}
-function byType(which){return which==='have'?itemsHaveContainer:itemsWantContainer;}
-function createItemBox(type, index) {
-  const box = document.createElement('div');
-  box.className = 'item-box';
-  box.dataset.type = type; box.dataset.index = index;
-  if(itemsList.length>0){
-    box.textContent = '+ Add Item';
-    box.style.cursor = 'pointer';
-    box.onclick = () => openItemSelection(type, index);
-  } else {
-    box.textContent = 'Loading...';
-    box.style.cursor = 'wait';
-    box.onclick = null;
-  }
-  return box;
-}
-function initializeItemGrids() {
-  [itemsHaveContainer, itemsWantContainer].forEach((container, i) => {
-    const type = i === 0 ? 'have' : 'want';
-    container.innerHTML = '';
-    for(let i=0;i<4;i++) container.appendChild(createItemBox(type,i));
-  });
-}
-
-async function fetchItems() {
-  try {
-    const response = await fetch(API_URL, {
-      headers: {
-        'accept': 'application/json',
-        'jstudio-key': API_KEY
-      },
-    });
-    if(!response.ok) throw new Error('API Error');
-    const data = await response.json();
-    if(Array.isArray(data.items)) {
-      // Filter only pets
-      itemsList = data.items.filter(item => item.type === 'pet');
-    } else if(typeof data === 'object') {
-      itemsList = Object.values(data).filter(item => item.type === 'pet');
+  // Load config from backend
+  async function loadConfig() {
+    try {
+      const res = await fetch('http://localhost:3000/config'); // Your backend URL
+      const config = await res.json();
+      supabase = supabase.createClient(config.supabaseUrl, config.supabaseKey);
+      initAuthListener();
+    } catch (err) {
+      alert('Failed to load config: ' + err.message);
     }
-    initializeItemGrids();
-  } catch (e) {
-    alert('Failed to load items from API.');
-    itemsList = [];
-    initializeItemGrids();
   }
-}
 
-function openItemSelection(type, index) {
-  if(itemsList.length===0){
-    alert('Items not loaded yet!');
-    return;
-  }
-  // Create overlay modal
-  const selector=document.createElement("div");
-  selector.style=`position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--color-bg-alt);color:var(--color-text-light);border-radius:12px;z-index:101;padding:1.2rem;min-width:265px;border:2px solid var(--color-primary-purple);box-shadow:0 7px 48px #000c; overflow:auto; max-height:80vh;`;
+  let currentUser = null;
+  let currentTradeId = null; // For chat
+  let messageSubscription = null;
 
-  selector.innerHTML=`<h3 style="margin:0 0 1rem 0;font-size:1.11rem;">Select Item & Quantity</h3>`;
-
-  // Show all items (pets + others)
-  const grid = document.createElement("div");
-  grid.className = "items-grid";
-  grid.style = "grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:0.75rem;";
-
-  itemsList.forEach(item => {
-    const itemBox = document.createElement('div');
-    itemBox.className = 'item-box';
-    itemBox.style.cursor = 'pointer';
-    itemBox.dataset.itemId = item.item_id;
-
-    // Create image element with proper styling
-    const img = document.createElement('img');
-    img.src = item.icon;
-    img.alt = item.display_name;
-    img.className='trade-item-img';
-
-    // Append image
-    itemBox.appendChild(img);
-
-    // Add display name
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = item.display_name;
-    nameSpan.style.display='block';
-    nameSpan.style.textAlign='center';
-    nameSpan.style.fontSize='0.75rem';
-    nameSpan.style.marginTop='0.3rem';
-
-    itemBox.appendChild(nameSpan);
-
-    // Handle click
-    itemBox.onclick = () => {
-      const qty = prompt(`Enter quantity for ${item.display_name}:`, '1');
-      const qtyNum = parseInt(qty);
-      if (!isNaN(qtyNum) && qtyNum > 0) {
-        addItemToBox(type, index, item.item_id, qtyNum);
-        selector.remove();
+  // Observe auth state
+  async function initAuthListener() {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session && session.user) {
+        if (session.user.email_confirmed_at) {
+          currentUser = session.user;
+          document.getElementById('auth-section').style.display = 'none';
+          document.getElementById('app-section').style.display = 'block';
+          document.getElementById('user-email').innerText = currentUser.email;
+          loadTrades();
+        } else {
+          alert('Please verify your email before accessing the app.');
+          await supabase.auth.signOut();
+        }
+      } else {
+        currentUser = null;
+        document.getElementById('auth-section').style.display = 'block';
+        document.getElementById('app-section').style.display = 'none';
       }
-    };
-
-    grid.appendChild(itemBox);
-  });
-
-  selector.appendChild(grid);
-
-  // Append to body
-  document.body.appendChild(selector);
-}
-
-function addItemToBox(type, index, itemId, qty) {
-  const container=byType(type);
-  const box=container.children[index];
-  if(!box) return;
-  const item=itemsList.find(i=>i.item_id===itemId);
-  box.innerHTML="";
-  const wrap=document.createElement("div");
-  wrap.className="item-img-wrap";
-
-  const img=document.createElement("img");
-  img.src=item?.icon; 
-  img.alt=item?.display_name; 
-  img.className='trade-item-img';
-
-  wrap.appendChild(img); 
-  box.appendChild(wrap);
-
-  const nameDiv = document.createElement('div');
-  nameDiv.textContent = item.display_name;
-  box.appendChild(nameDiv);
-
-  const qtyDiv=document.createElement('div');
-  qtyDiv.textContent='Qty: '+qty; 
-  qtyDiv.className='qty';
-  box.appendChild(qtyDiv);
-
-  const rm=document.createElement("span");
-  rm.className="box-remove"; 
-  rm.innerHTML="&times;";
-  rm.onclick=(e)=>{
-    e.stopPropagation();
-    box.classList.add('remove-out');
-    setTimeout(()=>{ 
-      box.replaceWith(createItemBox(type,index)); 
-    },340);
-  }
-  box.appendChild(rm);
-  box.dataset.itemId=itemId; 
-  box.dataset.qty=qty;
-  box.classList.remove('remove-out');
-  box.classList.add('add-in');
-  setTimeout(()=>box.classList.remove('add-in'),507);
-  box.onclick=()=>openItemSelection(type,index);
-}
-
-function getFormData() {
-  function getItems(container){
-    const arr=[];
-    for(const box of container.children)
-      if(box.dataset.itemId)
-        arr.push({id:box.dataset.itemId,qty:Number(box.dataset.qty)});
-    return arr;
-  }
-  return { have:getItems(itemsHaveContainer), want:getItems(itemsWantContainer) }
-}
-
-function resetForm() { initializeItemGrids(); }
-function saveTrade(isDraft=false){
-  const data=getFormData();
-  if(data.have.length===0||data.want.length===0) {
-    alert('Add at least one item in both "I Have" and "I Want".');
-    return false;
-  }
-  const trade={
-    id:currentDraft?currentDraft.id:genId(),
-    user:'CurrentUser',
-    created:new Date(),
-    have:data.have,
-    want:data.want,
-    isDraft
-  };
-  const idx=trades.findIndex(t=>t.id===trade.id);
-  if(idx>=0) trades[idx]=trade; else trades.push(trade);
-  currentDraft=isDraft?trade:null;
-  persistTrades(); renderTrades();
-  alert(isDraft?'Draft saved!':'Trade ad published!');
-  closeModal();
-  return true;
-}
-function persistTrades() { localStorage.setItem('tradeAds',JSON.stringify(trades)); }
-function loadTrades() {
-  const data=localStorage.getItem('tradeAds');
-  if(data){ trades=JSON.parse(data); trades.forEach(t=>t.created=new Date(t.created)); }
-}
-function renderTrades() {
-  let filtered=filterAndSortTrades();
-  tradeListContainer.innerHTML='';
-  if(filtered.length===0){
-    tradeListContainer.textContent='No trades found.'; return;
-  }
-  filtered.forEach(trade=>{
-    const card=createTradeCard(trade);
-    tradeListContainer.appendChild(card);
-  });
-}
-function filterAndSortTrades() {
-  const query=searchInput.value.trim().toLowerCase();
-  let filtered=trades.filter(t=>!t.isDraft);
-  if(query){
-    filtered=filtered.filter(t=>{
-      const userMatch = t.user.toLowerCase().includes(query);
-      const haveMatch = t.have.some(i => itemsList.find(s=>s.item_id===i.id)?.display_name.toLowerCase().includes(query));
-      const wantMatch = t.want.some(i => itemsList.find(s=>s.item_id===i.id)?.display_name.toLowerCase().includes(query));
-      return userMatch||haveMatch||wantMatch;
     });
   }
-  const sortBy=sortSelect.value;
-  if(sortBy==='newest') filtered.sort((a,b)=>b.created-a.created);
-  else if(sortBy==='oldest') filtered.sort((a,b)=>a.created-b.created);
-  else if(sortBy==='user_asc') filtered.sort((a,b)=>a.user.localeCompare(b.user));
-  else if(sortBy==='user_desc') filtered.sort((a,b)=>b.user.localeCompare(a.user));
-  return filtered;
-}
 
-function createTradeCard(trade) {
-  const card=document.createElement('article');
-  card.className='trade-card';
-  const header=document.createElement('header'); header.className='trade-card-header';
-  const userDiv=document.createElement('div'); userDiv.className='trade-user'; userDiv.textContent=trade.user; header.appendChild(userDiv);
-  const timeDiv=document.createElement('div'); timeDiv.className='trade-time';
-  timeDiv.textContent=formatTimeAgo(Date.now()-trade.created.getTime());
-  header.appendChild(timeDiv);
-  const chatBtn=document.createElement('button');
-  chatBtn.textContent='Chat'; chatBtn.className='primary btn-small';
-  chatBtn.onclick=()=>openChat(trade.id,trade.user); header.appendChild(chatBtn);
-  card.appendChild(header);
-  const itemContainer=document.createElement('div'); itemContainer.className='trade-items';
-  const haveDiv=document.createElement('div');
-  haveDiv.innerHTML = `<div class="trade-section-header">★ Offering (${trade.have.length})</div>`;
-  trade.have.forEach(item=>{
-    const itemElem = createTradeItemElement(item);
-    haveDiv.appendChild(itemElem);
-  });
-  const wantDiv=document.createElement('div');
-  wantDiv.innerHTML = `<div class="trade-section-header">★ Wants (${trade.want.length})</div>`;
-  trade.want.forEach(item=>{
-    const itemElem = createTradeItemElement(item);
-    wantDiv.appendChild(itemElem);
-  });
-  itemContainer.appendChild(haveDiv); itemContainer.appendChild(wantDiv); card.appendChild(itemContainer);
-  return card;
-}
-function createTradeItemElement(item){
-  const elem=document.createElement('div'); 
-  elem.className='trade-item';
-  const itMeta=itemsList.find(i=>i.item_id===item.id);
-  if(itMeta){
-    const img=document.createElement("img"); 
-    img.src=itMeta.icon; 
-    img.alt=itMeta.display_name; 
-    elem.appendChild(img);
-    const name=document.createElement("span"); 
-    name.textContent=itMeta.display_name; 
-    name.className='trade-item-name'; 
-    elem.appendChild(name);
-    const qty=document.createElement('span'); 
-    qty.textContent='Qty: '+(item.qty||1); 
-    qty.className='trade-item-qty'; 
-    elem.appendChild(qty);
-  }else{
-    elem.textContent = 'Unknown';
+  // Sign-up
+  async function handleSignUp() {
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    const { user, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      alert('Error: ' + error.message);
+    } else {
+      alert('Check your email to verify your account!');
+    }
   }
-  return elem;
-}
-function formatTimeAgo(ms){
-  const s=Math.floor(ms/1000); if(s<60) return s===1?'1 second ago':s+' seconds ago';
-  const m=Math.floor(s/60); if(m<60) return m===1?'1 minute ago':m+' minutes ago';
-  const h=Math.floor(m/60); if(h<24) return h===1?'1 hour ago':h+' hours ago';
-  const d=Math.floor(h/24); if(d<7) return d===1?'1 day ago':d+' days ago';
-  const w=Math.floor(d/7); if(w<4) return w===1?'1 week ago':w+' weeks ago';
-  return 'on '+new Date(Date.now()-ms).toLocaleDateString();
-}
 
-function openModal() { tradeModal.classList.add('open'); resetForm();}
-function closeModal() { tradeModal.classList.remove('open'); }
+  // Sign-in
+  async function handleSignIn() {
+    const email = document.getElementById('signin-email').value;
+    const password = document.getElementById('signin-password').value;
+    const { user, error } = await supabase.auth.signIn({ email, password });
+    if (error) {
+      alert('Error: ' + error.message);
+    }
+  }
 
-function openChat(tradeId,user){
-  currentChatTradeId=tradeId;
-  const trade=trades.find(t=>t.id===tradeId); if(!trade)return;
-  $("chat-title").textContent="Chat with "+trade.user;
-  chatMessages.innerHTML=''; chatPanel.classList.add('open'); loadChatMessages(tradeId);
-}
-chatClose.onclick=()=>{chatPanel.classList.remove('open');currentChatTradeId=null;};
-chatClose.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ chatPanel.classList.remove('open');currentChatTradeId=null;}});
-function loadChatMessages(tradeId){
-  chatMessages.innerHTML=''; const msgs=chatMessagesData[tradeId]||[];
-  msgs.forEach(({user,msg,timestamp})=>appendChatMessage(user,msg,new Date(timestamp)));
-  chatMessages.scrollTop=chatMessages.scrollHeight;
-}
-function appendChatMessage(user,msg,timestamp){
-  const msgElem=document.createElement('div'); msgElem.style.marginBottom='6px';
-  msgElem.innerHTML=`<strong>${user}</strong> <small style="color:#ccc;">${timestamp.toLocaleTimeString()}</small><br>${msg}`;
-  chatMessages.appendChild(msgElem);
-}
-chatSend.onclick=()=>{
-  const msg=chatInput.value.trim();
-  if(!msg||!currentChatTradeId)return;
-  const user='CurrentUser',timestamp=new Date();
-  if(!chatMessagesData[currentChatTradeId])chatMessagesData[currentChatTradeId]=[];
-  chatMessagesData[currentChatTradeId].push({user,msg,timestamp});
-  appendChatMessage(user,msg,timestamp); chatInput.value=''; chatMessages.scrollTop=chatMessages.scrollHeight;
-};
-chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){chatSend.click();e.preventDefault();}});
+  // Sign out
+  async function signOut() {
+    await supabase.auth.signOut();
+  }
 
-btnCreateTrade.onclick = () => openModal();
-btnRefreshTrades.onclick = () => renderTrades();
-btnBrowseTrades.onclick = () => renderTrades();
-btnResetForm.onclick = () => resetForm();
-tradeForm.onsubmit = () => saveTrade(false);
-$("btn-save-draft").onclick = () => saveTrade(true);
-btnSearchRefresh.onclick = () => renderTrades();
-searchInput.oninput = () => renderTrades();
-sortSelect.onchange = () => renderTrades();
+  // Load trades
+  async function loadTrades() {
+    const { data: trades, error } = await supabase
+      .from('trades')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error(error);
+      alert('Error loading trades');
+    } else {
+      displayTrades(trades);
+    }
+  }
 
-async function startApp(){
-  await fetchItems();
-  loadTrades();
-  initializeItemGrids();
-  renderTrades();
-}
-document.addEventListener('DOMContentLoaded',startApp);
+  function displayTrades(trades) {
+    const container = document.getElementById('trades');
+    container.innerHTML = '';
+    trades.forEach(trade => {
+      const div = document.createElement('div');
+      div.className = 'trade';
+      div.innerHTML = `
+        <strong>Trade ID:</strong> ${trade.id}<br />
+        <strong>Have:</strong> ${trade.have}<br />
+        <strong>Want:</strong> ${trade.want}<br />
+        <strong>Posted by:</strong> ${trade.user_id}<br />
+        <button onclick="openChat('${trade.id}')">Chat</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // Create trade
+  async function createTrade() {
+    const haveItems = document.getElementById('have-items').value;
+    const wantItems = document.getElementById('want-items').value;
+    if (!currentUser) {
+      alert('Please sign in first.');
+      return;
+    }
+    const { data, error } = await supabase
+      .from('trades')
+      .insert({
+        user_id: currentUser.id,
+        have: haveItems,
+        want: wantItems,
+        draft: false
+      });
+    if (error) {
+      alert('Error creating trade: ' + error.message);
+    } else {
+      loadTrades();
+    }
+  }
+
+  // Chat functions
+  async function openChat(tradeId) {
+    currentTradeId = tradeId;
+    document.getElementById('chat-fullscreen').style.display = 'flex';
+    document.getElementById('chat-title').innerText = 'Chat for Trade ' + tradeId;
+    await loadChatMessages(tradeId);
+    subscribeToMessages(tradeId);
+  }
+
+  function closeChat() {
+    if (messageSubscription) {
+      messageSubscription.unsubscribe();
+    }
+    document.getElementById('chat-fullscreen').style.display = 'none';
+  }
+
+  async function loadChatMessages(tradeId) {
+    const { data: messages, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('trade_id', tradeId)
+      .order('timestamp', { ascending: true });
+    if (error) {
+      console.error(error);
+      alert('Error loading messages');
+    } else {
+      const container = document.getElementById('chat-messages');
+      container.innerHTML = '';
+      messages.forEach(msg => {
+        appendChatMessage(msg.user_id, msg.message, new Date(msg.timestamp));
+      });
+    }
+  }
+
+  function appendChatMessage(userId, message, timestamp) {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${userId}:</strong> ${message} <br /><small>(${timestamp.toLocaleString()})</small>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendChatMessage() {
+    const messageText = document.getElementById('chat-input').value;
+    if (!messageText || !currentTradeId || !currentUser) return;
+    await supabase
+      .from('messages')
+      .insert({
+        trade_id: currentTradeId,
+        user_id: currentUser.email,
+        message: messageText,
+        timestamp: new Date()
+      });
+    document.getElementById('chat-input').value = '';
+  }
+
+  function subscribeToMessages(tradeId) {
+    if (messageSubscription) messageSubscription.unsubscribe();
+    messageSubscription = supabase
+      .from(`messages:trade_id=eq.${tradeId}`)
+      .on('INSERT', payload => {
+        const msg = payload.new;
+        appendChatMessage(msg.user_id, msg.message, new Date(msg.timestamp));
+      })
+      .subscribe();
+  }
+
+  // Initialize
+  loadConfig();
 </script>
 </body>
 </html>
