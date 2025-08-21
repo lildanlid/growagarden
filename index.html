@@ -14,6 +14,8 @@
   --icon-filter:none; /* for small header icons only */
   --btn-dark-bg: rgba(255,255,255,0.06);
   --hover-ease: cubic-bezier(.2,.9,.2,1);
+  --select-blue: #2b6cff;
+  --select-blue-rgba: 43,108,255;
 }
 html.dark{
   --bg:#0d0f15; --card:#0f1720; --text:#dfe6ff; --muted:#9aa3b2;
@@ -111,12 +113,52 @@ aside#sidebar .side-body{margin-top:10px;overflow:auto;padding-right:8px;flex:1}
 .segmented{display:flex;gap:8px;flex-wrap:wrap}
 .seg-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease), background .12s}
 .seg-btn:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08)}
-.seg-btn.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border-color:transparent}
 
-/* mutation chips */
+/* SELECTED: white-tinted surface + blue outline + blue glow */
+.seg-btn.toggled{
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,248,250,0.94));
+  color: var(--text);
+  border: 1px solid rgba(var(--select-blue-rgba),0.95);
+  /* blue glow: inner soft + outer glow */
+  box-shadow:
+    0 12px 30px rgba(var(--select-blue-rgba),0.12),
+    0 6px 18px rgba(0,0,0,0.04),
+    0 0 18px rgba(var(--select-blue-rgba),0.14);
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* dark-mode: keep white tint translucent and blue glow visible */
+html.dark .seg-btn.toggled{
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+  color: #fff;
+  border: 1px solid rgba(var(--select-blue-rgba),0.14);
+  box-shadow:
+    0 10px 26px rgba(var(--select-blue-rgba),0.12),
+    0 0 16px rgba(var(--select-blue-rgba),0.10);
+}
+
+/* mutations chips */
 .mut-chip{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease)}
 .mut-chip:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08)}
-.mut-chip.selected{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border-color:transparent}
+/* selected mutation: white tint + blue outline + glow */
+.mut-chip.selected{
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,248,250,0.94));
+  color: var(--text);
+  border: 1px solid rgba(var(--select-blue-rgba),0.95);
+  box-shadow:
+    0 12px 30px rgba(var(--select-blue-rgba),0.12),
+    0 6px 18px rgba(0,0,0,0.04),
+    0 0 18px rgba(var(--select-blue-rgba),0.14);
+  transform: translateY(-2px) scale(1.01);
+}
+html.dark .mut-chip.selected{
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+  color: #fff;
+  border: 1px solid rgba(var(--select-blue-rgba),0.14);
+  box-shadow:
+    0 10px 26px rgba(var(--select-blue-rgba),0.12),
+    0 0 16px rgba(var(--select-blue-rgba),0.10);
+}
 
 /* dark mode - make interactive buttons clearly styled when dark is active */
 html.dark .seg-btn,
@@ -505,6 +547,7 @@ document.getElementById('closeModal')?.addEventListener('click', hideModal);
 
 /* =========================
    Calculator (buttons)
+   - toggling behavior: click once to enable (white-tint + blue outline/glow), click again to disable
 ========================= */
 async function renderCalculator(){
   let selectedVariant = ''; let selectedWeather = ''; let selectedMutations = new Set();
@@ -515,20 +558,91 @@ async function renderCalculator(){
         <div style="width:120px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">Weight (kg)</div><input id="calcWeight" type="number" placeholder="2.25" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--glass-bg);color:var(--text)"></div>
       </div>
 
-      <div><div style="font-weight:700;margin-bottom:6px;">Variant Mutation (Choose One)</div><div class="segmented" id="variantGroup"></div></div>
-      <div><div style="font-weight:700;margin-bottom:6px;">Weather Mutation (Choose One)</div><div class="segmented" id="weatherGroup"></div></div>
+      <div><div style="font-weight:700;margin-bottom:6px;">Variant Mutation (Choose One — click again to disable)</div><div class="segmented" id="variantGroup"></div></div>
+      <div><div style="font-weight:700;margin-bottom:6px;">Weather Mutation (Choose One — click again to disable)</div><div class="segmented" id="weatherGroup"></div></div>
       <div><div style="font-weight:700;margin-bottom:6px;">Mutations (Multiple Allowed)</div><div id="mutationsGroup" style="display:flex;flex-wrap:wrap;gap:8px;"></div></div>
 
       <div style="display:flex;gap:12px;align-items:center;"><button id="calculateBtn" style="padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;cursor:pointer;">Calculate</button><div id="calcResult" style="font-weight:700;"></div></div>
     </div>
   `;
   const vwrap = document.getElementById('variantGroup'), wwrap = document.getElementById('weatherGroup'), mwrap = document.getElementById('mutationsGroup');
-  VARIANTS.forEach(v => { const b=document.createElement('button'); b.className='seg-btn'; b.textContent = v.label; b.dataset.val = v.id; b.addEventListener('click', ()=>{ vwrap.querySelectorAll('.seg-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); selectedVariant = v.id; }); vwrap.appendChild(b); });
-  vwrap.querySelector('.seg-btn')?.classList.add('active');
-  WEATHER_VARIANTS.forEach(w => { const b=document.createElement('button'); b.className='seg-btn'; b.textContent = w.label; b.dataset.val = w.id; b.addEventListener('click', ()=>{ wwrap.querySelectorAll('.seg-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); selectedWeather = w.id; }); wwrap.appendChild(b); });
-  wwrap.querySelector('.seg-btn')?.classList.add('active');
-  MUTATIONS.forEach(m => { const btn=document.createElement('button'); btn.className='mut-chip'; btn.textContent = `${m.label}${m.mult?` (x${m.mult})`:''}`; btn.dataset.val=m.id; btn.addEventListener('click', ()=>{ const id=btn.dataset.val; if(selectedMutations.has(id)){ selectedMutations.delete(id); btn.classList.remove('selected'); } else { selectedMutations.add(id); btn.classList.add('selected'); } }); mwrap.appendChild(btn); });
 
+  // VARIANTS - single-select but toggle off when clicked again
+  VARIANTS.forEach(v => {
+    const b=document.createElement('button');
+    b.className='seg-btn';
+    b.textContent = v.label;
+    b.dataset.val = v.id;
+    b.setAttribute('type','button');
+    b.setAttribute('aria-pressed','false');
+    b.addEventListener('click', ()=>{
+      const was = b.classList.contains('toggled');
+      // clear other seg-btn toggles
+      vwrap.querySelectorAll('.seg-btn').forEach(x=>{
+        x.classList.remove('toggled');
+        x.setAttribute('aria-pressed','false');
+      });
+      if(!was){
+        b.classList.add('toggled');
+        b.setAttribute('aria-pressed','true');
+        selectedVariant = v.id;
+      } else {
+        // if it was already toggled, clicking again turns it off
+        selectedVariant = '';
+      }
+    });
+    vwrap.appendChild(b);
+  });
+
+  // WEATHER - same behavior as variants
+  WEATHER_VARIANTS.forEach(w => {
+    const b=document.createElement('button');
+    b.className='seg-btn';
+    b.textContent = w.label;
+    b.dataset.val = w.id;
+    b.setAttribute('type','button');
+    b.setAttribute('aria-pressed','false');
+    b.addEventListener('click', ()=>{
+      const was = b.classList.contains('toggled');
+      wwrap.querySelectorAll('.seg-btn').forEach(x=>{
+        x.classList.remove('toggled');
+        x.setAttribute('aria-pressed','false');
+      });
+      if(!was){
+        b.classList.add('toggled');
+        b.setAttribute('aria-pressed','true');
+        selectedWeather = w.id;
+      } else {
+        selectedWeather = '';
+      }
+    });
+    wwrap.appendChild(b);
+  });
+
+  // MUTATIONS - multi-select (existing behavior) but uses white-tinted selected style + blue outline/glow
+  MUTATIONS.forEach(m => {
+    const btn=document.createElement('button');
+    btn.className='mut-chip';
+    btn.textContent = `${m.label}${m.mult?` (x${m.mult})`:''}`;
+    btn.dataset.val=m.id;
+    btn.setAttribute('type','button');
+    btn.setAttribute('aria-pressed','false');
+    btn.addEventListener('click', ()=>{
+      const id=btn.dataset.val;
+      if(selectedMutations.has(id)){
+        selectedMutations.delete(id);
+        btn.classList.remove('selected');
+        btn.setAttribute('aria-pressed','false');
+      } else {
+        selectedMutations.add(id);
+        btn.classList.add('selected');
+        btn.setAttribute('aria-pressed','true');
+      }
+    });
+    mwrap.appendChild(btn);
+  });
+
+  // Calculate button: uses selectedVariant / selectedWeather / selectedMutations
   document.getElementById('calculateBtn').addEventListener('click', async ()=>{
     const crop = document.getElementById('calcCrop').value.trim(); const weight = parseFloat(document.getElementById('calcWeight').value);
     if(!crop || isNaN(weight)){ document.getElementById('calcResult').textContent='Please enter Crop and Weight.'; return; }
