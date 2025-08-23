@@ -11,7 +11,7 @@
   --accent:#6b7cff; --accent-2:#50e3c2; --border:#e6e8f0;
   --good:#18a957; --bad:#e24a4a; --shadow:0 6px 20px rgba(0,0,0,.08);
   --glass-bg: rgba(255,255,255,0.6);
-  --icon-filter:none; /* for small header icons only */
+  --icon-filter:none; 
   --btn-dark-bg: rgba(255,255,255,0.06);
   --hover-ease: cubic-bezier(.2,.9,.2,1);
   --select-blue: #2b6cff;
@@ -25,33 +25,27 @@ html.dark{
   --btn-dark-bg: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
 }
 
-/* reset + base */
 *{box-sizing:border-box}
 body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 
-/* header */
 header{position:sticky;top:0;z-index:60;backdrop-filter:saturate(120%) blur(8px);background:linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,0));}
 .bar{display:flex;align-items:center;gap:10px;padding:12px 18px;max-width:1200px;margin:0 auto;}
 .title{font-weight:800;letter-spacing:.3px;font-size:18px;display:flex;align-items:center;gap:10px}
 .pill{padding:4px 10px;border-radius:999px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px}
 .spacer{flex:1}
 
-/* icon buttons */
 button.icon{border:none;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);width:38px;height:38px;border-radius:12px;display:grid;place-items:center;cursor:pointer;transition: transform .14s var(--hover-ease), box-shadow .14s var(--hover-ease), background .12s var(--hover-ease);} 
 button.icon:hover{transform:translateY(-4px);box-shadow:0 18px 36px rgba(0,0,0,0.12);} 
 button.icon img{width:18px;height:18px;display:block;filter:var(--icon-filter);transition:filter .12s ease}
 
-/* apply distinct dark styling for header icons so they read in dark mode */
 html.dark button.icon{ background: var(--btn-dark-bg); border-color:var(--border); }
 
-/* page layout */
 .row{max-width:1200px;margin:0 auto;padding:18px}
 .categories{display:grid;grid-template-columns:1fr;gap:14px}
 @media(min-width:880px){.categories{grid-template-columns:1fr 1fr}}
 @media(min-width:1180px){.categories{grid-template-columns:1fr 1fr}}
 
-/* cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition: transform .14s var(--hover-ease), box-shadow .14s var(--hover-ease);} 
 .card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,0.12)}
 .card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
@@ -63,7 +57,6 @@ html.dark button.icon{ background: var(--btn-dark-bg); border-color:var(--border
 .card.open .card-body{opacity:1}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:12px}
 
-/* item */
 .item{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,.02), transparent);transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease), border-color .12s}
 .item:hover{transform:translateY(-6px);box-shadow:0 14px 36px rgba(0,0,0,0.08);border-color:rgba(0,0,0,0.06)}
 .item.dim{opacity:.45;filter:grayscale(.35)}
@@ -74,7 +67,6 @@ html.dark button.icon{ background: var(--btn-dark-bg); border-color:var(--border
 .qty{margin-left:auto;font-weight:800;text-align:right}
 .restock{display:block;font-size:12px;color:var(--muted);margin-top:4px}
 
-/* chips */
 .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);margin:4px;cursor:pointer;background:var(--card);transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease)}
 .chip img{width:20px;height:20px;border-radius:6px;object-fit:cover}
 .chip:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08)}
@@ -87,7 +79,6 @@ html.dark button.icon{ background: var(--btn-dark-bg); border-color:var(--border
 .fade-in{animation:fadeIn .22s var(--hover-ease) both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* sidebar */
 aside#sidebar{position:fixed;right:0;top:0;height:100%;width:360px;background:var(--card);box-shadow:var(--shadow);padding:12px;transform:translateX(110%);transition:transform .25s var(--hover-ease);z-index:70;display:flex;flex-direction:column}
 aside#sidebar .side-head{display:flex;align-items:center;gap:8px}
 aside#sidebar .side-body{margin-top:10px;overflow:auto;padding-right:8px;flex:1} /* ensures sidebar scrolls */
@@ -96,30 +87,26 @@ aside#sidebar .side-body{margin-top:10px;overflow:auto;padding-right:8px;flex:1}
 .side-section .sec-body{overflow:hidden;max-height:0;transition:max-height .28s var(--hover-ease);padding-top:6px}
 .side-section.open .sec-body{max-height:420px}
 
-/* modal */
 #modalOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:200;background:rgba(6,8,12,0.48);backdrop-filter:blur(6px) saturate(120%);padding:20px}
 #modalOverlay.show{display:flex}
 #modalContent{width:min(1100px,96vw);max-height:88vh;overflow:auto;border-radius:14px;background:var(--card);color:var(--text);border:1px solid var(--border);box-shadow:var(--shadow);padding:18px;position:relative;transform:translateY(12px) scale(.98);opacity:0;transition:transform .28s var(--hover-ease),opacity .2s ease}
 #modalOverlay.show #modalContent{transform:translateY(0) scale(1);opacity:1}
 #closeModal{position:absolute;right:12px;top:10px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer}
 
-/* encyclopedia tabs/table */
 .enc-tabs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .enc-tab{padding:6px 10px;border-radius:8px;border:1px solid transparent;color:var(--muted);cursor:pointer;transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease)}
 .enc-tab:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.06)}
 .enc-tab.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border-color:transparent}
 
-/* segmented buttons for calculator */
 .segmented{display:flex;gap:8px;flex-wrap:wrap}
 .seg-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease), background .12s}
 .seg-btn:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08)}
 
-/* SELECTED: white-tinted surface + blue outline + blue glow */
 .seg-btn.toggled{
   background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,248,250,0.94));
   color: var(--text);
   border: 1px solid rgba(var(--select-blue-rgba),0.95);
-  /* blue glow: inner soft + outer glow */
+
   box-shadow:
     0 12px 30px rgba(var(--select-blue-rgba),0.12),
     0 6px 18px rgba(0,0,0,0.04),
@@ -127,7 +114,6 @@ aside#sidebar .side-body{margin-top:10px;overflow:auto;padding-right:8px;flex:1}
   transform: translateY(-2px) scale(1.01);
 }
 
-/* dark-mode: keep white tint translucent and blue glow visible */
 html.dark .seg-btn.toggled{
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
   color: #fff;
@@ -137,10 +123,8 @@ html.dark .seg-btn.toggled{
     0 0 16px rgba(var(--select-blue-rgba),0.10);
 }
 
-/* mutations chips */
 .mut-chip{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;transition: transform .12s var(--hover-ease), box-shadow .12s var(--hover-ease)}
 .mut-chip:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08)}
-/* selected mutation: white tint + blue outline + glow */
 .mut-chip.selected{
   background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,248,250,0.94));
   color: var(--text);
@@ -160,7 +144,6 @@ html.dark .mut-chip.selected{
     0 0 16px rgba(var(--select-blue-rgba),0.10);
 }
 
-/* dark mode - make interactive buttons clearly styled when dark is active */
 html.dark .seg-btn,
 html.dark .mut-chip,
 html.dark .enc-tab,
@@ -176,11 +159,7 @@ html.dark button.icon:hover {
   transform:translateY(-5px);
   box-shadow: 0 18px 40px rgba(0,0,0,0.45);
 }
-
-/* table row hover enhancement */
 .enc-table tbody tr:hover{ background: linear-gradient(90deg, rgba(0,0,0,0.03), transparent); transform:translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.04)}
-
-/* responsive tweaks */
 @media(max-width:720px){
   aside#sidebar{width:100%}
   .list{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
@@ -207,8 +186,6 @@ html.dark button.icon:hover {
   </div>
   <div class="categories" id="categories"></div>
 </main>
-
-<!-- Sidebar -->
 <div id="scrim" style="display:none;position:fixed;inset:0;z-index:60;"></div>
 <aside id="sidebar" aria-hidden="true">
   <div class="side-head">
@@ -223,8 +200,6 @@ html.dark button.icon:hover {
     <div style="margin-top:8px;" class="row-muted">Your selections + theme are saved locally.</div>
   </div>
 </aside>
-
-<!-- Modal -->
 <div id="modalOverlay" aria-hidden="true">
   <div id="modalContent" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <button id="closeModal" title="Close">✕</button>
@@ -234,14 +209,12 @@ html.dark button.icon:hover {
 </div>
 
 <script>
-/* =========================
-   Config / data (edit as needed)
-========================= */
+
 const SEEDS = ["Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"];
-const GEARS = ["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Tanning Mirror","Master Sprinkler","Cleaning Spray","Favorite Tool","Harvest Tool","Friendship Pot","Levelup Lolipop"];
+const GEARS = ["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray", "Cleansing Pet Shard" ,"Favorite Tool","Harvest Tool","Friendship Pot", "Grandsmaster Sprinkler", "Levelup Lolipop"];
 const EGGS  = ["Common Egg","Common Summer Egg","Rare Summer Egg","Mythical Egg","Paradise Egg","Bug Egg"];
 
-const VARIANTS = [ {id:'',label:'None',mult:1},{id:'ripe',label:'🍎 Ripe (x1)',mult:1},{id:'gold',label:'🪙 Gold (x20)',mult:20},{id:'rainbow',label:'🌈 Rainbow (x50)',mult:50} ];
+const VARIANTS = [ {id:'',label:'None',mult:1},{id:'ripe',label:'🥈 Silver (x5)',mult:1},{id:'gold',label:'🪙 Gold (x20)',mult:20},{id:'rainbow',label:'🌈 Rainbow (x50)',mult:50} ];
 const WEATHER_VARIANTS = [ {id:'',label:'None',mult:1},{id:'wet',label:'💧 Wet (x2)',mult:2},{id:'chilled',label:'❄️ Chilled (x2)',mult:2},{id:'drenched',label:'🌧️ Drenched (x5)',mult:5},{id:'frozen',label:'🧊 Frozen (x10)',mult:10} ];
 
 const MUTATIONS = [
@@ -264,12 +237,14 @@ const MUTATIONS = [
   {id:'pasta',label:'🍝 Pasta',mult:3},{id:'meatballed',label:'🍖 Meatballed',mult:3},{id:'acidic',label:'🧪 Acidic',mult:15},
   {id:'spaghetti',label:'🍝 Spaghetti',mult:12},{id:'aromatic',label:'🌿 Aromatic',mult:15},{id:'oil',label:'🛢️ Oil',mult:15},
   {id:'boil',label:'💧 Boil',mult:15},{id:'junkshock',label:'⚡ Junkshock',mult:45},{id:'bloom',label:'🌸 Bloom',mult:8},
-  {id:'eclipse',label:'🌒 Eclipse',mult:25},{id:'fortune',label:'🍀 Fortune',mult:50},{id:'lightcycle',label:'🔄 Lightcycle',mult:50}
+  {id:'eclipse',label:'🌒 Eclipse',mult:25},{id:'fortune',label:'🍀 Fortune',mult:50},{id:'lightcycle',label:'🔄 Lightcycle',mult:50},
+  {id:'cyclonic',label:'🌪️ Cyclonic',mult:50},
+  {id:'brainrot',label:'🧠 Brainrot',mult:100},
+  {id:'warped',label:'🌀 Warped',mult:75},
+  {id:'gnomed',label:'🧙‍♂️ Gnomed',mult:15},
+  {id:'beanbound',label:'🫘 Beanbound',mult:100}
 ];
 
-/* =========================
-   API keys / config
-========================= */
 const API_URL = 'https://api.joshlei.com/v2/growagarden/stock';
 const API_INFO = id => `https://api.joshlei.com/v2/growagarden/info/${id}`;
 const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
@@ -277,9 +252,6 @@ const POLL_MS = 30000;
 const INFO_TTL_MS = 5 * 60 * 1000;
 const BIG_PRICE_LIMIT = 100000000000000000;
 
-/* =========================
-   State
-========================= */
 let infoCache = loadJSON('gg_info_cache', {});
 let latestStock = null;
 let firstLoadDone = false;
@@ -289,9 +261,6 @@ let sidebarGroupState = loadJSON('gg_sidebar_groups', {});
 let notifiedSet = new Set();
 let watchSet = new Set(loadJSON('gg_watch', []));
 
-/* =========================
-   Helpers
-========================= */
 function loadJSON(k,f){ try{ return JSON.parse(localStorage.getItem(k) ?? JSON.stringify(f)); } catch(e){ return f; } }
 function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function timeAgo(s){ if(!s) return '—'; const now=Math.floor(Date.now()/1000); let diff=Math.max(0,now-Number(s)); const units=[['y',365*24*3600],['mo',30*24*3600],['w',7*24*3600],['d',24*3600],['h',3600],['m',60],['s',1]]; for(const [u,sec] of units){ if(diff>=sec){const v=Math.floor(diff/sec); return `${v}${u} ago`; }} return 'just now'; }
@@ -299,9 +268,6 @@ function formatPriceNum(price){ if(price==null||price===''||isNaN(Number(price))
 function formatCountdown(ms){ const totalSeconds=Math.max(0,Math.floor(ms/1000)); const d=Math.floor(totalSeconds/86400); const h=Math.floor((totalSeconds%86400)/3600); const m=Math.floor((totalSeconds%3600)/60); const s=totalSeconds%60; const parts=[]; if(d) parts.push(`${d}d`); if(h) parts.push(`${h}h`); if(m) parts.push(`${m}m`); if(!parts.length||s) parts.push(`${s}s`); return parts.join(' '); }
 function calculateRestockTimes(){ const now=Date.now(); const dayStart=new Date().setHours(0,0,0,0); const next = ms => dayStart + Math.ceil((now - dayStart) / ms) * ms; return { seeds: next(5*60*1000), gear: next(5*60*1000), egg: next(30*60*1000), cosmetics: next(4*60*60*1000), event: next(1*60*60*1000) }; }
 
-/* =========================
-   DOM refs
-========================= */
 const statusPill = document.getElementById('statusPill');
 const updatedAt = document.getElementById('updatedAt');
 const categoriesEl = document.getElementById('categories');
@@ -314,16 +280,10 @@ const modalTitle = document.getElementById('modalTitle');
 const modalBody = document.getElementById('modalBody');
 const restockTimersEl = document.getElementById('restockTimers');
 
-/* =========================
-   Theme toggle
-========================= */
 (function initTheme(){ const dark = localStorage.getItem('gg_dark') === 'true'; document.documentElement.classList.toggle('dark', dark); updateThemeIcon(); })();
 document.getElementById('darkToggle')?.addEventListener('click', ()=>{ const nowDark = !document.documentElement.classList.contains('dark'); document.documentElement.classList.toggle('dark', nowDark); localStorage.setItem('gg_dark', String(nowDark)); updateThemeIcon(); });
 function updateThemeIcon(){ const el=document.getElementById('darkIcon'); if(!el) return; el.src = document.documentElement.classList.contains('dark') ? 'https://img.icons8.com/ios-filled/24/ffffff/moon-symbol.png' : 'https://img.icons8.com/ios-filled/24/000000/contrast.png'; }
 
-/* =========================
-   Sidebar open/close & collapsible groups
-========================= */
 function openSidebar(){ sidebarEl.style.transform='translateX(0)'; scrim.style.display='block'; sidebarEl.setAttribute('aria-hidden','false'); localStorage.setItem('gg_sidebar_open','true'); }
 function closeSidebar(){ sidebarEl.style.transform='translateX(110%)'; scrim.style.display='none'; sidebarEl.setAttribute('aria-hidden','true'); localStorage.setItem('gg_sidebar_open','false'); }
 document.getElementById('openSidebar')?.addEventListener('click', openSidebar);
@@ -331,14 +291,8 @@ document.getElementById('closeSidebar')?.addEventListener('click', closeSidebar)
 scrim.addEventListener('click', closeSidebar);
 if(localStorage.getItem('gg_sidebar_open')==='true') openSidebar();
 
-/* =========================
-   Network helper
-========================= */
 async function fetchJSON(url, options={}){ const res = await fetch(url, options); if(!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); }
 
-/* =========================
-   Polling (keeps open cards state)
-========================= */
 async function fetchStock(){
   try{
     statusPill.textContent = 'Loading…';
@@ -357,12 +311,8 @@ async function fetchStock(){
 setInterval(fetchStock, POLL_MS);
 fetchStock();
 
-/* preserve open cards */
 function preserveOpenCards(){ openCardsSet.clear(); const opens = categoriesEl.querySelectorAll('.card.open .card-header h2'); for(const h of opens) openCardsSet.add(h.textContent.trim()); }
 
-/* =========================
-   Render categories & items (attach per-item restock display)
-========================= */
 function categorySpec(data){
   return [
     { key:'seed_stock', title:'Seeds', restKey:'seeds' },
@@ -413,14 +363,10 @@ function renderAll(data){
   updateRestockUI();
 }
 
-/* =========================
-   Item info cache & price fill (hide big prices)
-========================= */
 async function fillPriceSub(catKey,item){
   const sub = document.getElementById(`sub-${catKey}-${item.item_id}`);
   const info = await getItemInfo(item.item_id);
   if(sub){
-    // normal price hiding rules (big numbers)
     let priceText = formatPriceNum(info?.price);
     sub.textContent = priceText ? `Price: ${priceText} ${info?.currency ?? ''}`.trim() : '';
   }
@@ -437,9 +383,6 @@ async function getItemInfo(item_id){
   }catch(e){ return c?.data ?? null; }
 }
 
-/* =========================
-   Sidebar sections: collapsible groups with chips + persisted state
-========================= */
 function buildSideSections(){
   sectionsWrap.innerHTML = '';
   const groups = [
@@ -457,9 +400,7 @@ function buildSideSections(){
     const body = document.createElement('div'); body.className='sec-body';
     const seen = new Set();
 
-    // add live items first (preserve order)
     for(const it of g.live){ if(seen.has(it.display_name)) continue; seen.add(it.display_name); body.appendChild(makeChipFor(it.display_name, it.icon)); }
-    // then add known names (like the master list) that weren't present in live
     for(const name of (g.names||[])){
       if(seen.has(name)) continue; seen.add(name); body.appendChild(makeChipFor(name,''));
     }
@@ -467,7 +408,7 @@ function buildSideSections(){
     sec.appendChild(head); sec.appendChild(body); sectionsWrap.appendChild(sec);
 
     const st = (sidebarGroupState[g.label] === undefined) ? true : !!sidebarGroupState[g.label];
-    if(st) { sec.classList.add('open'); /* allow the browser to compute layout so scrollHeight is available */ body.style.maxHeight = body.scrollHeight + 'px'; }
+    if(st) { sec.classList.add('open'); body.style.maxHeight = body.scrollHeight + 'px'; }
 
     head.addEventListener('click', ()=>{
       sec.classList.toggle('open');
@@ -486,9 +427,6 @@ function buildSideSections(){
     }
   }
 
-/* =========================
-   Watchlist rendering (sidebar)
-========================= */
 function findCurrentQty(displayName){
   if(!latestStock) return 0;
   const pools=[latestStock.seed_stock, latestStock.gear_stock, latestStock.egg_stock, latestStock.cosmetic_stock, latestStock.eventshop_stock].filter(Boolean);
@@ -517,9 +455,6 @@ async function renderWatchlist(){
   }
 }
 
-/* =========================
-   Notifications for watched items ONLY
-========================= */
 function notifyItemsFromLists(){
   if(!latestStock || !("Notification" in window) || !watchSet || watchSet.size===0) return;
   if(!notifyItemsFromLists.seen) notifyItemsFromLists.seen = new Set();
@@ -536,19 +471,12 @@ function notifyItemsFromLists(){
   });
 }
 
-/* =========================
-   Modal functions
-========================= */
 function showModal(title, renderFn){ modalTitle.textContent = title; modalBody.innerHTML = 'Loading…'; modalOverlay.classList.add('show'); modalOverlay.setAttribute('aria-hidden','false'); renderFn(); }
 function hideModal(){ modalOverlay.classList.remove('show'); modalOverlay.setAttribute('aria-hidden','true'); }
 document.getElementById('calculatorBtn')?.addEventListener('click', ()=>{ showModal('Fruit Price Calculator', renderCalculator); });
 document.getElementById('encyclopediaBtn')?.addEventListener('click', ()=>{ showModal('Encyclopedia', renderEncyclopedia); });
 document.getElementById('closeModal')?.addEventListener('click', hideModal);
 
-/* =========================
-   Calculator (buttons)
-   - toggling behavior: click once to enable (white-tint + blue outline/glow), click again to disable
-========================= */
 async function renderCalculator(){
   let selectedVariant = ''; let selectedWeather = ''; let selectedMutations = new Set();
   modalBody.innerHTML = `
@@ -567,7 +495,6 @@ async function renderCalculator(){
   `;
   const vwrap = document.getElementById('variantGroup'), wwrap = document.getElementById('weatherGroup'), mwrap = document.getElementById('mutationsGroup');
 
-  // VARIANTS - single-select but toggle off when clicked again
   VARIANTS.forEach(v => {
     const b=document.createElement('button');
     b.className='seg-btn';
@@ -577,7 +504,6 @@ async function renderCalculator(){
     b.setAttribute('aria-pressed','false');
     b.addEventListener('click', ()=>{
       const was = b.classList.contains('toggled');
-      // clear other seg-btn toggles
       vwrap.querySelectorAll('.seg-btn').forEach(x=>{
         x.classList.remove('toggled');
         x.setAttribute('aria-pressed','false');
@@ -587,14 +513,12 @@ async function renderCalculator(){
         b.setAttribute('aria-pressed','true');
         selectedVariant = v.id;
       } else {
-        // if it was already toggled, clicking again turns it off
         selectedVariant = '';
       }
     });
     vwrap.appendChild(b);
   });
 
-  // WEATHER - same behavior as variants
   WEATHER_VARIANTS.forEach(w => {
     const b=document.createElement('button');
     b.className='seg-btn';
@@ -619,7 +543,6 @@ async function renderCalculator(){
     wwrap.appendChild(b);
   });
 
-  // MUTATIONS - multi-select (existing behavior) but uses white-tinted selected style + blue outline/glow
   MUTATIONS.forEach(m => {
     const btn=document.createElement('button');
     btn.className='mut-chip';
@@ -642,7 +565,6 @@ async function renderCalculator(){
     mwrap.appendChild(btn);
   });
 
-  // Calculate button: uses selectedVariant / selectedWeather / selectedMutations
   document.getElementById('calculateBtn').addEventListener('click', async ()=>{
     const crop = document.getElementById('calcCrop').value.trim(); const weight = parseFloat(document.getElementById('calcWeight').value);
     if(!crop || isNaN(weight)){ document.getElementById('calcResult').textContent='Please enter Crop and Weight.'; return; }
@@ -654,11 +576,6 @@ async function renderCalculator(){
   });
 }
 
-/* =========================
-   Encyclopedia modal
-   - hide price for weather items
-   - hide description for eggs (type contains 'egg')
-========================= */
 async function renderEncyclopedia(){
   modalBody.innerHTML = `
     <div class="encyclopedia">
@@ -707,7 +624,6 @@ async function renderEncyclopedia(){
     if(rows.length===0){ encBody.innerHTML = `<tr><td colspan="6" class="row-muted">No results.</td></tr>`; return; }
 
     encBody.innerHTML = rows.map(it=>{
-      // if item type is weather -> hide price
       const isWeather = (it.type || '').toLowerCase().includes('weather');
       const isEgg = (it.type || '').toLowerCase().includes('egg');
       const priceFormatted = isWeather ? null : formatPriceNum(it.price);
@@ -729,9 +645,6 @@ async function renderEncyclopedia(){
   }
 }
 
-/* =========================
-   Update restock timers in each item's row & global timers
-========================= */
 function updateRestockUI(){
   if(!restockTimes || !Object.keys(restockTimes).length) restockTimes = calculateRestockTimes();
   function mapKey(catKey){
@@ -744,7 +657,6 @@ function updateRestockUI(){
   }
   function update(){
     const now = Date.now();
-    // update per-item restock labels
     for(const cat of ['seed_stock','gear_stock','egg_stock','cosmetic_stock','eventshop_stock']){
       const k = mapKey(cat);
       const next = restockTimes[k] || 0;
@@ -752,8 +664,6 @@ function updateRestockUI(){
       const matches = document.querySelectorAll(`[id^="rest-${cat}-"]`);
       matches.forEach(el => { el.textContent = `Next restock: ${formatCountdown(left)}`; });
     }
-
-    // update global timers shown in header/toolbar
     const seedsLeft = Math.max(0,(restockTimes.seeds||0)-now);
     const gearLeft = Math.max(0,(restockTimes.gear||0)-now);
     const eggLeft = Math.max(0,(restockTimes.egg||0)-now);
@@ -761,7 +671,6 @@ function updateRestockUI(){
     const eventLeft = Math.max(0,(restockTimes.event||0)-now);
     restockTimersEl.textContent = `Seeds: ${formatCountdown(seedsLeft)} • Gear: ${formatCountdown(gearLeft)} • Eggs: ${formatCountdown(eggLeft)} • Cosmetics: ${formatCountdown(cosmeticsLeft)} • Event: ${formatCountdown(eventLeft)}`;
 
-    // if any timer expired, recalc next restock boundaries so countdown rolls over
     if(seedsLeft<=0||gearLeft<=0||eggLeft<=0||cosmeticsLeft<=0||eventLeft<=0) restockTimes = calculateRestockTimes();
   }
   update();
@@ -769,15 +678,10 @@ function updateRestockUI(){
   updateRestockUI._intervalId = setInterval(update,1000);
 }
 
-/* =========================
-   Accordion sizing helper
-========================= */
 function ensureAccordion(card, body){ const open = card.classList.contains('open'); body.style.maxHeight = open ? (body.scrollHeight + 'px') : '0px'; window.addEventListener('resize', ()=>{ if(card.classList.contains('open')) body.style.maxHeight = body.scrollHeight + 'px'; }); }
 
-/* Initial setup: build empty sections so UI isn't blank before data arrives */
 (function initUI(){ buildSideSections(); renderWatchlist(); updateRestockUI(); })();
 
-/* ensure watchlist container exists */
 (function ensureWatchlist(){ let w = document.getElementById('watchlist'); if(!w){ const el = document.createElement('div'); el.id='watchlist'; document.getElementById('sideBody').appendChild(el); } })();
 
 </script>
