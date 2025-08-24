@@ -239,14 +239,220 @@ const MUTATIONS = [
   {id:'spaghetti',label:'🍝 Spaghetti',mult:12},{id:'aromatic',label:'🌿 Aromatic',mult:15},{id:'oil',label:'🛢️ Oil',mult:15},
   {id:'boil',label:'💧 Boil',mult:15},{id:'junkshock',label:'⚡ Junkshock',mult:45},{id:'bloom',label:'🌸 Bloom',mult:8},
   {id:'eclipse',label:'🌒 Eclipse',mult:25},{id:'fortune',label:'🍀 Fortune',mult:50},{id:'lightcycle',label:'🔄 Lightcycle',mult:50},
-  {id:'cyclonic',label:'🌪️ Cyclonic',mult:50},{id:'brainrot',label:'🧠 Brainrot',mult:100},
-  {id:'warped',label:'🌀 Warped',mult:75},{id:'gnomed',label:'🧙‍♂️ Gnomed',mult:15},{id:'beanbound',label:'🫘 Beanbound',mult:100}
+  {id:'cyclonic',label:'🌪️ Cyclonic',mult:50},
+  {id:'brainrot',label:'🧠 Brainrot',mult:100},
+  {id:'warped',label:'🌀 Warped',mult:75},
+  {id:'gnomed',label:'🧙‍♂️ Gnomed',mult:15},
+  {id:'beanbound',label:'🫘 Beanbound',mult:100}
 ];
 
-/* RECIPES added (same as previous message) */
+/* Recipes data (updated with the new entries you provided) */
 const RECIPES = [
-  /* omitted here for brevity in this block — the full RECIPES array is identical to the earlier provided set */
-  /* For full code clarity the RECIPES entries are included below in the actual running script */
+  { emoji:'🌭', name:'Corn Dog', variants:[
+      {rarity:'Mythical', ingredients:['1x Giant Pinecone','1x Pepper','1x Corn']},
+      {rarity:'Mythical (alt)', ingredients:['1x Giant Pinecone','1x Pepper','1x Corn']},
+      {rarity:'Divine', ingredients:['1x Giant Pinecone','2x Pepper','2x Corn','2x Beanstalk']},
+      {rarity:'Prismatic', ingredients:['1x Giant Pinecone','1x Pepper','1x Corn','2x Beanstalk']}
+    ]},
+  { emoji:'🍝', name:'Spaghetti', variants:[
+      {rarity:'Legendary', ingredients:['1x Corn','1x Bell Pepper','1x Cauliflower','1x Tomato']},
+      {rarity:'Mythical', ingredients:['1x Tomato','1x Cauliflower','1x Jalapeno','1x Bone Blossom']},
+      {rarity:'Mythical (alt)', ingredients:['1x Tomato','1x Cauliflower','1x Taco Fern','1x Beanstalk']},
+      {rarity:'Divine', ingredients:['1x Tomato','1x Corn','2x Bone Blossom','2x Beanstalk']},
+      {rarity:'Prismatic', ingredients:['1x Tomato','1x Cauliflower','3x Bone Blossom']}
+    ]},
+  { emoji:'🍎', name:'Candy Apple', variants:[
+      {rarity:'Legendary', ingredients:['1x Sugar Apple','1x Blueberry']},
+      {rarity:'Prismatic', ingredients:['1x Sugar Apple','1x Giant Pinecone']},
+      {rarity:'Transcendent', ingredients:['1x Beanstalk','1x Ember Lily','1x Sugar Apple','1x Giant Pinecone','1x Bone Blossom']},
+      {rarity:'Other', ingredients:['2x Sugarglaze','2x Sugar Apple']}
+    ]},
+  { emoji:'🥣', name:'Porridge', variants:[
+      {rarity:'Rare', ingredients:['1x Cauliflower','1x Corn','1x Lingonberry']},
+      {rarity:'Recipe Swap – Legendary', ingredients:['2x Banana','1x Apple']},
+      {rarity:'Recipe Swap – Mythical', ingredients:['2x Sugarglaze','1x Blood Banana']},
+      {rarity:'Recipe Swap – Prismatic', ingredients:['1x Corn','4x Sugar Apple']},
+      {rarity:'Recipe Swap – Transcendent', ingredients:['1x Banana','1x Sugar Apple','3x Bone Blossom']}
+    ]},
+  { emoji:'🫖', name:'Sweet Tea', variants:[
+      {rarity:'Rare', ingredients:['2x Blueberry','2x Serenity']},
+      {rarity:'Legendary', ingredients:['1x Mint','1x Pineapple']},
+      {rarity:'Legendary (alt)', ingredients:['1x Soft Sunshine','1x Mango']},
+      {rarity:'Legendary (alt2)', ingredients:['1x Serenity','1x Mango']},
+      {rarity:'Mythical', ingredients:['1x Serenity','1x Sugar Apple']},
+      {rarity:'Divine', ingredients:['1x Ember Lily','1x Mango']},
+      {rarity:'Divine (alt)', ingredients:['1x Rosy Delight','1x Sugar Apple']},
+      {rarity:'Prismatic', ingredients:['1x Burning Bud','1x Sugar Apple']},
+      {rarity:'Transcendent', ingredients:['3x Sugar Apple','1x Burning Bud']},
+      {rarity:'Transcendent (alt)', ingredients:['1x Ember Lily','1x Burning Bud','2x Sugar Apple']}
+    ]},
+  { emoji:'🥤', name:'Smoothie', variants:[
+      {rarity:'Uncommon', ingredients:['1x Carrot','1x Apple']},
+      {rarity:'Legendary', ingredients:['1x Mango','1x Peach','1x Strawberry','1x Apple']},
+      {rarity:'Mythical', ingredients:['3x Apple','1x Peach']},
+      {rarity:'Mythical (alt)', ingredients:['2x Elder Strawberry','1x Blueberry','1x Strawberry','1x Apple']},
+      {rarity:'Divine', ingredients:['1x Coconut','1x Elder Strawberry']},
+      {rarity:'Divine (alt)', ingredients:['2x Grape']},
+      {rarity:'Prismatic', ingredients:['2x Sugar Apple']},
+      {rarity:'Transcendent', ingredients:['3x Bone Blossom','1x Pricklefruit']},
+      {rarity:'Transcendent (alt)', ingredients:['4x Bone Blossom','1x Sugar Apple']}
+    ]},
+  { emoji:'🥗', name:'Salad', variants:[
+      {rarity:'Common', ingredients:['3x Tomato','1x Bamboo']},
+      {rarity:'Uncommon', ingredients:['1x Orange Tulip','1x Bamboo','1x Carrot','1x Tomato']},
+      {rarity:'Rare', ingredients:['1x Corn','1x Tomato']},
+      {rarity:'Rare (alt)', ingredients:['2x Tomato','1x Dragon Fruit']},
+      {rarity:'Rare (alt2)', ingredients:['1x Peach','1x Tomato','1x Jalapeño']},
+      {rarity:'Rare (alt3)', ingredients:['1x Cauliflower','1x Bamboo']},
+      {rarity:'Legendary', ingredients:['1x Ember Lily','1x Dragon Fruit','1x Bamboo','1x Tomato']},
+      {rarity:'Mythical', ingredients:['2x Sugar Apple','1x Tomato']},
+      {rarity:'Divine', ingredients:['4x Sugar Apple','1x Tomato']},
+      {rarity:'Prismatic', ingredients:['3x Bone Blossom','1x Giant Pinecone','1x Tomato']},
+      {rarity:'Transcendent', ingredients:['4x Bone Blossom','1x Tomato']}
+    ]},
+  { emoji:'🥪', name:'Sandwich', variants:[
+      {rarity:'Uncommon', ingredients:['1x Tomato','1x Carrot','1x Corn']},
+      {rarity:'Uncommon (alt)', ingredients:['1x Tomato','1x Corn','1x Artichoke']},
+      {rarity:'Rare', ingredients:['1x Corn','2x Tomato']},
+      {rarity:'Rare (alt)', ingredients:['1x Tomato','1x Corn','1x Prickly Pear']},
+      {rarity:'Legendary', ingredients:['1x Corn','1x Tomato','1x Beanstalk']},
+      {rarity:'Legendary (alt)', ingredients:['1x Corn','1x Tomato','1x Loquat']},
+      {rarity:'Recipe Swap – Legendary', ingredients:['1x Corn','1x Tomato','3x Avocado']},
+      {rarity:'Recipe Swap – Mythical', ingredients:['1x Corn','1x Tomato','3x Bell Pepper']},
+      {rarity:'Recipe Swap – Divine', ingredients:['2x Sugar Apple','1x Corn','1x Tomato']},
+      {rarity:'Recipe Swap – Prismatic', ingredients:['1x Corn','1x Tomato','3x Bone Blossom']}
+    ]},
+  { emoji:'🥧', name:'Pie', variants:[
+      {rarity:'Rare', ingredients:['1x Crown Melon','1x Jalapeño']},
+      {rarity:'Legendary', ingredients:['1x Pumpkin','1x Apple']},
+      {rarity:'Legendary (alt)', ingredients:['1x Coconut','1x Tomato']},
+      {rarity:'Legendary (alt2)', ingredients:['1x Pumpkin','1x Dragon Fruit']},
+      {rarity:'Mythical', ingredients:['1x Pumpkin','1x Sugar Apple']},
+      {rarity:'Mythical (alt)', ingredients:['1x Cactus','1x Cacao','1x Pumpkin','1x Peach']},
+      {rarity:'Mythical (alt2)', ingredients:['1x Pumpkin','1x Ember Lily','1x Green Apple']},
+      {rarity:'Divine', ingredients:['1x Ember Lily']},
+      {rarity:'Divine (alt)', ingredients:['1x Beanstalk','1x Coconut']},
+      {rarity:'Prismatic', ingredients:['4x Bone Blossom','1x Pumpkin']},
+      {rarity:'Prismatic (alt)', ingredients:['4x Bone Blossom','1x Coconut']},
+      {rarity:'Transcendent', ingredients:['4x Bone Blossom','1x Pumpkin']},
+      {rarity:'Transcendent (alt)', ingredients:['4x Bone Blossom','1x Coconut']}
+    ]},
+  { emoji:'🧇', name:'Waffle', variants:[
+      {rarity:'Rare', ingredients:['1x Coconut','1x Strawberry']},
+      {rarity:'Legendary', ingredients:['1x Peach','1x Coconut','1x Apple']},
+      {rarity:'Mythical', ingredients:['1x Coconut','1x Peach']},
+      {rarity:'Mythical (alt)', ingredients:['1x Coconut','1x Mango']},
+      {rarity:'Divine', ingredients:['1x Sugar Apple','1x Coconut']},
+      {rarity:'Prismatic', ingredients:['1x Sugarglaze','2x Bone Blossom','2x Coconut','3x Sugar Apple']},
+      {rarity:'Prismatic (alt)', ingredients:['1x Sugar Apple','1x Coconut','3x Bone Blossom']},
+      {rarity:'Transcendent', ingredients:['1x Sugar Apple','1x Coconut','3x Bone Blossom']}
+    ]},
+
+  /* NEW RECIPES ADDED FROM YOUR LATEST LIST */
+  { emoji:'🍦', name:'Ice Cream', variants:[
+      {rarity:'Uncommon', ingredients:['1x Corn','1x Blueberry','1x Strawberry']},
+      {rarity:'Uncommon (alt)', ingredients:['1x Strawberry','1x Corn','1x Tomato','1x Jalapeño']},
+      {rarity:'Rare', ingredients:['1x Watermelon','1x Corn']},
+      {rarity:'Rare (alt)', ingredients:['1x Blueberry','1x Banana']},
+      {rarity:'Legendary', ingredients:['2x Banana','1x Watermelon']},
+      {rarity:'Legendary (alt)', ingredients:['1x Mango','1x Corn']},
+      {rarity:'Mythical', ingredients:['1x Banana','1x Pepper']},
+      {rarity:'Mythical (alt)', ingredients:['1x Loquat']},
+      {rarity:'Mythical (alt2)', ingredients:['1x Corn','1x Sugar Apple']},
+      {rarity:'Divine', ingredients:['1x Sugar Apple','1x Sugarglaze']},
+      {rarity:'Divine (alt)', ingredients:['3x Sugar Apple','1x Corn']},
+      {rarity:'Divine (alt2)', ingredients:['1x Sugarglaze','1x Tranquil Bloom','1x Bone Blossom','1x Sugar Apple']},
+      {rarity:'Prismatic', ingredients:['1x Sugarglaze','1x Sugar Apple','3x Bone Blossom']},
+      {rarity:'Prismatic (alt)', ingredients:['1x Banana','1x Sugar Apple','3x Bone Blossom']},
+      {rarity:'Transcendent', ingredients:['1x Banana','3x Bone Blossom']},
+      {rarity:'Transcendent (alt)', ingredients:['4x Sugarglaze','4x Bone Blossom']}
+    ]},
+  { emoji:'🍩', name:'Donut', variants:[
+      {rarity:'Uncommon', ingredients:['1x Tomato','1x Strawberry','1x Corn']},
+      {rarity:'Rare', ingredients:['1x Corn','1x Pineapple','1x Blueberry']},
+      {rarity:'Rare (alt)', ingredients:['2x Watermelon','2x Corn']},
+      {rarity:'Legendary', ingredients:['1x Sugar Apple','1x Serenity','1x Corn']},
+      {rarity:'Legendary (alt)', ingredients:['1x Corn','1x Mango','1x Banana']},
+      {rarity:'Divine', ingredients:['1x Sugarglaze','2x Sugar Apple']},
+      {rarity:'Divine (alt)', ingredients:['1x Bone Blossom','1x Sugar Apple','1x Banana']},
+      {rarity:'Mythical', ingredients:['1x Sugarglaze','1x Corn','1x Peach']},
+      {rarity:'Transcendent', ingredients:['4x Bone Blossom','1x Sugarglaze']},
+      {rarity:'Mythical (alt)', ingredients:['1x Sugar Apple','1x Corn','1x Tomato','1x Pepper']},
+      {rarity:'Divine (alt2)', ingredients:['1x Corn','2x Sugar Apple','1x Peach']},
+      {rarity:'Prismatic', ingredients:['3x Sugar Apple','1x Corn']},
+      {rarity:'Transcendent (alt)', ingredients:['3x Bone Blossom','1x Banana','1x Beanstalk']}
+    ]},
+  { emoji:'🍕', name:'Pizza', variants:[
+      {rarity:'Rare', ingredients:['1x Strawberry','1x Pepper','1x Tomato','1x Corn']},
+      {rarity:'Legendary', ingredients:['1x Corn','1x Tomato','1x Pepper','1x Sugar Apple']},
+      {rarity:'Legendary (alt)', ingredients:['1x Jalapeño','1x Corn','1x Dragon Fruit','1x Ember Lily']},
+      {rarity:'Prismatic', ingredients:['3x Bone Blossom','1x Banana','1x Beanstalk']},
+      {rarity:'Prismatic (alt)', ingredients:['3x Bone Blossom','1x Banana','1x Beanstalk']},
+      {rarity:'Transcendent', ingredients:['3x Bone Blossom','1x Banana','1x Beanstalk']}
+    ]},
+  { emoji:'🍲', name:'Soup', variants:[
+      {rarity:'Very Common', ingredients:['1x Carrot']},
+      {rarity:'Common', ingredients:['1x Strawberry','1x Peach','1x Mango']},
+      {rarity:'Uncommon', ingredients:['2x Coconut']},
+      {rarity:'Uncommon (alt)', ingredients:['1x Coconut','1x Dragon Fruit']},
+      {rarity:'Uncommon (alt2)', ingredients:['1x Green Apple','1x Grape']},
+      {rarity:'Uncommon (alt3)', ingredients:['1x Apple']},
+      {rarity:'Rare', ingredients:['1x Coconut','1x Elder Strawberry']},
+      {rarity:'Rare (alt)', ingredients:['1x Grape','1x Sugar Apple','1x Dragon Fruit']}
+    ]},
+  { emoji:'🌭', name:'Hot Dog', variants:[
+      {rarity:'Legendary', ingredients:['1x Pepper','1x Corn']},
+      {rarity:'Legendary (alt)', ingredients:['1x Ember Lily','1x Corn','1x Bamboo']},
+      {rarity:'Mythical', ingredients:['2x Pepper','1x Corn']},
+      {rarity:'Divine', ingredients:['1x Corn','1x Lucky Bamboo','3x Bone Blossom']},
+      {rarity:'Divine (alt)', ingredients:['1x Corn','1x Ember Lily','2x Elder Strawberry']},
+      {rarity:'Divine (alt2)', ingredients:['3x Pepper','1x Corn']},
+      {rarity:'Prismatic', ingredients:['1x Corn','4x Bone Blossom']},
+      {rarity:'Transcendent', ingredients:['1x Corn','4x Bone Blossom']}
+    ]},
+  { emoji:'🍔', name:'Burger', variants:[
+      {rarity:'Rare', ingredients:['1x Pepper','1x Corn','1x Tomato','1x Mint']},
+      {rarity:'Rare (alt)', ingredients:['1x Ember Lily','1x Carrot','1x Tomato','1x Corn']},
+      {rarity:'Legendary', ingredients:['1x Corn','1x Tomato','1x Ember Lily']},
+      {rarity:'Legendary (alt)', ingredients:['1x Corn','1x Tomato','1x Beanstalk','1x Cactus']},
+      {rarity:'Legendary (alt2)', ingredients:['1x Tomato','1x Corn','1x Pepper']},
+      {rarity:'Legendary (alt3)', ingredients:['1x Onion','1x Pear','1x Corn','1x Tomato','1x Bone Blossom']},
+      {rarity:'Legendary (alt4)', ingredients:['1x Corn','1x Tomato','1x Pepper','1x Cactus']},
+      {rarity:'Legendary (alt5)', ingredients:['1x Corn','2x Bell Pepper','2x Jalapeño']},
+      {rarity:'Mythical', ingredients:['1x Pepper','1x Corn','1x Tomato','1x Bone Blossom','1x Beanstalk']},
+      {rarity:'Mythical (alt)', ingredients:['1x Pepper','1x Corn','1x Tomato','2x Beanstalk']},
+      {rarity:'Mythical (alt2)', ingredients:['1x Corn','3x Bell Pepper']},
+      {rarity:'Divine', ingredients:['1x Corn','1x Tomato','3x Bone Blossom']}
+    ]},
+  { emoji:'🍣', name:'Sushi', variants:[
+      {rarity:'Rare', ingredients:['4x Bamboo','1x Corn']},
+      {rarity:'Rare (alt)', ingredients:['1x Corn','1x Apple']},
+      {rarity:'Rare (alt2)', ingredients:['1x Cauliflower','1x Bamboo']},
+      {rarity:'Legendary', ingredients:['3x Bamboo','1x Maple Apple','1x Corn']},
+      {rarity:'Legendary (alt)', ingredients:['3x Bamboo','1x Hive Fruit','1x Corn']},
+      {rarity:'Mythical', ingredients:['2x Bamboo','1x Corn','2x Bone Blossom']},
+      {rarity:'Mythical (alt)', ingredients:['3x Sugar Apple','1x Bamboo','1x Corn']},
+      {rarity:'Divine', ingredients:['1x Bamboo','1x Corn','3x Bone Blossom']},
+      {rarity:'Divine (alt)', ingredients:['1x Bamboo','1x Pepper','1x Ember Lily','1x Corn']},
+      {rarity:'Prismatic', ingredients:['1x Coconut','4x Bone Blossom']}
+    ]},
+  { emoji:'🍰', name:'Cake', variants:[
+      {rarity:'Uncommon', ingredients:['2x Corn','2x Strawberry']},
+      {rarity:'Uncommon (alt)', ingredients:['2x Blueberry','1x Corn','1x Tomato']},
+      {rarity:'Uncommon (alt2)', ingredients:['1x Ember Lily','2x Peach']},
+      {rarity:'Uncommon (alt3)', ingredients:['2x Banana','2x Strawberry','1x Pumpkin']},
+      {rarity:'Rare', ingredients:['2x Corn','2x Watermelon']},
+      {rarity:'Rare (alt)', ingredients:['2x Corn','2x Banana','1x Watermelon']},
+      {rarity:'Rare (alt2)', ingredients:['1x Blueberry','1x Grape','1x Apple','1x Corn']},
+      {rarity:'Legendary', ingredients:['2x Kiwi (Crop)|Kiwi','2x Banana or Corn']},
+      {rarity:'Mythical', ingredients:['2x Sugar Apple','2x Corn']},
+      {rarity:'Mythical (alt)', ingredients:['4x Sweet Type Crops','4x Corn']},
+      {rarity:'Mythical (alt2)', ingredients:['1x Sakura Bush','1x Cacao','1x Corn','1x Giant Pinecone','1x Spiked Mango']},
+      {rarity:'Mythical (alt3)', ingredients:['1x Banana or Corn','1x Kiwi (Crop)|Kiwi','3x Bone Blossom']},
+      {rarity:'Divine', ingredients:['1x Banana','4x Sugar Apple']},
+      {rarity:'Divine (alt)', ingredients:['1x Corn','2x Elder Strawberry','2x Sugar Apple']},
+      {rarity:'Prismatic', ingredients:['1x Banana','4x Bone Blossom']}
+    ]}
 ];
 
 /* ---------- API / settings ---------- */
