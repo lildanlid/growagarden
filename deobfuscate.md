@@ -6,6 +6,7 @@
 <title>Grow a Garden — Stock Monitor</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://i.ibb.co/Xx1LNZLN/favicon.png">
 <style>
   :root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--accent:#6b7cff;--accent-2:#50e3c2;--border:#e6e8f0;--shadow:0 8px 28px rgba(2,6,23,0.08);--glass:rgba(255,255,255,0.6)}
   html.dark{--bg:#07101a;--card:#0b1220;--text:#e6eefb;--muted:#94a3b8;--accent:#8d9bff;--accent-2:#65f2d0;--border:rgba(255,255,255,0.06);--shadow:0 12px 34px rgba(0,0,0,0.6);--glass:rgba(8,12,18,0.55)}
@@ -115,7 +116,7 @@ const POLL_NOTIFY_MS = 3000;
 
 const SEEDS = ["Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"];
 const GEARS = ["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Levelup Lolipop"];
-const EGGS = ["Common Egg","Uncommon Egg","Rare Egg","Legandary Egg","Mythical Egg","Bug Egg"];
+const EGGS = ["Common Egg","Common Summer Egg","Rare Summer Egg","Mythical Egg","Paradise Egg","Bug Egg"];
 
 let latestStock = null;
 let predMap = {};
@@ -146,25 +147,24 @@ function formatCountdownSeconds(secs, opts={hideSecondsIfHours:true}){
   return parts.join(' ');
 }
 
-function nextSeenText(nextIso, opts={hideSecondsIfHours:true}){
+function relTimeText(nextIso, opts={hideSecondsIfHours:true}) {
   if(!nextIso) return '';
   const t = new Date(nextIso).getTime();
-  const diffSec = Math.floor((t - Date.now())/1000);
-  if(Math.abs(diffSec) < 5) return 'Now';
-  const future = diffSec > 0;
-  const a = Math.abs(diffSec);
+  const diff = Math.floor((t - Date.now())/1000);
+  const ago = diff < 0;
+  const a = Math.abs(diff);
   const w = Math.floor(a/604800); let rem = a%604800;
   const d = Math.floor(rem/86400); rem%=86400;
   const h = Math.floor(rem/3600); rem%=3600;
   const m = Math.floor(rem/60); const s = rem%60;
   const parts = [];
   if(w) parts.push(w+'w'); if(d) parts.push(d+'d'); if(h) parts.push(h+'h'); if(m) parts.push(m+'m');
-  if(parts.length === 0) parts.push(s+'s');
-  // hide seconds if hours/days/weeks present
-  let displayParts = parts;
-  if(opts.hideSecondsIfHours && (h>0 || d>0 || w>0)) displayParts = parts.filter(p => !p.endsWith('s'));
-  const text = displayParts.join(' ');
-  return future ? `In ${text}` : `${text} ago`;
+  if(parts.length === 0){ parts.push(s+'s'); } else { parts.splice(2); }
+  if(opts.hideSecondsIfHours && (h>0 || d>0 || w>0)){
+    const filtered = parts.filter(p => !p.endsWith('s'));
+    if(filtered.length) return ago ? `${filtered.join(' ')} ago` : `${filtered.join(' ')}`;
+  }
+  return ago ? `${parts.join(' ')} ago` : `${parts.join(' ')}`;
 }
 
 function calculateNextTimes(now = Date.now()){
@@ -220,7 +220,6 @@ async function fetchPredictions(){
     if(!arr || arr.length === 0){
       const saved = localStorage.getItem('gg_preds_v1');
       if(saved){ predMap = JSON.parse(saved); return true; }
-      predMap = {};
       return false;
     }
     const newMap = {};
@@ -235,7 +234,6 @@ async function fetchPredictions(){
     return true;
   }catch(e){
     try{ const saved = localStorage.getItem('gg_preds_v1'); if(saved){ predMap = JSON.parse(saved); return true; } }catch(e){}
-    predMap = {};
     return false;
   }
 }
@@ -342,7 +340,7 @@ async function renderAllInPlace(data){
       const icon = it.icon || IMAGE_API(name);
       const foundKey = Object.keys(predMap).find(k=>k.toLowerCase()===name.toLowerCase());
       const predIso = foundKey ? predMap[foundKey] : null;
-      const predHtml = predIso ? `<div class="pred-timer" data-next="${esc(predIso)}">${esc(nextSeenText(predIso))}</div>` : '';
+      const predHtml = predIso ? `<div class="pred-timer" data-next="${esc(predIso)}">${esc(relTimeText(predIso))}</div>` : '';
       parts.push(
         `<div class="item ${dim}" data-name="${esc(name)}">`+
           `<img src="${icon}" alt="${esc(name)}" onerror="this.onerror=null;this.src='${IMAGE_API(name)}'">`+
@@ -397,7 +395,7 @@ function quickUpdateUI(stock){
       const predEl = itemEl.querySelector('.pred-timer');
       if(predEl){
         const iso = predEl.dataset.next;
-        predEl.textContent = nextSeenText(iso);
+        predEl.textContent = relTimeText(iso);
       }
     });
   });
@@ -407,7 +405,7 @@ function quickUpdateUI(stock){
 setInterval(()=>{
   document.querySelectorAll('.pred-timer').forEach(el=>{
     const iso = el.dataset.next;
-    if(iso) el.textContent = nextSeenText(iso);
+    if(iso) el.textContent = relTimeText(iso);
   });
   quickUpdateUI(latestStock);
 }, 1000);
@@ -591,7 +589,7 @@ async function renderStockPredictions(){
     function renderList(list){
       if(!list || list.length===0) return '<div class="small-muted">No predictions</div>';
       return `<div style="display:grid;gap:8px">${list.map(it=>{
-        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted">${esc(nextSeenText(it.nextSeen))}</div></div></div>`;
+        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted">${esc(relTimeText(it.nextSeen))}</div></div></div>`;
       }).join('')}</div>`;
     }
     wrap.innerHTML = `<h3 class="font-bold">Seeds</h3>${renderList(seeds)}<h3 class="font-bold mt-4">Gears</h3>${renderList(gears)}`;
@@ -801,7 +799,7 @@ async function renderCalculator(){
 function updatePredTimersInDOM(){
   document.querySelectorAll('.pred-timer').forEach(el=>{
     const iso = el.dataset.next;
-    if(iso) el.textContent = nextSeenText(iso);
+    if(iso) el.textContent = relTimeText(iso);
   });
 }
 (function restoreWatches(){ for(const name of [...watchSet]) lastKnownQty[name] = findQtyInStock(latestStock, name) || 0; })();
@@ -820,4 +818,3 @@ function updatePredTimersInDOM(){
 </script>
 </body>
 </html>
-5
