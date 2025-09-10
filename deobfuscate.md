@@ -6,6 +6,7 @@
 <title>Grow a Garden — Stock Monitor</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://i.ibb.co/Xx1LNZLN/favicon.png">
 <style>
   :root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--accent:#6b7cff;--accent-2:#50e3c2;--border:#e6e8f0;--shadow:0 8px 28px rgba(2,6,23,0.08);--glass:rgba(255,255,255,0.6)}
   html.dark{--bg:#07101a;--card:#0b1220;--text:#e6eefb;--muted:#94a3b8;--accent:#8d9bff;--accent-2:#65f2d0;--border:rgba(255,255,255,0.06);--shadow:0 12px 34px rgba(0,0,0,0.6);--glass:rgba(8,12,18,0.55)}
