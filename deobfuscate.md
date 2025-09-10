@@ -6,7 +6,6 @@
 <title>Grow a Garden — Stock Monitor</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="icon" type="image/png" href="https://i.ibb.co/Xx1LNZLN/favicon.png">
 <style>
   :root{--bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--accent:#6b7cff;--accent-2:#50e3c2;--border:#e6e8f0;--shadow:0 8px 28px rgba(2,6,23,0.08);--glass:rgba(255,255,255,0.6)}
   html.dark{--bg:#07101a;--card:#0b1220;--text:#e6eefb;--muted:#94a3b8;--accent:#8d9bff;--accent-2:#65f2d0;--border:rgba(255,255,255,0.06);--shadow:0 12px 34px rgba(0,0,0,0.6);--glass:rgba(8,12,18,0.55)}
@@ -43,12 +42,17 @@
   @media(max-width:1200px){.weather-grid{grid-template-columns:repeat(4,1fr)}}
   @media(max-width:900px){.weather-grid{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:600px){.weather-grid{grid-template-columns:repeat(2,1fr)}}
-  .weather-card{padding:12px;border-radius:12px;border:1px solid var(--border);text-align:center;transition:transform .18s,border-color .12s,box-shadow .12s;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);cursor:pointer}
+  .weather-card{padding:12px;border-radius:12px;border:1px solid var(--border);text-align:center;transition:transform .12s,border-color .12s,box-shadow .12s;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);cursor:pointer;user-select:none}
+  .weather-card:hover{transform:translateY(-6px);border-color:rgba(43,108,255,0.12);box-shadow:0 14px 32px rgba(43,108,255,0.06)}
+  .weather-card.selected{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 18px 36px rgba(43,108,255,0.12)}
   .weather-card .icon{width:56px;height:56px;border-radius:8px;object-fit:cover;margin:0 auto 8px}
-  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .12s}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .12s;user-select:none}
+  .chip:hover{transform:translateY(-3px)}
   .chip.selected{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border-color:transparent;box-shadow:0 12px 30px rgba(43,108,255,0.12)}
   .mut-list{display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow:auto;padding:8px 0}
   .notify-btn{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;gap:8px;align-items:center;width:100%;text-align:left;transition:transform .12s,box-shadow .12s}
+  .notify-btn:hover{transform:translateY(-3px)}
+  .notify-btn.toggled{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border-color:transparent;box-shadow:0 12px 30px rgba(43,108,255,0.12)}
   .footer-timers{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
   .timer-chip{padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;font-weight:700;box-shadow:0 8px 20px rgba(43,108,255,0.12)}
   footer{text-align:center;margin:18px 0 6px;color:var(--muted)}
@@ -83,7 +87,6 @@
       <div class="flex items-center gap-4 mb-4">
         <div id="updatedAt" class="small-muted">—</div>
         <div class="flex-1"></div>
-        <div id="restockTimersHeader" class="small-muted" style="display:none"></div>
       </div>
 
       <section id="categories"></section>
@@ -116,7 +119,7 @@ const POLL_NOTIFY_MS = 3000;
 
 const SEEDS = ["Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"];
 const GEARS = ["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Levelup Lolipop"];
-const EGGS = ["Common Egg","Common Summer Egg","Rare Summer Egg","Mythical Egg","Paradise Egg","Bug Egg"];
+const EGGS = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical Egg","Bug Egg"];
 
 let latestStock = null;
 let predMap = {};
@@ -124,7 +127,6 @@ let watchSet = new Set(JSON.parse(localStorage.getItem('gg_watch')||'[]'));
 let watchWeather = new Set(JSON.parse(localStorage.getItem('gg_watch_weather')||'[]'));
 let lastKnownQty = {};
 let openCards = new Set();
-let merchantHiddenUntil = Number(localStorage.getItem('merchantHiddenUntil') || 0);
 
 const categoriesEl = document.getElementById('categories');
 const statusPill = document.getElementById('statusPill');
@@ -147,44 +149,36 @@ function formatCountdownSeconds(secs, opts={hideSecondsIfHours:true}){
   return parts.join(' ');
 }
 
-function relTimeText(nextIso, opts={hideSecondsIfHours:true}) {
+function formatOnly(nextIso){
   if(!nextIso) return '';
   const t = new Date(nextIso).getTime();
-  const diff = Math.floor((t - Date.now())/1000);
-  const ago = diff < 0;
-  const a = Math.abs(diff);
-  const w = Math.floor(a/604800); let rem = a%604800;
-  const d = Math.floor(rem/86400); rem%=86400;
-  const h = Math.floor(rem/3600); rem%=3600;
-  const m = Math.floor(rem/60); const s = rem%60;
+  const diffSec = Math.floor((t - Date.now())/1000);
+  const a = Math.abs(diffSec);
+  let w = Math.floor(a/604800); let rem = a%604800;
+  let d = Math.floor(rem/86400); rem%=86400;
+  let h = Math.floor(rem/3600); rem%=3600;
+  let m = Math.floor(rem/60); let s = rem%60;
   const parts = [];
   if(w) parts.push(w+'w'); if(d) parts.push(d+'d'); if(h) parts.push(h+'h'); if(m) parts.push(m+'m');
-  if(parts.length === 0){ parts.push(s+'s'); } else { parts.splice(2); }
-  if(opts.hideSecondsIfHours && (h>0 || d>0 || w>0)){
-    const filtered = parts.filter(p => !p.endsWith('s'));
-    if(filtered.length) return ago ? `${filtered.join(' ')} ago` : `${filtered.join(' ')}`;
+  if(parts.length === 0) parts.push(s+'s');
+  if((h>0||d>0||w>0)){
+    // hide seconds when there are hours/days/weeks
+    return parts.filter(p => !p.endsWith('s')).join(' ');
   }
-  return ago ? `${parts.join(' ')} ago` : `${parts.join(' ')}`;
+  return parts.join(' ');
 }
 
 function calculateNextTimes(now = Date.now()){
   const dayStart = new Date().setHours(0,0,0,0);
   const next = ms => dayStart + Math.ceil((now - dayStart) / ms) * ms;
-  const seedsMs = 5*60*1000;
-  const gearMs = 5*60*1000;
-  const eggsMs = 30*60*1000;
-  const cosmeticsMs = 4*60*60*1000;
-  const merchantMs = 4*60*60*1000;
-  const fairyMs = 60*60*1000;
-  const fairyRingMs = 1.5*60*60*1000;
   return {
-    seedsNext: next(seedsMs),
-    gearNext: next(gearMs),
-    eggsNext: next(eggsMs),
-    cosmeticsNext: next(cosmeticsMs),
-    merchantNext: next(merchantMs),
-    fairyNext: next(fairyMs),
-    fairyRingNext: next(fairyRingMs)
+    seedsNext: next(5*60*1000),
+    gearNext: next(5*60*1000),
+    eggsNext: next(30*60*1000),
+    cosmeticsNext: next(4*60*60*1000),
+    merchantNext: next(4*60*60*1000),
+    fairyNext: next(60*60*1000),
+    fairyRingNext: next(1.5*60*60*1000)
   };
 }
 
@@ -193,8 +187,7 @@ async function tryFetchWithProxies(url){
     url,
     'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
     'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
-    'https://thingproxy.freeboard.io/fetch/' + url,
-    'https://api.allorigins.cf/raw?url=' + encodeURIComponent(url)
+    'https://thingproxy.freeboard.io/fetch/' + url
   ];
   for(const u of proxies){
     try{
@@ -218,8 +211,16 @@ async function fetchPredictions(){
     else if(Array.isArray(j.next_seen)) arr = j.next_seen;
     else if(Array.isArray(j.data?.nextSeen)) arr = j.data.nextSeen;
     if(!arr || arr.length === 0){
+      // try to find "nextSeen" inside latestStock as backup
+      if(latestStock){
+        if(Array.isArray(latestStock.nextSeen)) arr = latestStock.nextSeen;
+        else if(Array.isArray(latestStock.predictions)) arr = latestStock.predictions;
+      }
+    }
+    if(!arr || arr.length === 0){
       const saved = localStorage.getItem('gg_preds_v1');
       if(saved){ predMap = JSON.parse(saved); return true; }
+      predMap = {};
       return false;
     }
     const newMap = {};
@@ -234,6 +235,7 @@ async function fetchPredictions(){
     return true;
   }catch(e){
     try{ const saved = localStorage.getItem('gg_preds_v1'); if(saved){ predMap = JSON.parse(saved); return true; } }catch(e){}
+    predMap = {};
     return false;
   }
 }
@@ -248,10 +250,6 @@ async function fetchStockFull(){
     latestStock = data;
     statusPill.textContent = 'Live';
     updatedAt.textContent = `Updated: ${new Date().toLocaleString()}`;
-    if(data && data.travelingmerchant_stock && Array.isArray(data.travelingmerchant_stock.stock) && data.travelingmerchant_stock.stock.length > 0){
-      merchantHiddenUntil = 0;
-      localStorage.removeItem('merchantHiddenUntil');
-    }
     await fetchPredictions().catch(()=>{});
     renderAllInPlace(data);
     for(const name of [...watchSet]) lastKnownQty[name] = findQtyInStock(data, name) || 0;
@@ -295,13 +293,14 @@ async function renderAllInPlace(data){
     categoriesEl.appendChild(leftCol);
     categoriesEl.appendChild(rightCol);
   }
-  const merchantName = (data?.travelingmerchant_stock && (data.travelingmerchant_stock.merchantName || data.travelingmerchant_stock.merchantname || data.travelingmerchant_stock.name)) || '';
+
+  const merchantName = (data?.travelingmerchant_stock && (data.travelingmerchant_stock.merchantName || data.travelingmerchant_stock.merchantname || data.travelingmerchant_stock.name)) || 'Traveling Merchant';
   const specs = [
     { key:'seed_stock', title:'Seeds', items: data.seed_stock || [], col:0 },
     { key:'gear_stock', title:'Gears', items: data.gear_stock || [], col:1 },
     { key:'egg_stock', title:'Eggs', items: data.egg_stock || [], col:0 },
     { key:'cosmetic_stock', title:'Cosmetics', items: data.cosmetic_stock || [], col:1 },
-    { key:'travelingmerchant_stock', title: merchantName ? `Traveling Merchant — ${merchantName}` : 'Traveling Merchant', items: (data.travelingmerchant_stock && data.travelingmerchant_stock.stock) || [], col:0 }
+    { key:'travelingmerchant_stock', title: `Merchant — ${merchantName}`, items: (data.travelingmerchant_stock && data.travelingmerchant_stock.stock) || [], col:0 }
   ];
 
   for(const spec of specs){
@@ -340,7 +339,7 @@ async function renderAllInPlace(data){
       const icon = it.icon || IMAGE_API(name);
       const foundKey = Object.keys(predMap).find(k=>k.toLowerCase()===name.toLowerCase());
       const predIso = foundKey ? predMap[foundKey] : null;
-      const predHtml = predIso ? `<div class="pred-timer" data-next="${esc(predIso)}">${esc(relTimeText(predIso))}</div>` : '';
+      const predHtml = predIso ? `<div class="pred-timer" data-next="${esc(predIso)}">${esc(formatOnly(predIso))}</div>` : '';
       parts.push(
         `<div class="item ${dim}" data-name="${esc(name)}">`+
           `<img src="${icon}" alt="${esc(name)}" onerror="this.onerror=null;this.src='${IMAGE_API(name)}'">`+
@@ -357,20 +356,6 @@ async function renderAllInPlace(data){
     } else {
       card.classList.remove('open');
       bodyEl.style.maxHeight = '0px';
-    }
-
-    if(key === 'travelingmerchant_stock'){
-      const now = Date.now();
-      const { merchantNext } = calculateNextTimes(now);
-      if(merchantHiddenUntil && now < merchantHiddenUntil){
-        const listE = card.querySelector('.list');
-        if(listE) listE.innerHTML = `<div class="small-muted" style="padding:12px">Merchant hidden until ${new Date(merchantHiddenUntil).toLocaleString()}</div>`;
-      } else {
-        if(now >= merchantNext && merchantHiddenUntil === 0){
-          merchantHiddenUntil = merchantNext + (30*60*1000);
-          localStorage.setItem('merchantHiddenUntil', String(merchantHiddenUntil));
-        }
-      }
     }
   }
 
@@ -395,7 +380,7 @@ function quickUpdateUI(stock){
       const predEl = itemEl.querySelector('.pred-timer');
       if(predEl){
         const iso = predEl.dataset.next;
-        predEl.textContent = relTimeText(iso);
+        predEl.textContent = formatOnly(iso);
       }
     });
   });
@@ -405,7 +390,7 @@ function quickUpdateUI(stock){
 setInterval(()=>{
   document.querySelectorAll('.pred-timer').forEach(el=>{
     const iso = el.dataset.next;
-    if(iso) el.textContent = relTimeText(iso);
+    if(iso) el.textContent = formatOnly(iso);
   });
   quickUpdateUI(latestStock);
 }, 1000);
@@ -418,24 +403,7 @@ async function updateTimersUI(){
   parts.push(`Gears: ${formatCountdownSeconds(Math.floor((t.gearNext - now)/1000))}`);
   parts.push(`Eggs: ${formatCountdownSeconds(Math.floor((t.eggsNext - now)/1000))}`);
   parts.push(`Cosmetics: ${formatCountdownSeconds(Math.floor((t.cosmeticsNext - now)/1000))}`);
-  const merchantNextMs = t.merchantNext;
-  const nowMs = now;
-  if(merchantHiddenUntil && nowMs < merchantHiddenUntil){
-    parts.push(`Merchant visible until ${new Date(merchantHiddenUntil).toLocaleTimeString()}`);
-  } else {
-    const dif = Math.floor((merchantNextMs - nowMs)/1000);
-    if(dif <= 0){
-      if(!merchantHiddenUntil){
-        merchantHiddenUntil = merchantNextMs + (30*60*1000);
-        localStorage.setItem('merchantHiddenUntil', String(merchantHiddenUntil));
-        parts.push(`Merchant: 30m grace`);
-      } else {
-        parts.push(`Merchant: hidden`);
-      }
-    } else {
-      parts.push(`Merchant: ${formatCountdownSeconds(dif)}`);
-    }
-  }
+  parts.push(`Merchant: ${formatCountdownSeconds(Math.floor((t.merchantNext - now)/1000))}`);
   parts.push(`Fairy Event: ${formatCountdownSeconds(Math.floor((t.fairyNext - now)/1000))}`);
   const ringStart = t.fairyRingNext;
   const ringActiveWindow = 10*60*1000;
@@ -524,7 +492,7 @@ function renderNotificationsItems(){
 
 async function renderNotificationsWeather(){
   const cont = document.getElementById('notifContent');
-  cont.innerHTML = `<div class="small-muted mb-2">Active first. Click a card to toggle notifications.</div><div id="weatherGrid" class="weather-grid"></div>`;
+  cont.innerHTML = `<div class="small-muted mb-2">Active first. Click a card to toggle notifications. You will receive a device notification 5 minutes before watched events begin (when possible).</div><div id="weatherGrid" class="weather-grid"></div>`;
   const grid = document.getElementById('weatherGrid');
   try{
     const list = await fetchWeatherList();
@@ -553,12 +521,106 @@ async function renderNotificationsWeather(){
 function renderNotificationsMerchants(){
   const cont = document.getElementById('notifContent');
   const MERCHANTS = [
-    { id:'gnome', name:'Gnome Merchant', img:'https://static.wikia.nocookie.net/growagarden/images/8/8d/Gnome_shop.png', desc:'Gnome crates & pet', sells:['Common Gnome Crate','Farmers Gnome Crate','Classic Gnome Crate','Iconic Gnome Crate','Gnome Pet']},
-    { id:'sky', name:'Sky Merchant', img:'https://static.wikia.nocookie.net/growagarden/images/5/5a/Skymerchant.png', desc:'Sky merchant items', sells:['Night Staff','Star Caller','Cloudtouched Spray']},
-    { id:'honey', name:'Honey Merchant', img:'https://static.wikia.nocookie.net/growagarden/images/6/61/Honeymerchant.png', desc:'Honey merchant items', sells:['Flower Seed Pack','Honey Sprinkler','Bee Egg','Bee Crate','Honey Crafters Crate']},
-    { id:'trader', name:'General Trader', img:'https://static.wikia.nocookie.net/growagarden/images/0/00/Trader.png', desc:'General traveling items', sells:['Trading Ticket','Magnifying Glass','Harvest Tool']},
-    { id:'night', name:'Night Merchant', img:'https://static.wikia.nocookie.net/growagarden/images/9/99/NightMerchant.png', desc:'Night event merchant', sells:['Night Staff','Moon Melon','Star Caller']}
-  ];
+  {
+    id: 'gnome',
+    name: 'Gnome Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/8/8d/Gnome_shop.png/revision/latest?cb=20250725060720',
+    desc: 'Sells Common/Classic/Farmers/Iconic Gnome Crates, and Gnome pet',
+    sells: [
+      'Common Gnome Crate',
+      'Farmers Gnome Crate',
+      'Classic Gnome Crate',
+      'Iconic Gnome Crate',
+      'Gnome Pet'
+    ]
+  },
+  {
+    id: 'sky',
+    name: 'Sky Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/5/5a/Skymerchant.png/revision/latest/scale-to-width-down/1000?cb=20250731181923',
+    desc: 'Sells Night Staff, Star Caller, Cloudtouched Spray',
+    sells: [
+      'Night Staff',
+      'Star Caller',
+      'Mutation Spray Cloudtouched'
+    ]
+  },
+  {
+    id: 'honey',
+    name: 'Honey Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/6/61/Honeymerchant.png/revision/latest/scale-to-width-down/1000?cb=20250725054840',
+    desc: 'Sells Bee Egg, Honey Sprinkler, Flower Seed Pack, Bee Crate, Honey Crafters Crate',
+    sells: [
+      'Flower Seed Pack',
+      'Honey Sprinkler',
+      'Bee Egg',
+      'Bee Crate',
+      'Honey Crafters Crate'
+    ]
+  },
+  {
+    id: 'summer',
+    name: 'Summer Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/4/46/Summermerchant.png/revision/latest/scale-to-width-down/1000?cb=20240822010931',
+    desc: 'Sells Summer seeds and eggs: rare legacy/seasonal plants and special pet eggs',
+    sells: [
+      'Cauliflower',
+      'Rafflesia',
+      'Green Apple',
+      'Avocado',
+      'Banana',
+      'Pineapple',
+      'Kiwi',
+      'Bell Pepper',
+      'Prickly Pear',
+      'Loquat',
+      'Feijoa',
+      'Pitcher Plant',
+      'Common Summer Egg',
+      'Rare Summer Egg',
+      'Paradise Egg'
+    ]
+  },
+  {
+    id: 'spray',
+    name: 'Mutation Spray Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/b/bb/Mutationspraymerchant.png/revision/latest/scale-to-width-down/1000?cb=20250731200455',
+    desc: 'Sells rare mutation sprays for fruit/plants',
+    sells: [
+      'Mutation Spray Wet',
+      'Mutation Spray Windstruck',
+      'Mutation Spray Verdant'
+    ]
+  },
+  {
+    id: 'sprinkler',
+    name: 'Sprinkler Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/0/0e/Sprinklerm.png/revision/latest/scale-to-width-down/1000?cb=20250731181815',
+    desc: 'Sells unique boosting sprinklers for specific plant types',
+    sells: [
+      'Tropical Mist Sprinkler',
+      'Flower Froster Sprinkler',
+      'Spice Spritzer Sprinkler',
+      'Stalk Sprout Sprinkler',
+      'Sweet Soaker Sprinkler',
+      'Berry Blusher Sprinkler'
+    ]
+  },
+  {
+    id: 'july4th',
+    name: '4th of July Merchant',
+    img: 'https://static.wikia.nocookie.net/growagarden/images/c/c1/July4thmerchant.png/revision/latest/scale-to-width-down/1000?cb=20250704235900',
+    desc: 'Limited-time holiday merchant. Was only available July 4, 2025.',
+    sells: [
+      'Liberty Lily',
+      'Firework',
+      'Firework Flower',
+      'Bald Eagle',
+      'July 4th Crate'
+    ]
+  }
+];
+
   cont.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">${MERCHANTS.map(m=>`<div class="card p-3"><div style="display:flex;gap:12px"><img src="${m.img}" style="width:120px;height:120px;border-radius:8px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(m.name)}</div><div class="small-muted">${esc(m.desc)}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">${m.sells.map(s=>`<button class="notify-btn ${watchSet.has(s)?'toggled':''}" data-item="${esc(s)}"><img src="${IMAGE_API(s)}" style="width:28px;height:28px;border-radius:6px;object-fit:cover"><div style="flex:1">${esc(s)}</div></button>`).join('')}</div></div></div></div>`).join('')}</div>`;
   cont.querySelectorAll('button[data-item]').forEach(btn=>{
     btn.addEventListener('click', e=>{
@@ -575,7 +637,7 @@ async function renderStockPredictions(){
   mb.innerHTML = `<div id="predWrap">Loading…</div>`;
   const wrap = document.getElementById('predWrap');
   try{
-    const ok = await fetchPredictions();
+    await fetchPredictions();
     const makeOrderedFromConst = (orderArr) => {
       const list = [];
       for(const name of orderArr){
@@ -589,7 +651,7 @@ async function renderStockPredictions(){
     function renderList(list){
       if(!list || list.length===0) return '<div class="small-muted">No predictions</div>';
       return `<div style="display:grid;gap:8px">${list.map(it=>{
-        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted">${esc(relTimeText(it.nextSeen))}</div></div></div>`;
+        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted">${esc(formatOnly(it.nextSeen))}</div></div></div>`;
       }).join('')}</div>`;
     }
     wrap.innerHTML = `<h3 class="font-bold">Seeds</h3>${renderList(seeds)}<h3 class="font-bold mt-4">Gears</h3>${renderList(gears)}`;
@@ -613,8 +675,16 @@ async function renderWeatherModal(){
       if(w.active && w.end_duration_unix) cd = formatCountdownSeconds(w.end_duration_unix - now);
       else if(!w.active && w.duration) cd = formatCountdownSeconds(w.duration);
       const activeBadge = w.active ? '<div style="margin-bottom:6px" class="badge">Active</div>' : '';
-      return `<div class="weather-card">${activeBadge}<img src="${icon}" class="icon" alt="${esc(name)}"><div class="font-bold">${esc(name)}</div><div class="small-muted">${esc(w.active?cd:'')}</div></div>`;
+      return `<div class="weather-card" data-id="${esc(w.weather_id||canonical(name))}">${activeBadge}<img src="${icon}" class="icon" alt="${esc(name)}"><div class="font-bold">${esc(name)}</div><div class="small-muted">${esc(w.active?cd:'')}</div></div>`;
     }).join('')}</div>`;
+    wrap.querySelectorAll('.weather-card').forEach(card=>{
+      const id = card.dataset.id;
+      if(watchWeather.has(id)) card.classList.add('selected');
+      card.addEventListener('click', ()=>{
+        if(watchWeather.has(id)){ watchWeather.delete(id); card.classList.remove('selected'); } else { watchWeather.add(id); card.classList.add('selected'); }
+        localStorage.setItem('gg_watch_weather', JSON.stringify([...watchWeather]));
+      });
+    });
   }catch(e){
     wrap.innerHTML = `<div class="small-muted">Error loading weather.</div>`;
   }
@@ -649,7 +719,7 @@ async function renderEncyclopedia(){
       if(!q) renderEncRows(all); else renderEncRows(all.filter(i=> (i.display_name||'').toLowerCase().includes(q) || (i.description||'').toLowerCase().includes(q)));
     });
     renderEncRows(all);
-    window.__GG_ENC_ITEMS = (all || []).map(it => ({ name: it.display_name, icon: it.icon || IMAGE_API(it.display_name) }));
+    window.__GG_ENC_ITEMS = (all || []).map(it => ({ name: it.display_name, icon: it.icon || IMAGE_API(it.display_name), type: it.type }));
   }catch(e){
     document.getElementById('encBody').innerHTML = `<div class="small-muted">Error loading encyclopedia.</div>`;
   }
@@ -783,7 +853,20 @@ async function renderCalculator(){
 
   const cropInput = mb.querySelector('#calcCrop');
   const suggestions = mb.querySelector('#suggestions');
-  cropInput.addEventListener('input', ()=>{
+
+  async function ensureEncItemsForCalc(){
+    if(window.__GG_ENC_ITEMS && window.__GG_ENC_ITEMS.length) return;
+    try{
+      const data = await apiGet('https://api.joshlei.com/v2/growagarden/info');
+      window.__GG_ENC_ITEMS = (data || []).filter(i => (i.type && /fruit|seed|crop|food|item/i.test(i.type)) ).map(it => ({ name: it.display_name, icon: it.icon || IMAGE_API(it.display_name) }));
+    }catch(e){
+      window.__GG_ENC_ITEMS = [];
+    }
+  }
+  ensureEncItemsForCalc();
+
+  cropInput.addEventListener('input', async ()=>{
+    await ensureEncItemsForCalc();
     const q = cropInput.value.trim().toLowerCase();
     if(!q){ suggestions.style.display='none'; suggestions.innerHTML=''; return; }
     const items = (window.__GG_ENC_ITEMS || []).filter(Boolean);
@@ -799,10 +882,52 @@ async function renderCalculator(){
 function updatePredTimersInDOM(){
   document.querySelectorAll('.pred-timer').forEach(el=>{
     const iso = el.dataset.next;
-    if(iso) el.textContent = relTimeText(iso);
+    if(iso) el.textContent = formatOnly(iso);
   });
 }
-(function restoreWatches(){ for(const name of [...watchSet]) lastKnownQty[name] = findQtyInStock(latestStock, name) || 0; })();
+
+function askNotificationPermission(){ if("Notification" in window && Notification.permission !== 'granted') Notification.requestPermission().catch(()=>{}); }
+function tryNotify(title, opts){ if(!("Notification" in window)) return; if(Notification.permission === 'granted') new Notification(title, opts); }
+askNotificationPermission();
+
+let notifiedSoon = {};
+let notifiedActive = {};
+
+async function checkWeatherNotifications(){
+  try{
+    const list = await fetchWeatherList();
+    const now = Math.floor(Date.now()/1000);
+    for(const w of (list||[])){
+      if(!w) continue;
+      const id = w.weather_id || canonical(w.weather_name || '');
+      const name = w.weather_name || id;
+      if(w.active){
+        if(watchWeather.has(id) && !notifiedActive[id]){
+          tryNotify(`${name} active`, { body: `${name} is active`, icon: w.icon || IMAGE_API(name) });
+          notifiedActive[id] = Date.now();
+        }
+        if(notifiedSoon[id]) delete notifiedSoon[id];
+      } else {
+        const dur = Number(w.duration || 0);
+        if(dur > 0 && watchWeather.has(id)){
+          if(dur <= 300 && !notifiedSoon[id]){
+            tryNotify(`${name} starting soon`, { body: `${name} starts in ${formatCountdownSeconds(dur)}`, icon: w.icon || IMAGE_API(name) });
+            notifiedSoon[id] = Date.now();
+          }
+        }
+        if(notifiedActive[id] && !w.active) delete notifiedActive[id];
+      }
+      if(/fairy ring|fairy event/i.test(name) && watchWeather.has(id)){
+        const dur2 = Number(w.duration || 0);
+        if(dur2 > 0 && dur2 <= 300 && !notifiedSoon[id]){
+          tryNotify(`${name} starting soon`, { body: `${name} starts in ${formatCountdownSeconds(dur2)}`, icon: w.icon || IMAGE_API(name) });
+          notifiedSoon[id] = Date.now();
+        }
+      }
+    }
+  }catch(e){}
+}
+setInterval(()=>{ checkWeatherNotifications().catch(()=>{}); }, POLL_NOTIFY_MS);
 
 (function init(){
   const dark = localStorage.getItem('gg_dark') === 'true';
