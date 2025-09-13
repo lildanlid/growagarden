@@ -541,9 +541,7 @@ function calculateNextTimes(now = Date.now()){
     gearNext: next(5*60*1000),
     eggsNext: next(30*60*1000),
     cosmeticsNext: next(4*60*60*1000),
-    merchantNext: next(4*60*60*1000),
-    fairyNext: next(60*60*1000),
-    fairyRingNext: next(1.5*60*60*1000)
+    merchantNext: next(4*60*60*1000)
   };
 }
 
@@ -558,14 +556,6 @@ async function updateTimersUI(){
     parts.push(`Eggs: ${formatCountdownSeconds(Math.floor((t.eggsNext - now)/1000))}`);
     parts.push(`Cosmetics: ${formatCountdownSeconds(Math.floor((t.cosmeticsNext - now)/1000))}`);
     parts.push(`Merchant: ${formatCountdownSeconds(Math.floor((t.merchantNext - now)/1000))}`);
-    parts.push(`Fairy Event: ${formatCountdownSeconds(Math.floor((t.fairyNext - now)/1000))}`);
-    const ringStart = t.fairyRingNext;
-    const ringActiveWindow = 10*60*1000;
-    if(now >= ringStart && now < ringStart + ringActiveWindow){
-      parts.push(`Fairy Ring: Active (${formatCountdownSeconds(Math.floor((ringStart + ringActiveWindow - now)/1000))})`);
-    } else {
-      parts.push(`Fairy Ring: ${formatCountdownSeconds(Math.floor((ringStart - now)/1000))}`);
-    }
 
     const weather = await fetchWeatherList();
     lastWeatherForTimers = weather;
