@@ -483,13 +483,11 @@ async function renderAllInPlace(data){
       const qty = Number(it.quantity||0);
       const dim = qty === 0 ? 'dim' : '';
       const icon = it.icon || IMAGE_API(name);
-      const foundKey = Object.keys(predMap).find(k=>k.toLowerCase()===name.toLowerCase());
-      const predIso = foundKey ? predMap[foundKey] : null;
-      const predHtml = predIso ? `<div class="pred-timer" data-next="${esc(predIso)}">${esc(formatOnly(predIso))}</div>` : '';
+      // Timer under stock items removed as requested (no predHtml)
       parts.push(
         `<div class="item ${dim}" data-name="${esc(name)}">`+
           `<img src="${icon}" alt="${esc(name)}" onerror="this.onerror=null;this.src='${IMAGE_API(name)}'">`+
-          `<div style="flex:1;min-width:0"><div class="name" title="${esc(name)}">${esc(name)}</div><div class="sub">${predHtml}</div></div>`+
+          `<div style="flex:1;min-width:0"><div class="name" title="${esc(name)}">${esc(name)}</div><div class="sub"></div></div>`+
           `<div class="qty" title="Quantity">× ${qty}</div>`+
         `</div>`
       );
@@ -524,21 +522,13 @@ function quickUpdateUI(stock){
       const qtyEl = itemEl.querySelector('.qty');
       if(qtyEl) qtyEl.textContent = `× ${qty}`;
       if(Number(qty) === 0) itemEl.classList.add('dim'); else itemEl.classList.remove('dim');
-      const predEl = itemEl.querySelector('.pred-timer');
-      if(predEl){
-        const iso = predEl.dataset.next;
-        predEl.textContent = formatOnly(iso);
-      }
+      // pred-timer removed, nothing to update here
     });
   });
   updateTimersUI();
 }
 
 setInterval(()=>{
-  document.querySelectorAll('.pred-timer').forEach(el=>{
-    const iso = el.dataset.next;
-    if(iso) el.textContent = formatOnly(iso);
-  });
   quickUpdateUI(latestStock);
 }, UI_REFRESH_MS);
 
@@ -997,13 +987,20 @@ async function renderCalculator(){
         <div style="width:160px"><div class="font-bold">Weight (kg)</div><input id="calcWeight" class="input" type="number" step="0.0001" placeholder="2.25"></div>
       </div>
       <div><div class="font-bold">Variant</div><div id="variantGroup" style="display:flex;gap:8px;margin-top:8px"></div></div>
-      <div><div class="font-bold">Mutations</div><div id="mutationsGroup" class="mut-list"></div></div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="font-bold">Mutations</div>
+          <div id="mutControls" style="margin-left:auto;display:flex;gap:8px"></div>
+        </div>
+        <div id="mutationsGroup" class="mut-list"></div>
+      </div>
       <div style="display:flex;gap:8px;align-items:center"><div id="calcRun" class="chip" style="font-weight:700">Calculate</div><div id="calcResult" class="font-extrabold"></div></div>
       <div id="calcBreakdown" class="small-muted"></div>
     </div>
   `;
 
   const vwrap = mb.querySelector('#variantGroup'), mwrap = mb.querySelector('#mutationsGroup');
+  const mutControls = mb.querySelector('#mutControls');
   const resultEl = mb.querySelector('#calcResult');
   const breakdownEl = mb.querySelector('#calcBreakdown');
   const CALC_API = 'https://api.joshlei.com/v2/growagarden/calculate';
@@ -1012,6 +1009,8 @@ async function renderCalculator(){
   async function populateCalcMeta(name){
     vwrap.innerHTML = '';
     mwrap.innerHTML = '';
+    mutControls.innerHTML = '';
+
     // Use VARIANTS constant
     Object.entries(VARIANTS).forEach(([id,obj])=>{
       const label = obj.displayName || id;
@@ -1025,6 +1024,30 @@ async function renderCalculator(){
       vwrap.appendChild(btn);
     });
 
+    // Add select all / clear buttons for mutations
+    const selectAllBtn = document.createElement('div');
+    selectAllBtn.className = 'chip';
+    selectAllBtn.textContent = 'Select all';
+    selectAllBtn.style.fontWeight = '700';
+    selectAllBtn.addEventListener('click', ()=>{
+      const chips = Array.from(mwrap.querySelectorAll('.chip'));
+      // only treat chips that represent mutations (we'll ensure to add only mutation chips to mwrap)
+      const anyUnselected = chips.some(c => !c.classList.contains('selected'));
+      chips.forEach(c => { if(anyUnselected) c.classList.add('selected'); else c.classList.remove('selected'); });
+      // toggle visual on the selectAll button
+      selectAllBtn.classList.toggle('selected', anyUnselected);
+    });
+    mutControls.appendChild(selectAllBtn);
+
+    const clearBtn = document.createElement('div');
+    clearBtn.className = 'chip';
+    clearBtn.textContent = 'Clear';
+    clearBtn.addEventListener('click', ()=>{
+      Array.from(mwrap.querySelectorAll('.chip')).forEach(c=>c.classList.remove('selected'));
+      selectAllBtn.classList.remove('selected');
+    });
+    mutControls.appendChild(clearBtn);
+
     // Use MUTATIONS constant
     Object.entries(MUTATIONS).forEach(([id,obj])=>{
       const label = obj.displayName || id;
@@ -1034,7 +1057,13 @@ async function renderCalculator(){
       chip.textContent = `${label} (${mult}x)`;
       chip.dataset.val = id;
       chip.dataset.mult = String(mult);
-      chip.addEventListener('click', ()=> chip.classList.toggle('selected'));
+      chip.addEventListener('click', ()=> {
+        chip.classList.toggle('selected');
+        // update selectAllBtn state
+        const chips = Array.from(mwrap.querySelectorAll('.chip'));
+        const allSelected = chips.length > 0 && chips.every(c => c.classList.contains('selected'));
+        selectAllBtn.classList.toggle('selected', allSelected);
+      });
       mwrap.appendChild(chip);
     });
   }
@@ -1080,8 +1109,10 @@ async function renderCalculator(){
 
   const cropInput = mb.querySelector('#calcCrop');
   const suggestions = mb.querySelector('#suggestions');
+
+  // Use SEEDS only for suggestions (show only seeds)
   cropInput.addEventListener('input', async ()=>{
-    const items = (window.__GG_ENC_ITEMS || []);
+    const items = SEEDS.map(n => ({ name: n, icon: IMAGE_API(n) }));
     const q = cropInput.value.trim().toLowerCase();
     if(!q){ suggestions.style.display='none'; suggestions.innerHTML=''; return; }
     const matches = items.filter(i => (i.name||'').toLowerCase().includes(q)).slice(0,12);
@@ -1104,10 +1135,7 @@ async function renderCalculator(){
 
 /* -------------- misc helpers -------------- */
 function updatePredTimersInDOM(){
-  document.querySelectorAll('.pred-timer').forEach(el=>{
-    const iso = el.dataset.next;
-    if(iso) el.textContent = formatOnly(iso);
-  });
+  // We intentionally removed timers under stock items; prediction UI elsewhere still uses next timers where appropriate
 }
 
 /* -------------- WEATHER UI REFRESH (every ~1s) -------------- */
