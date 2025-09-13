@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Grow a Garden — Stock Monitor</title>
+<title>Grow a Garden — Stock Monitor (Updated)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="icon" type="image/png" href="https://i.ibb.co/Xx1LNZLN/favicon.png">
@@ -116,11 +116,114 @@ const IMAGE_API = name => `https://api.joshlei.com/v2/growagarden/image/${encode
 const POLL_FULL_MS = 30000;
 const PRED_POLL_MS = 60000;
 const POLL_NOTIFY_MS = 3000; // check notifications frequently
-const UI_WEATHER_REFRESH_MS = 1000; // weather UI refresh
+const UI_REFRESH_MS = 995; // refresh UI timelines at ~1s but offset slightly (user requested 1s 995ms)
 
 const SEEDS = ["Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"];
 const GEARS = ["Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Levelup Lolipop"];
 const EGGS = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical Egg","Bug Egg"];
+
+/* -------------- MUTATIONS & VARIANTS CONSTS (no API) -------------- */
+const MUTATIONS = {
+  cyclonic: { displayName: "Cyclonic", multiplier: 50 },
+  voidtouched: { displayName: "Voidtouched", multiplier: 135 },
+  bloodlit: { displayName: "Bloodlit", multiplier: 4 },
+  stormcharged: { displayName: "Stormcharged", multiplier: 180 },
+  ancientamber: { displayName: "AncientAmber", multiplier: 50 },
+  infernal: { displayName: "Infernal", multiplier: 180 },
+  honeyglazed: { displayName: "HoneyGlazed", multiplier: 5 },
+  paradisal: { displayName: "Paradisal", multiplier: 100 },
+  tempestuous: { displayName: "Tempestuous", multiplier: 12 },
+  heavenly: { displayName: "Heavenly", multiplier: 5 },
+  cracked: { displayName: "Cracked", multiplier: 4 },
+  corruptfoxfirechakra: { displayName: "CorruptFoxfireChakra", multiplier: 90 },
+  spaghetti: { displayName: "Spaghetti", multiplier: 15 },
+  plasma: { displayName: "Plasma", multiplier: 5 },
+  aurora: { displayName: "Aurora", multiplier: 90 },
+  pasta: { displayName: "Pasta", multiplier: 3 },
+  ascendedchakra: { displayName: "AscendedChakra", multiplier: 230 },
+  sauce: { displayName: "Sauce", multiplier: 3 },
+  enchanted: { displayName: "Enchanted", multiplier: 50 },
+  luminous: { displayName: "Luminous", multiplier: 50 },
+  amber: { displayName: "Amber", multiplier: 10 },
+  boil: { displayName: "Boil", multiplier: 15 },
+  enlightened: { displayName: "Enlightened", multiplier: 35 },
+  jackpot: { displayName: "Jackpot", multiplier: 15 },
+  drenched: { displayName: "Drenched", multiplier: 5 },
+  cooked: { displayName: "Cooked", multiplier: 10 },
+  eclipsed: { displayName: "Eclipsed", multiplier: 20 },
+  sliced: { displayName: "Sliced", multiplier: 50 },
+  toxic: { displayName: "Toxic", multiplier: 15 },
+  tranquil: { displayName: "Tranquil", multiplier: 20 },
+  ceramic: { displayName: "Ceramic", multiplier: 32 },
+  alienlike: { displayName: "Alienlike", multiplier: 100 },
+  shocked: { displayName: "Shocked", multiplier: 100 },
+  touchdown: { displayName: "Touchdown", multiplier: 105 },
+  foxfirechakra: { displayName: "FoxfireChakra", multiplier: 90 },
+  blitzshock: { displayName: "Blitzshock", multiplier: 50 },
+  burnt: { displayName: "Burnt", multiplier: 4 },
+  disco: { displayName: "Disco", multiplier: 125 },
+  meatball: { displayName: "Meatball", multiplier: 3 },
+  sundried: { displayName: "Sundried", multiplier: 85 },
+  cloudtouched: { displayName: "Cloudtouched", multiplier: 5 },
+  wiltproof: { displayName: "Wiltproof", multiplier: 4 },
+  glimmering: { displayName: "Glimmering", multiplier: 2 },
+  corruptchakra: { displayName: "CorruptChakra", multiplier: 15 },
+  gnomed: { displayName: "Gnomed", multiplier: 15 },
+  aromatic: { displayName: "Aromatic", multiplier: 3 },
+  windstruck: { displayName: "Windstruck", multiplier: 2 },
+  brainrot: { displayName: "Brainrot", multiplier: 100 },
+  flaming: { displayName: "Flaming", multiplier: 25 },
+  subzero: { displayName: "Subzero", multiplier: 40 },
+  junkshock: { displayName: "Junkshock", multiplier: 45 },
+  wet: { displayName: "Wet", multiplier: 2 },
+  abyssal: { displayName: "Abyssal", multiplier: 240 },
+  harmonisedchakra: { displayName: "HarmonisedChakra", multiplier: 35 },
+  gloom: { displayName: "Gloom", multiplier: 30 },
+  acidic: { displayName: "Acidic", multiplier: 15 },
+  maelstrom: { displayName: "Maelstrom", multiplier: 100 },
+  rot: { displayName: "Rot", multiplier: 8 },
+  chilled: { displayName: "Chilled", multiplier: 2 },
+  bloom: { displayName: "Bloom", multiplier: 8 },
+  fortune: { displayName: "Fortune", multiplier: 50 },
+  verdant: { displayName: "Verdant", multiplier: 4 },
+  moonlit: { displayName: "Moonlit", multiplier: 2 },
+  sandy: { displayName: "Sandy", multiplier: 3 },
+  infected: { displayName: "Infected", multiplier: 75 },
+  chakra: { displayName: "Chakra", multiplier: 15 },
+  lightcycle: { displayName: "Lightcycle", multiplier: 50 },
+  clay: { displayName: "Clay", multiplier: 5 },
+  cosmic: { displayName: "Cosmic", multiplier: 240 },
+  corrupt: { displayName: "Corrupt", multiplier: 20 },
+  celestial: { displayName: "Celestial", multiplier: 120 },
+  twisted: { displayName: "Twisted", multiplier: 5 },
+  glitched: { displayName: "Glitched", multiplier: 85 },
+  harmonisedfoxfirechakra: { displayName: "HarmonisedFoxfireChakra", multiplier: 190 },
+  molten: { displayName: "Molten", multiplier: 25 },
+  dawnbound: { displayName: "Dawnbound", multiplier: 150 },
+  galactic: { displayName: "Galactic", multiplier: 120 },
+  blazing: { displayName: "Blazing", multiplier: 52 },
+  fried: { displayName: "Fried", multiplier: 8 },
+  zombified: { displayName: "Zombified", multiplier: 25 },
+  pollinated: { displayName: "Pollinated", multiplier: 3 },
+  oldamber: { displayName: "OldAmber", multiplier: 20 },
+  frozen: { displayName: "Frozen", multiplier: 10 },
+  meteoric: { displayName: "Meteoric", multiplier: 125 },
+  warped: { displayName: "Warped", multiplier: 75 },
+  corrosive: { displayName: "Corrosive", multiplier: 40 },
+  friendbound: { displayName: "Friendbound", multiplier: 70 },
+  oil: { displayName: "Oil", multiplier: 15 },
+  radioactive: { displayName: "Radioactive", multiplier: 55 },
+  static: { displayName: "Static", multiplier: 8 },
+  choc: { displayName: "Choc", multiplier: 2 },
+  beanbound: { displayName: "Beanbound", multiplier: 100 }
+};
+
+const VARIANTS = {
+  normal: { displayName: "Normal", multiplier: 1 },
+  silver: { displayName: "Silver", multiplier: 5 },
+  gold: { displayName: "Gold", multiplier: 20 },
+  rainbow: { displayName: "Rainbow", multiplier: 50 }
+};
 
 /* -------------- STATE -------------- */
 function normalizeName(n){ return String(n||'').trim().toLowerCase().replace(/[^\w]+/g,'_'); }
@@ -184,6 +287,18 @@ function formatOnly(nextIso){
     return parts.filter(p => !p.endsWith('s')).join(' ');
   }
   return parts.join(' ');
+}
+
+function timeAgoFromIso(isoOrUnix){
+  if(!isoOrUnix) return '-';
+  // support ISO string or unix seconds (number or numeric string)
+  let ms = NaN;
+  if(/^[0-9]+$/.test(String(isoOrUnix))){ ms = Number(isoOrUnix) * 1000; }
+  else { ms = Date.parse(isoOrUnix); }
+  if(isNaN(ms)) return '-';
+  const secs = Math.floor((Date.now() - ms)/1000);
+  if(secs < 0) return '-';
+  return `${formatCountdownSeconds(secs)} ago`;
 }
 
 /* -------------- fetch/pred helpers -------------- */
@@ -425,7 +540,7 @@ setInterval(()=>{
     if(iso) el.textContent = formatOnly(iso);
   });
   quickUpdateUI(latestStock);
-}, 1000);
+}, UI_REFRESH_MS);
 
 /* -------------- timers UI -------------- */
 function calculateNextTimes(now = Date.now()){
@@ -719,13 +834,43 @@ async function renderStockPredictions(){
     };
     const seeds = makeOrderedFromConst(SEEDS);
     const gears = makeOrderedFromConst(GEARS);
+
+    async function resolveLastSeen(name){
+      // try to find in latestStock pools first
+      try{
+        const pools = [ ...(latestStock?.seed_stock||[]), ...(latestStock?.gear_stock||[]), ...(latestStock?.egg_stock||[]), ...(latestStock?.cosmetic_stock||[]), ...((latestStock?.travelingmerchant_stock && latestStock.travelingmerchant_stock.stock) || []) ];
+        const match = pools.find(p => ((p.display_name||'').toLowerCase() === (name||'').toLowerCase()) || (normalizeName(p.display_name||'') === normalizeName(name||'')));
+        if(match){
+          return match.last_seen || match.lastSeen || match.last_seen_at || match.lastSeenISO || match.lastSeenAt || null;
+        }
+      }catch(e){}
+      // fallback: try item info endpoint by canonical id
+      try{
+        const id = canonical(name);
+        const info = await apiGet(API_INFO_BASE + encodeURIComponent(id));
+        if(info){ return info.last_seen || info.lastSeen || info.last_seen_at || info.lastSeenISO || null; }
+      }catch(e){}
+      return null;
+    }
+
     function renderList(list){
       if(!list || list.length===0) return '<div class="small-muted">No predictions</div>';
       return `<div style="display:grid;gap:8px">${list.map(it=>{
-        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted">${esc(formatOnly(it.nextSeen))}</div></div></div>`;
+        return `<div class="card p-2" style="display:flex;gap:10px;align-items:center" data-name="${esc(it.name)}"><img src="${IMAGE_API(it.name)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover"><div style="flex:1"><div class="font-bold">${esc(it.name)}</div><div class="small-muted" data-next="${esc(it.nextSeen||'')}">In: ${esc(it.nextSeen ? formatOnly(it.nextSeen) : '-')} — Ago: <span class="lastseen">Loading…</span></div></div></div>`;
       }).join('')}</div>`;
     }
+
     wrap.innerHTML = `<h3 class="font-bold">Seeds</h3>${renderList(seeds)}<h3 class="font-bold mt-4">Gears</h3>${renderList(gears)}`;
+
+    // Resolve last-seen times asynchronously and patch DOM
+    const cards = wrap.querySelectorAll('.card[data-name]');
+    for(const card of cards){
+      const nm = card.getAttribute('data-name');
+      const lastSeenRaw = await resolveLastSeen(nm);
+      const lastEl = card.querySelector('.lastseen');
+      if(lastEl){ lastEl.textContent = lastSeenRaw ? timeAgoFromIso(lastSeenRaw) : '-'; }
+    }
+
   }catch(e){
     wrap.innerHTML = `<div class="small-muted">No predictions</div>`;
     console.warn(e);
@@ -768,12 +913,24 @@ async function renderEncyclopedia(){
   mb.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:8px"><input id="encSearch" class="input" placeholder="Search items, mutations, weather..."><div id="encCounts" class="small-muted"></div></div><div id="encTabs" class="tab-row"></div><div id="encBody"></div></div>`;
   try{
     const data = await apiGet('https://api.joshlei.com/v2/growagarden/info');
+    // include user-supplied fruits data into the encyclopedia list
+    const FRUITS_CONST = [
+      { item_id: 'carrot', display_name: 'Carrot', baseValue: 20, weightDivisor: 0.275 }
+    ];
+
     const merchants = [
       { id:'merchant_gnome', display_name:'Gnome Merchant', type:'merchant', description:'Sells crates & pet', icon:'https://static.wikia.nocookie.net/growagarden/images/8/8d/Gnome_shop.png' },
       { id:'merchant_sky', display_name:'Sky Merchant', type:'merchant', description:'Sky merchant items', icon:'https://static.wikia.nocookie.net/growagarden/images/5/5a/Skymerchant.png' },
       { id:'merchant_honey', display_name:'Honey Merchant', type:'merchant', description:'Honey merchant items', icon:'https://static.wikia.nocookie.net/growagarden/images/6/61/Honeymerchant.png' }
     ];
-    const all = (data || []).concat(merchants);
+
+    // normalize info items (API may return array or object map)
+    const infoItems = Array.isArray(data) ? data.slice() : (data.items || []);
+
+    // convert fruits into encyclopedia items and merge
+    const fruitItems = FRUITS_CONST.map(f => ({ id: f.item_id || f.itemId || f.id, display_name: f.display_name || f.displayName || f.name || '', type: 'fruit', description: `Base value: ${f.baseValue}, Weight divisor: ${f.weightDivisor}`, icon: IMAGE_API(f.display_name || f.item_id) }));
+
+    const all = infoItems.concat(merchants).concat(fruitItems);
     const counts = {};
     all.forEach(it => counts[it.type] = (counts[it.type]||0)+1);
     const tabsWrap = document.getElementById('encTabs');
@@ -824,7 +981,7 @@ async function renderEncyclopedia(){
   }
 }
 
-/* -------------- calculator (unchanged) -------------- */
+/* -------------- calculator (improved — variants & mutations from const) -------------- */
 async function renderCalculator(){
   const mb = document.getElementById('modalBody');
   mb.innerHTML = `
@@ -842,34 +999,83 @@ async function renderCalculator(){
       <div><div class="font-bold">Variant</div><div id="variantGroup" style="display:flex;gap:8px;margin-top:8px"></div></div>
       <div><div class="font-bold">Mutations</div><div id="mutationsGroup" class="mut-list"></div></div>
       <div style="display:flex;gap:8px;align-items:center"><div id="calcRun" class="chip" style="font-weight:700">Calculate</div><div id="calcResult" class="font-extrabold"></div></div>
+      <div id="calcBreakdown" class="small-muted"></div>
     </div>
   `;
+
   const vwrap = mb.querySelector('#variantGroup'), mwrap = mb.querySelector('#mutationsGroup');
-  const VARIANTS = [{id:'normal',label:'Normal'},{id:'silver',label:'Silver'},{id:'gold',label:'Gold'},{id:'rainbow',label:'Rainbow'}];
-  VARIANTS.forEach(v=>{
-    const btn = document.createElement('div'); btn.className = 'chip'; btn.textContent = v.label || 'None'; btn.dataset.val = v.id;
-    btn.addEventListener('click', ()=> { vwrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected')); btn.classList.add('selected'); });
-    vwrap.appendChild(btn);
-  });
-  const smallMuts = ['cyclonic','voidtouched','bloodlit','stormcharged','ancientamber'];
-  smallMuts.forEach(m=>{
-    const chip = document.createElement('div'); chip.className = 'chip'; chip.textContent = m; chip.dataset.val = m;
-    chip.addEventListener('click', ()=> chip.classList.toggle('selected'));
-    mwrap.appendChild(chip);
-  });
+  const resultEl = mb.querySelector('#calcResult');
+  const breakdownEl = mb.querySelector('#calcBreakdown');
+  const CALC_API = 'https://api.joshlei.com/v2/growagarden/calculate';
+
+  // Populate variants & mutations from constants (no API)
+  async function populateCalcMeta(name){
+    vwrap.innerHTML = '';
+    mwrap.innerHTML = '';
+    // Use VARIANTS constant
+    Object.entries(VARIANTS).forEach(([id,obj])=>{
+      const label = obj.displayName || id;
+      const mult = obj.multiplier || obj.mult || 1;
+      const btn = document.createElement('div');
+      btn.className = 'chip';
+      btn.textContent = `${label} (${mult}x)`;
+      btn.dataset.val = id;
+      btn.dataset.mult = String(mult);
+      btn.addEventListener('click', ()=> { vwrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected')); btn.classList.add('selected'); });
+      vwrap.appendChild(btn);
+    });
+
+    // Use MUTATIONS constant
+    Object.entries(MUTATIONS).forEach(([id,obj])=>{
+      const label = obj.displayName || id;
+      const mult = obj.multiplier || obj.mult || 1;
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = `${label} (${mult}x)`;
+      chip.dataset.val = id;
+      chip.dataset.mult = String(mult);
+      chip.addEventListener('click', ()=> chip.classList.toggle('selected'));
+      mwrap.appendChild(chip);
+    });
+  }
 
   mb.querySelector('#calcRun').addEventListener('click', async ()=>{
     const crop = document.getElementById('calcCrop').value.trim(); const weight = Number(document.getElementById('calcWeight').value);
     const variantBtn = vwrap.querySelector('.chip.selected'); const variant = variantBtn ? variantBtn.dataset.val : '';
     const muts = [...mwrap.querySelectorAll('.chip.selected')].map(c=>c.dataset.val);
-    if(!crop || !weight){ mb.querySelector('#calcResult').textContent = 'Enter Crop & Weight'; return; }
+    if(!crop || !weight){ resultEl.textContent = 'Enter Crop & Weight'; return; }
     try{
       const q = `?Name=${encodeURIComponent(crop)}&Weight=${encodeURIComponent(weight)}${variant?`&Variant=${encodeURIComponent(variant)}`:''}${muts.length?`&Mutation=${encodeURIComponent(muts.join(','))}`:''}`;
-      const res = await fetch(`https://api.joshlei.com/v2/growagarden/calculate${q}`, { headers:{ 'accept':'application/json','jstudio-key':API_KEY }});
+      const res = await fetch(`${CALC_API}${q}`, { headers:{ 'accept':'application/json','jstudio-key':API_KEY }});
+      if(!res.ok){ resultEl.textContent = 'Error'; return; }
       const j = await res.json();
-      const base = Number(j.value || 0);
-      mb.querySelector('#calcResult').textContent = Math.ceil(base).toLocaleString();
-    }catch(e){ mb.querySelector('#calcResult').textContent = 'Error'; console.warn(e); }
+      const base = Number(j.value || j.result || j.price || 0);
+      resultEl.textContent = Math.ceil(base).toLocaleString();
+
+      // show a simple breakdown: prefer multipliers from constants, otherwise from response
+      let mutMap = {};
+      // If response provides mutations list, map them
+      if(Array.isArray(j.mutations) && j.mutations.length){
+        j.mutations.forEach(m=> mutMap[m.mutation_id || m.id || m.name] = {label: m.display_name || m.label || m.name, mult: m.multiplier || m.mult || (MUTATIONS[m.mutation_id || m.id || m.name]?.multiplier || 1) });
+      } else {
+        // build from selected chips (use our MUTATIONS const if available)
+        mwrap.querySelectorAll('.chip.selected').forEach(c => {
+          const val = c.dataset.val;
+          mutMap[val] = {
+            label: (MUTATIONS[val] && MUTATIONS[val].displayName) ? MUTATIONS[val].displayName : c.textContent.split(' (')[0],
+            mult: Number((MUTATIONS[val] && MUTATIONS[val].multiplier) ? MUTATIONS[val].multiplier : (c.dataset.mult || 1))
+          };
+        });
+      }
+
+      const variantMult = variantBtn ? Number(variantBtn.dataset.mult || 1) : 1;
+      const breakdownParts = [];
+      breakdownParts.push(`Variant multiplier: ${variantMult}x`);
+      const mutList = Object.keys(mutMap);
+      if(mutList.length) breakdownParts.push('Mutations: ' + mutList.map(k=>`${mutMap[k].label} (${mutMap[k].mult}x)`).join(', '));
+      if(j.explanation) breakdownParts.push(`Notes: ${j.explanation}`);
+      breakdownEl.textContent = breakdownParts.join(' — ');
+    }catch(e){ resultEl.textContent = 'Error'; console.warn(e); }
   });
 
   const cropInput = mb.querySelector('#calcCrop');
@@ -882,9 +1088,18 @@ async function renderCalculator(){
     if(matches.length === 0){ suggestions.style.display='none'; suggestions.innerHTML=''; return; }
     suggestions.style.display='block';
     suggestions.innerHTML = matches.map(m => `<div class="suggest-item" data-name="${esc(m.name)}" style="display:flex;gap:8px;align-items:center;padding:8px;cursor:pointer"><img src="${m.icon || IMAGE_API(m.name)}" style="width:36px;height:36px;border-radius:6px;object-fit:cover"><div><div style="font-weight:700">${esc(m.name)}</div></div></div>`).join('');
-    suggestions.querySelectorAll('.suggest-item').forEach(si=>{ si.addEventListener('click', ()=>{ cropInput.value = si.dataset.name; suggestions.style.display='none'; suggestions.innerHTML=''; }); });
+    suggestions.querySelectorAll('.suggest-item').forEach(si=>{ si.addEventListener('click', async ()=>{ cropInput.value = si.dataset.name; suggestions.style.display='none'; suggestions.innerHTML=''; await populateCalcMeta(si.dataset.name); }); });
   });
-  document.addEventListener('click', e => { if(!document.getElementById('modalBody').contains(e.target)) { const s = document.getElementById('suggestions'); if(s) { s.style.display='none'; s.innerHTML=''; } } });
+
+  // when the crop input loses focus (and has value) attempt to populate variants & mutations (from consts)
+  cropInput.addEventListener('blur', async ()=>{ const n = cropInput.value.trim(); if(n) await populateCalcMeta(n); });
+
+  function onDocClick(e){ const mbNode = document.getElementById('modalBody'); if(!mbNode) return; if(!mbNode.contains(e.target)) { const s = document.getElementById('suggestions'); if(s) { s.style.display='none'; s.innerHTML=''; } } }
+  document.removeEventListener('click', onDocClick);
+  document.addEventListener('click', onDocClick);
+
+  // Pre-populate with constants right away so users see options even before selecting a crop
+  await populateCalcMeta('');
 }
 
 /* -------------- misc helpers -------------- */
@@ -895,7 +1110,7 @@ function updatePredTimersInDOM(){
   });
 }
 
-/* -------------- WEATHER UI REFRESH (every second) -------------- */
+/* -------------- WEATHER UI REFRESH (every ~1s) -------------- */
 async function refreshWeatherUI(){
   try{
     const list = await fetchWeatherList();
@@ -932,7 +1147,7 @@ async function refreshWeatherUI(){
     updateTimersUI();
   }catch(e){}
 }
-setInterval(()=>{ refreshWeatherUI().catch(()=>{}); }, UI_WEATHER_REFRESH_MS);
+setInterval(()=>{ refreshWeatherUI().catch(()=>{}); }, UI_REFRESH_MS);
 
 /* -------------- init -------------- */
 (function init(){
@@ -946,7 +1161,7 @@ setInterval(()=>{ refreshWeatherUI().catch(()=>{}); }, UI_WEATHER_REFRESH_MS);
   document.addEventListener('click', ()=>{ if("Notification" in window && Notification.permission === 'default') Notification.requestPermission().catch(()=>{}); }, { once:true });
 
   // live timers refresh
-  setInterval(()=>{ updateTimersUI(); }, 1000);
+  setInterval(()=>{ updateTimersUI(); }, UI_REFRESH_MS);
 })();
 </script>
 </body>
