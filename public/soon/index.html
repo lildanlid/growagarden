@@ -175,8 +175,10 @@
     </div>
 
 <script>
-/* FINAL: images exclusively via stock-apis with lowercase underscore item_id.
-   No JoshLei references for item images.
+/* CHANGES:
+   - Cosmetics (cosmetic_stock) and Events (eventshop_stock) use local images located at /public/images/{lowercase_underscored_id}.png
+   - All other categories still attempt stock-apis host: http://stock-apis.vercel.app/i/growagarden/{lower_id} (or .png)
+   - When adding to watchlist we store shop if we can find it (so local images show correctly in watchlist).
 */
 
 /* Keep your arrays exactly as provided */
@@ -187,19 +189,20 @@ const EGGS = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical E
 /* Config */
 const STOCK_URL = 'https://stock-apis.vercel.app/api/growagarden/stocks';
 const WEATHER_URL = 'https://api.joshlei.com/v2/growagarden/weather';
-const STOCK_APIS_IMAGE_BASE = 'http://stock-apis.vercel.app/i/growagarden'; // MUST be lowercase ids appended
+const STOCK_APIS_IMAGE_BASE = 'http://stock-apis.vercel.app/i/growagarden'; // external images for non-cosmetic/event items
+const LOCAL_IMAGES_BASE = '/public/images'; // local images — user requested public/images/*.png
 
 /* State */
 let currentStockData = {};
 let currentWeatherData = {};
-let watchlist = JSON.parse(localStorage.getItem('growagarden_watchlist') || '[]');
+let watchlist = JSON.parse(localStorage.getItem('growagarden_watchlist') || '[]'); // watch entries: {id,name,icon?,shop?}
 let activeFilter = 'all';
 let showAllItems = false;
 let searchTerm = '';
 let previouslyNotifiedInStock = new Set();
 const iconResolveCache = {}; // caches resolved image URLs keyed by lowercase id
 
-/* DOM helpers */
+/* DOM helper */
 const $ = id => document.getElementById(id);
 
 /* Utilities */
@@ -251,7 +254,7 @@ async function fetchWithTimeout(url, opts={}, timeout=15000, asBlob=false) {
     }
 }
 
-/* Try image with <img> quick probe (HEAD often CORS-blocked) */
+/* Quick image existence check by loading img */
 function tryImageURLQuick(url, timeout=2500) {
     return new Promise(resolve=>{
         const img = new Image();
@@ -273,7 +276,7 @@ async function urlExists(url) {
     return tryImageURLQuick(url, 2500);
 }
 
-/* Normalize stock payload into predictable arrays */
+/* Normalize stock payload to predictable arrays */
 function normalizeStockPayload(raw) {
     if (!raw || typeof raw !== 'object') return {};
     const find = (...cands) => {
@@ -301,7 +304,6 @@ function normalizeStockPayload(raw) {
         }
         return arr.map(it=>{
             const quantity = Number(it.quantity ?? it.stock ?? it.count ?? 0);
-            // preserve API icon but DO NOT use it for display — we force stock-apis URLs
             const icon = it.icon ?? it.image ?? it.img ?? '';
             const rawName = it.display_name ?? it.displayName ?? it.name ?? '';
             const item_id = (it.item_id ?? it.id) || safeHostIdFromDisplayName(rawName);
@@ -321,34 +323,43 @@ function normalizeStockPayload(raw) {
     return out;
 }
 
-/* Resolve only stock-apis images (lowercased underscores).
-   Try:
-     1) base (no extension)
-     2) .png
-   Cache results in iconResolveCache.
+/* Resolve icon: for cosmetics & events -> local /public/images/{id}.png
+   for others -> stock-apis host (try base and .png)
 */
 async function resolveIconForItem(item) {
     const displayName = item.display_name || item.item_id || '';
     const rawId = item.item_id || safeHostIdFromDisplayName(displayName);
     if (!rawId) return null;
-    const idLower = hostIdLower(rawId); // lowercase with underscores
+    const idLower = hostIdLower(rawId);
 
     if (iconResolveCache[idLower] !== undefined) return iconResolveCache[idLower];
     iconResolveCache[idLower] = null; // reserve
 
-    // build urls
+    // If item has shop and it's cosmetic or event, point to local image.
+    const shop = item.shop || '';
+    if (shop === 'cosmetic_stock' || shop === 'eventshop_stock') {
+        // user requested public/images/*.png — build that path
+        const localPath = `${LOCAL_IMAGES_BASE}/${encodeURIComponent(idLower)}.png`;
+        // we won't probe external when the item is in these shops; prefer local path as asked.
+        iconResolveCache[idLower] = localPath;
+        return localPath;
+    }
+
+    // For other categories, try stock-apis host (lowercase id)
     const base = `${STOCK_APIS_IMAGE_BASE}/${encodeURIComponent(idLower)}`;
     const png = `${base}.png`;
 
     try {
         if (await urlExists(base)) { iconResolveCache[idLower] = base; return base; }
         if (await urlExists(png)) { iconResolveCache[idLower] = png; return png; }
-    } catch(e) {}
-    iconResolveCache[idLower] = null;
-    return null;
+    } catch(e){}
+
+    // as last resort, return stock-apis png path (so requests go there even if 404)
+    iconResolveCache[idLower] = png;
+    return png;
 }
 
-/* Preload image (so it appears smoothly) */
+/* Preload img quietly */
 function preloadImage(url) {
     try {
         const img = new Image();
@@ -357,7 +368,7 @@ function preloadImage(url) {
     } catch (e) {}
 }
 
-/* Star SVG helper (clean star shapes) */
+/* Star SVG */
 function starSvg(active) {
     if (active) {
         return `<svg class="star-icon w-5 h-5" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
@@ -366,7 +377,7 @@ function starSvg(active) {
     }
 }
 
-/* Build card HTML with image placeholder to swap later */
+/* Card HTML: placeholders use lowercase id key for matching */
 function itemCardHtml(item) {
     const displayName = item.display_name || item.item_id || 'Unknown';
     const qty = Number(item.quantity || 0);
@@ -374,9 +385,11 @@ function itemCardHtml(item) {
     const rarity = item.rarity || 'Common';
     const isWatched = watchlist.some(w => hostIdLower(w.id) === hostIdLower(item.item_id));
 
+    const idKey = hostIdLower(item.item_id);
+
     const imgPlaceholder = `<div class="flex-grow flex items-center justify-center my-4">
-        <div class="image-placeholder" data-img-for="${hostIdLower(item.item_id)}">Loading image...</div>
-        <img data-img-for="${hostIdLower(item.item_id)}" alt="${displayName}" class="max-h-24" style="display:none" />
+        <div class="image-placeholder" data-img-for="${idKey}">Loading image...</div>
+        <img data-img-for="${idKey}" alt="${displayName}" class="max-h-24" style="display:none" />
     </div>`;
 
     return `
@@ -396,7 +409,7 @@ function itemCardHtml(item) {
     </div>`;
 }
 
-/* Replace placeholder with resolved image from stock-apis (preload first) */
+/* Ensure placeholder replaced — uses resolveIconForItem which now returns local path for cosmetics/events */
 async function ensureItemImageRendered(item) {
     const idKey = hostIdLower(item.item_id || safeHostIdFromDisplayName(item.display_name || ''));
     if (!idKey) return;
@@ -457,7 +470,7 @@ function buildFullCatalogForCategory(shopKey) {
     return ordered.map(x => ({...x, shop: shopKey}));
 }
 
-/* Render full-catalog view or filtered shops */
+/* Renderers */
 function renderFullCatalog(shopKey) {
     const groups = [];
     if (shopKey === 'all') {
@@ -484,7 +497,6 @@ function renderShops() {
         return;
     }
 
-    // full-catalog toggles
     if (showAllItems && activeFilter !== 'all') { renderFullCatalog(activeFilter); return; }
     if (showAllItems && activeFilter === 'all') { renderFullCatalog('all'); return; }
 
@@ -500,7 +512,6 @@ function renderShops() {
         return searchMatch && stockMatch && shopMatch;
     });
 
-    // maintain the seed/gear ordering when viewing those categories
     if (activeFilter === 'seed_stock' || activeFilter === 'gear_stock' || activeFilter === 'egg_stock') {
         const orderArr = activeFilter === 'seed_stock' ? SEED_ORDER : activeFilter === 'gear_stock' ? GEAR_ORDER : EGG_ORDER;
         const idx = new Map(orderArr.map((o,i)=>[canonicalCompare(o.display_name), i]));
@@ -525,262 +536,17 @@ function renderShops() {
     filtered.forEach(it => setTimeout(()=>ensureItemImageRendered(it),0));
 }
 
-/* WATCHLIST & NOTIFICATIONS */
+/* WATCHLIST & NOTIFICATIONS
+   - When adding to watchlist we store shop (if item currently in stock/found) so watch icons can use local images when appropriate.
+*/
 function saveWatchlist() { localStorage.setItem('growagarden_watchlist', JSON.stringify(watchlist)); }
 function findItemInStock(itemId) {
     for (const k of Object.keys(currentStockData||{})) {
         const arr = currentStockData[k] || [];
-        const f = arr.find(it => (it.item_id === itemId || hostIdLower(it.item_id) === hostIdLower(itemId)) && Number(it.quantity||0) > 0);
-        if (f) return f;
+        const f = arr.find(it => (it.item_id === itemId || hostIdLower(it.item_id) === hostIdLower(itemId)));
+        if (f) return {...f, shop: k};
     }
     return null;
 }
 function toggleWatch(id,name,icon){
-    const normId = hostIdLower(id);
-    const idx = watchlist.findIndex(w=>hostIdLower(w.id)===normId);
-    const added = idx === -1;
-    if (idx>-1) watchlist.splice(idx,1); else watchlist.push({ id,name,icon });
-    saveWatchlist();
-    renderWatchlist();
-    renderShops();
-    if (added && Notification.permission === 'granted') {
-        const inStock = findItemInStock(id);
-        try { new Notification('Watchlist updated', { body: inStock ? `${name} is in stock!` : `${name} added to watchlist.` , icon: icon||undefined }); } catch(e){}
-    }
-}
-function renderWatchlist(){
-    let html = `<h2 class="text-2xl font-header mb-4">Your Watchlist ⭐</h2>`;
-    if (!watchlist.length) { html+=`<p class="opacity-70">Click the star on an item to track it here!</p>`; $('watchlist').innerHTML = html; return; }
-    const rows = watchlist.map(w => {
-        const stockItem = findItemInStock(w.id);
-        const inStock = !!stockItem;
-        const amount = inStock ? stockItem.quantity : 0;
-        // watchlist uses resolved stock-apis images when available; fall back to placeholder
-        const resolvedIcon = (() => {
-            const cached = iconResolveCache[hostIdLower(w.id)];
-            if (cached) return cached;
-            // attempt to build expected stock-apis URL (may not exist)
-            return `${STOCK_APIS_IMAGE_BASE}/${hostIdLower(w.id)}`;
-        })();
-        const img = `<img src="${resolvedIcon}" alt="${w.name}" class="w-10 h-10" onerror="this.style.display='none'">`;
-        return `<div class="flex items-center justify-between py-2 border-b dark:border-gray-700/50 border-gray-300/50">
-            <div class="flex items-center gap-4">${img}<span class="font-semibold">${w.name}</span> </div>
-            <div class="${inStock ? 'text-green-400 font-bold' : 'opacity-60'}">${inStock ? `IN STOCK (${amount})` : 'Not in stock'}</div>
-        </div>`;
-    }).join('');
-    $('watchlist').innerHTML = html + `<div class="space-y-2">${rows}</div>`;
-}
-function checkWatchlistNotifications(){
-    if (Notification.permission !== 'granted') return;
-    const cur = new Set();
-    watchlist.forEach(w => { if (findItemInStock(w.id)) cur.add(hostIdLower(w.id)); });
-    for (const idLower of cur) {
-        if (!previouslyNotifiedInStock.has(idLower)) {
-            const w = watchlist.find(x=>hostIdLower(x.id)===idLower);
-            try { new Notification('Item in Stock!', { body: `${w.name} is now available!`, icon: w.icon||undefined }); } catch(e){}
-        }
-    }
-    previouslyNotifiedInStock = cur;
-}
-
-/* SPOTLIGHT & WEATHER */
-let spotlightItems = [], spotlightIndex = 0, spotlightInterval = null;
-function buildSpotlightFromStock(){
-    const picks = [];
-    const keys = ['seed_stock','gear_stock','cosmetic_stock','egg_stock','eventshop_stock','travelingmerchant_stock'];
-    const rarityOrder = ['Common','Uncommon','Rare','Legendary','Mythical','Divine','Prismatic'];
-    keys.forEach(k => (currentStockData[k]||[]).forEach(it=>{
-        const r = rarityOrder.indexOf(it.rarity||'Common');
-        if (r >= 3) picks.push({...it, shop:k});
-    }));
-    picks.sort((a,b)=> {
-        const ra = rarityOrder.indexOf(a.rarity||'Common');
-        const rb = rarityOrder.indexOf(b.rarity||'Common');
-        if (rb !== ra) return rb - ra;
-        return (b.quantity||0) - (a.quantity||0);
-    });
-    spotlightItems = picks.slice(0,12);
-    spotlightIndex = 0;
-    if (spotlightInterval) clearInterval(spotlightInterval);
-    if (spotlightItems.length) spotlightInterval = setInterval(()=>nextSpotlight(), 7000);
-    nextSpotlight();
-}
-function nextSpotlight(){
-    const el = $('rare-item-spotlight');
-    if (!el) return;
-    if (!spotlightItems.length) {
-        el.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2><div class="spotlight-content"><p class="opacity-70">No recent rare items found.</p></div>`;
-        return;
-    }
-    const item = spotlightItems[spotlightIndex % spotlightItems.length];
-    el.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2>
-        <div class="spotlight-content text-center">
-            <div class="image-placeholder">Loading...</div>
-            <p class="font-bold text-lg">${item.display_name}</p>
-            <div class="inline-block mt-1 rarity-tag ${item.rarity === 'Prismatic' ? 'rarity-prismatic' : ''}" style="background:#ddd;color:#111">${item.rarity}</div>
-        </div>`;
-    setTimeout(()=>ensureItemImageRendered(item),0);
-    spotlightIndex++;
-}
-
-/* Weather visuals (unchanged behavior) */
-let previousWeatherName = null;
-function setupWeatherEffects(weatherName) {
-    if (!weatherName) weatherName = 'clear';
-    if (weatherName === previousWeatherName) return;
-    previousWeatherName = weatherName;
-    const container = $('weather-bg-container');
-    container.innerHTML = '';
-    const isDark = document.documentElement.classList.contains('dark');
-    const createBg = (extraClass='') => {
-        const bg = document.createElement('div');
-        bg.className = `weather-bg ${extraClass} ${isDark ? 'dark-mode' : 'light-mode'}`;
-        container.appendChild(bg);
-        setTimeout(()=>bg.classList.add('active'), 100);
-        return bg;
-    };
-    const w = String(weatherName).toLowerCase();
-    if (w.includes('clear')) createBg('clear-bg');
-    else if (w.includes('rain')) {
-        const bg = createBg('rain-bg');
-        for (let i=0;i<40;i++){ const d=document.createElement('div'); d.className='rain-drop'; d.style.left=`${Math.random()*100}vw`; d.style.animationDelay=`${Math.random()*2}s`; bg.appendChild(d); }
-    } else if (w.includes('night')) {
-        const bg = createBg('night-bg');
-        for (let i=0;i<50;i++){ const s=document.createElement('div'); s.className='star'; const size=Math.random()*4+2; s.style.width=s.style.height=`${size}px`; s.style.top=`${Math.random()*100}%`; s.style.left=`${Math.random()*100}%`; s.style.animationDelay=`${Math.random()*5}s`; bg.appendChild(s); }
-    } else if (w.includes('bee')) {
-        const bg = createBg('bee-swarm-bg');
-        for (let i=0;i<15;i++){ const b=document.createElement('div'); b.className='bee'; b.style.setProperty('--start-y',`${Math.random()*100}vh`); b.style.setProperty('--end-y',`${Math.random()*100}vh`); b.style.animationDelay=`${Math.random()*8}s`; bg.appendChild(b); }
-    } else if (w.includes('thunder')) createBg('thunderstorm-bg');
-    else if (w.includes('blood')) createBg('bloodmoon-bg');
-    else if (w.includes('frost')) createBg('frost-bg');
-    else if (w.includes('heat')) createBg('heatwave-bg');
-    else if (w.includes('wind')) { const bg = createBg('windy-bg'); for (let i=0;i<20;i++){ const s=document.createElement('div'); s.className='wind-streak'; s.style.setProperty('--top-pos',`${Math.random()*100}vh`); s.style.animationDelay=`${Math.random()*1}s`; bg.appendChild(s); } }
-    else if (w.includes('party')) { const bg=createBg('party-time-bg'); const emojis=['🎉','🎊','🎈','✨','🎁']; for (let i=0;i<30;i++){ const p=document.createElement('div'); p.className='emoji-particle'; p.textContent=emojis[Math.floor(Math.random()*emojis.length)]; p.style.left=`${Math.random()*100}vw`; p.style.animationDelay=`${Math.random()*5}s`; p.style.animationDuration=`${Math.random()*3+3}s`; bg.appendChild(p);} }
-    else if (w.includes('tornado')) { const bg=createBg('tornado-bg'); const t=document.createElement('div'); t.className='tornado'; t.style.left=`${Math.random()*60+20}%`; bg.appendChild(t); }
-    else createBg('clear-bg');
-}
-
-function renderWeather(){
-    const weather = currentWeatherData?.weather?.find(w=>w.active) ?? currentWeatherData?.weather?.[0] ?? currentWeatherData;
-    if (weather) {
-        const name = weather.weather_name ?? weather.name ?? weather.weather ?? 'Unknown';
-        const icon = weather.icon ?? '';
-        $('weather-section').innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2>
-            <div class="flex items-center gap-4">
-                ${ icon ? `<img src="${icon}" alt="${name}" class="w-16 h-16" onerror="this.style.display='none'">` : '' }
-                <div><p class="text-xl font-bold">${name}</p><p class="opacity-80">${weather.weather_id && String(weather.weather_id).toLowerCase().includes('bee') ? 'Spawns bees that create Pollinated mutations.' : (weather.description || 'A weather event may be active.')}</p></div>
-            </div>`;
-        setupWeatherEffects(String(name));
-    } else {
-        $('weather-section').innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p>The skies are clear.</p>`;
-        setupWeatherEffects('clear');
-    }
-}
-
-/* Fetch orchestration */
-async function fetchAllData(){
-    $('connection-status').textContent = 'Fetching latest data...';
-    const stockPromise = fetchWithTimeout(STOCK_URL, { headers: { accept:'application/json' } }, 20000);
-    const weatherPromise = fetchWithTimeout(WEATHER_URL, { headers: { 'jstudio-key': (localStorage.getItem('growagarden_key') || ''), accept:'application/json' } }, 10000);
-
-    renderShops();
-    renderWatchlist();
-
-    const weatherRaw = await weatherPromise;
-    if (weatherRaw) { currentWeatherData = weatherRaw; try { renderWeather(); } catch(e){} }
-
-    const stockRaw = await stockPromise;
-    if (stockRaw) {
-        currentStockData = normalizeStockPayload(stockRaw);
-        $('connection-status').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-        buildSpotlightFromStock();
-    } else {
-        $('connection-status').textContent = 'Stock API unavailable or timed out (will retry).';
-    }
-
-    renderShops();
-    renderWatchlist();
-    checkWatchlistNotifications();
-    hideLoadingOverlay();
-}
-
-function hideLoadingOverlay() { const e = $('loading-overlay'); if (e) { e.style.opacity='0'; setTimeout(()=>e.style.display='none',400); } }
-
-/* UI wiring */
-function setupNav(){
-    const shops = { 'All': 'all', 'Seeds': 'seed_stock', 'Gear': 'gear_stock', 'Pets': 'egg_stock', 'Cosmetics': 'cosmetic_stock', 'Events': 'eventshop_stock', 'Merchant': 'travelingmerchant_stock' };
-    $('shops-navigation').innerHTML = Object.entries(shops).map(([n,k])=>`<button class="market-stall px-4 py-2 rounded-t-lg font-bold ${k==='all'?'active':''}" data-shop-key="${k}">${n}</button>`).join('');
-    $('shops-navigation').addEventListener('click', e=>{
-        const btn = e.target.closest('.market-stall'); if (!btn) return;
-        document.querySelectorAll('.market-stall').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = btn.dataset.shopKey;
-        renderShops();
-    });
-}
-
-function setupEventListeners(){
-    $('display-instock').addEventListener('click', ()=>{ showAllItems=false; $('display-instock').classList.add('active'); $('display-catalog').classList.remove('active'); $('display-glider').style.transform='translateX(0%)'; renderShops(); });
-    $('display-catalog').addEventListener('click', ()=>{ showAllItems=true; $('display-catalog').classList.add('active'); $('display-instock').classList.remove('active'); $('display-glider').style.transform='translateX(100%)'; renderShops(); });
-    $('search-bar').addEventListener('input', e=>{ searchTerm = e.target.value || ''; renderShops(); });
-    $('shops-container').addEventListener('click', e => {
-        const btn = e.target.closest('.watch-button');
-        if (!btn) return;
-        toggleWatch(btn.dataset.id, btn.dataset.name, btn.dataset.icon);
-    });
-
-    $('notification-bell').addEventListener('click', ()=> {
-        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-            Notification.requestPermission().then(()=>{ updateBellState(); });
-        } else if (Notification.permission === 'granted') {
-            try { new Notification('Notifications active', { body: 'You will receive watchlist alerts.' }); } catch(e){}
-        }
-    });
-
-    $('theme-switcher').addEventListener('click', ()=> {
-        const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
-        document.documentElement.className = newTheme;
-        localStorage.setItem('growagarden_theme', newTheme);
-        setupWeatherEffects(previousWeatherName);
-    });
-
-    $('header-toggle-btn').addEventListener('click', (e) => {
-        const wrapper = document.querySelector('.header-content-wrapper');
-        const arrow = e.currentTarget.querySelector('.arrow');
-        wrapper.classList.toggle('header-hidden');
-        arrow.classList.toggle('rotate', wrapper.classList.contains('header-hidden'));
-        const expanded = wrapper.classList.contains('header-hidden') ? 'false' : 'true';
-        e.currentTarget.setAttribute('aria-expanded', expanded);
-    });
-}
-
-function updateBellState() {
-    const bell = $('notification-bell');
-    if (!bell) return;
-    bell.classList.remove('enabled', 'denied', 'ringing');
-    if (Notification.permission === 'granted') bell.classList.add('enabled');
-    if (Notification.permission === 'denied') bell.classList.add('denied');
-    bell.classList.add('ringing');
-    bell.addEventListener('animationend', () => bell.classList.remove('ringing'), { once: true });
-}
-
-/* Init */
-async function init(){
-    document.documentElement.className = localStorage.getItem('growagarden_theme') || 'dark';
-    setupNav();
-    setupEventListeners();
-    updateBellState();
-    renderWatchlist();
-    renderShops();
-    await fetchAllData().catch(e=>console.error(e));
-    setTimeout(hideLoadingOverlay, 900);
-    setInterval(fetchAllData, 30000);
-    setInterval(()=>{ document.querySelectorAll('.timer').forEach(t=>{ t.textContent = timeRemaining(Number(t.dataset.endTime)||0); }); }, 1000);
-    setInterval(checkWatchlistNotifications, 4000);
-    window._growagarden = { fetchAllData, renderShops, currentStockData, watchlist };
-}
-init();
-</script>
-
-</body>
-</html>
+    const
