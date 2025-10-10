@@ -182,11 +182,11 @@
 <script>
 /* ----------
   Updated script:
-   - Uses stock-apis image host: https://stock-apis.vercel.app/i/growagarden/{item_id}
-   - Preloads images, falls back to JoshLei image API (blob/objectURL)
-   - Full catalog behavior restored
-   - Star SVG cleaned up, watchlist shows amounts
-   - Does NOT attempt to upload images to external host (requires server endpoint)
+   - Uses HTTP stock-apis image host: http://stock-apis.vercel.app/i/growagarden/{item_id}
+   - Prefers item.item_id exactly as provided by API (preserves casing like Ember_lily)
+   - Falls back to JoshLei images (object URL fallback)
+   - Preloads images and swaps into cards
+   - Keeps catalog ordering, watchlist counts, star SVG fix, header toggle
   ---------- */
 
 /* Provided arrays (kept exactly) */
@@ -199,7 +199,9 @@ const STOCK_URL = 'https://stock-apis.vercel.app/api/growagarden/stocks';
 const WEATHER_URL = 'https://api.joshlei.com/v2/growagarden/weather';
 const JOSHLEI_IMAGE_BASE = 'https://api.joshlei.com/v2/growagarden/image';
 const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
-const STOCK_APIS_IMAGE_BASE = 'https://stock-apis.vercel.app/i/growagarden';
+
+// <<< USER REQUEST: use HTTP stock-apis image host (preserve exact item_id casing) >>>
+const STOCK_APIS_IMAGE_BASE = 'http://stock-apis.vercel.app/i/growagarden';
 
 let currentStockData = {};
 let currentWeatherData = {};
@@ -214,7 +216,7 @@ const $ = id => document.getElementById(id);
 
 function safeHostIdFromDisplayName(displayName) {
     if (!displayName) return '';
-    // Preserve original capitalization if coming from display name.
+    // Preserve capitalization and replace spaces with underscores (fallback only).
     return displayName.replace(/\s+/g,'_');
 }
 function buildJoshleiKey(displayName) {
@@ -332,18 +334,20 @@ function normalizeStockPayload(raw) {
 }
 
 /* Image resolution flow:
-   1) Try stock-apis host: https://stock-apis.vercel.app/i/growagarden/{Item_Id}
+   1) Try stock-apis host: http://stock-apis.vercel.app/i/growagarden/{Item_Id}
    2) Try same with .png
    3) Try JoshLei API: https://api.joshlei.com/v2/growagarden/image/{lowercase_underscored}
    4) If JoshLei returns a blob, create object URL
 */
 async function resolveIconForItem(item) {
     const displayName = item.display_name || item.item_id || '';
-    const hostId = item.item_id || safeHostIdFromDisplayName(displayName);
+    // IMPORTANT: prefer item.item_id exactly (preserve casing like Ember_lily)
+    const hostId = (item.item_id && item.item_id.toString()) || safeHostIdFromDisplayName(displayName);
     if (!hostId) return null;
     if (iconResolveCache[hostId] !== undefined) return iconResolveCache[hostId];
     iconResolveCache[hostId] = null; // reserve
 
+    // use HTTP base as requested
     const stockApisBase = `${STOCK_APIS_IMAGE_BASE}/${hostId}`;
     const stockApisPng = `${stockApisBase}.png`;
 
