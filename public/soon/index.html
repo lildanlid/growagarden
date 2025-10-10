@@ -181,12 +181,12 @@
 
 <script>
 /* ----------
-  Updated script:
-   - Uses HTTP stock-apis image host: http://stock-apis.vercel.app/i/growagarden/{item_id}
-   - Prefers item.item_id exactly as provided by API (preserves casing like Ember_lily)
-   - Falls back to JoshLei images (object URL fallback)
-   - Preloads images and swaps into cards
-   - Keeps catalog ordering, watchlist counts, star SVG fix, header toggle
+  Image host behavior:
+    - Uses HTTP stock-apis images at:
+        http://stock-apis.vercel.app/i/growagarden/{item_idLowercase}
+      (tries path and .png)
+    - Falls back to JoshLei image API when needed
+    - Preloads images and swaps them into card placeholders
   ---------- */
 
 /* Provided arrays (kept exactly) */
@@ -197,10 +197,10 @@ const EGGS = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical E
 /* Config */
 const STOCK_URL = 'https://stock-apis.vercel.app/api/growagarden/stocks';
 const WEATHER_URL = 'https://api.joshlei.com/v2/growagarden/weather';
-const JOSHLEI_IMAGE_BASE = 'http://stock-apis.vercel.app/i/growagarden';
+const JOSHLEI_IMAGE_BASE = 'https://api.joshlei.com/v2/growagarden/image';
 const API_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
 
-// <<< USER REQUEST: use HTTP stock-apis image host (preserve exact item_id casing) >>>
+// Use HTTP stock-apis image base with lowercased item_id as requested
 const STOCK_APIS_IMAGE_BASE = 'http://stock-apis.vercel.app/i/growagarden';
 
 let currentStockData = {};
@@ -216,7 +216,7 @@ const $ = id => document.getElementById(id);
 
 function safeHostIdFromDisplayName(displayName) {
     if (!displayName) return '';
-    // Preserve capitalization and replace spaces with underscores (fallback only).
+    // replace spaces with underscores but return original casing for item_id if possible
     return displayName.replace(/\s+/g,'_');
 }
 function buildJoshleiKey(displayName) {
@@ -277,7 +277,6 @@ function tryImageURLQuick(url, timeout=2500) {
 }
 
 async function urlExists(url) {
-    // Try HEAD first, then fallback to image load test (broad compatibility)
     try {
         const head = await fetch(url, { method: 'HEAD' });
         if (head && head.ok) return true;
@@ -315,7 +314,7 @@ function normalizeStockPayload(raw) {
             const quantity = Number(it.quantity ?? it.stock ?? it.count ?? 0);
             const icon = it.icon ?? it.image ?? it.img ?? '';
             const rawName = it.display_name ?? it.displayName ?? it.name ?? '';
-            // prefer explicit item_id from API; fall back to safeHost from display name (preserve capitalization)
+            // prefer explicit item_id from API; fall back to safeHost from display name
             const item_id = it.item_id ?? it.id ?? safeHostIdFromDisplayName(rawName);
             const display_name = rawName || '';
             const rarity = normalizeRarity(it.rarity ?? it.rarity_name ?? it.rarityName ?? '');
@@ -333,50 +332,54 @@ function normalizeStockPayload(raw) {
     return out;
 }
 
-/* Image resolution flow:
-   1) Try stock-apis host: http://stock-apis.vercel.app/i/growagarden/{Item_Id}
+/* Image resolution flow (modified to lowercase host id):
+   1) Try stock-apis host: http://stock-apis.vercel.app/i/growagarden/{item_idLowercase}
    2) Try same with .png
    3) Try JoshLei API: https://api.joshlei.com/v2/growagarden/image/{lowercase_underscored}
    4) If JoshLei returns a blob, create object URL
 */
 async function resolveIconForItem(item) {
     const displayName = item.display_name || item.item_id || '';
-    // IMPORTANT: prefer item.item_id exactly (preserve casing like Ember_lily)
-    const hostId = (item.item_id && item.item_id.toString()) || safeHostIdFromDisplayName(displayName);
-    if (!hostId) return null;
-    if (iconResolveCache[hostId] !== undefined) return iconResolveCache[hostId];
-    iconResolveCache[hostId] = null; // reserve
+    // prefer explicit item_id from API; fall back to display name
+    const rawId = (item.item_id && item.item_id.toString()) || safeHostIdFromDisplayName(displayName);
+    if (!rawId) return null;
 
-    // use HTTP base as requested
-    const stockApisBase = `${STOCK_APIS_IMAGE_BASE}/${hostId}`;
+    // Lowercase the id for the stock-apis host (user requested)
+    const hostIdLower = rawId.toLowerCase();
+
+    if (iconResolveCache[hostIdLower] !== undefined) return iconResolveCache[hostIdLower];
+    iconResolveCache[hostIdLower] = null; // reserve
+
+    const stockApisBase = `${STOCK_APIS_IMAGE_BASE}/${hostIdLower}`;
     const stockApisPng = `${stockApisBase}.png`;
 
     try {
-        if (await urlExists(stockApisBase)) { iconResolveCache[hostId] = stockApisBase; return stockApisBase; }
-        if (await urlExists(stockApisPng)) { iconResolveCache[hostId] = stockApisPng; return stockApisPng; }
+        if (await urlExists(stockApisBase)) { iconResolveCache[hostIdLower] = stockApisBase; return stockApisBase; }
+        if (await urlExists(stockApisPng)) { iconResolveCache[hostIdLower] = stockApisPng; return stockApisPng; }
     } catch(e){}
 
+    // JoshLei fallback (lowercase_underscored)
     const jlKey = buildJoshleiKey(displayName);
     const joshleiUrl = `${JOSHLEI_IMAGE_BASE}/${jlKey}`;
+
     try {
-        // Try fetch blob (JoshLei tends to serve an image)
         const blob = await fetchWithTimeout(joshleiUrl, {}, 8000, true);
         if (blob instanceof Blob && blob.size > 0) {
             try {
                 const obj = URL.createObjectURL(blob);
-                iconResolveCache[hostId] = obj;
+                iconResolveCache[hostIdLower] = obj;
                 return obj;
             } catch (e) {
-                iconResolveCache[hostId] = joshleiUrl;
+                iconResolveCache[hostIdLower] = joshleiUrl;
                 return joshleiUrl;
             }
         }
     } catch(e){}
 
     try {
-        if (await urlExists(joshleiUrl)) { iconResolveCache[hostId] = joshleiUrl; return joshleiUrl; }
+        if (await urlExists(joshleiUrl)) { iconResolveCache[hostIdLower] = joshleiUrl; return joshleiUrl; }
     } catch(e){}
-    iconResolveCache[hostId] = null;
+    iconResolveCache[hostIdLower] = null;
     return null;
 }
 
