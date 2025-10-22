@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Grow a Garden Tracker | Live Stock & Weather</title>
+    <meta name="description" content="Live, real-time tracker for the Grow a Garden game. Monitor shop stock, get weather alerts, and never miss a rare item with our personalized watchlist and notification system.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+
+    <!-- External Libraries & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS Styles (kept your styling, added --legendary var and star fixes) -->
+    <style>
+        :root { 
+            --bg-dark-teal: #2E5953; 
+            --bg-medium-mint: #8FB3A3; 
+            --bg-light-blue-gray: #B6C9CC; 
+            --text-pale-peach: #F2D8C9; 
+            --accent-soft-orange: #F2A789; 
+            --accent-terracotta: #D98361; 
+            --dark-bg: #2E5953; 
+            --dark-text: #F2D8C9; 
+            --light-bg: #fdfbf7; 
+            --light-text: #3f3c3a;
+            /* Rarity colors */
+            --common: #6c757d; 
+            --uncommon: #28a745; 
+            --rare: #007bff; 
+            --mythical: #6610f2; 
+            --divine: #e83e8c; 
+            --prismatic: #fd7e14; 
+            --legendary: #d4af37; /* new: distinct gold color */
+            --unknown: #6f42c1;
+        }
+        html.dark body { background-color: var(--dark-bg); color: var(--dark-text); }
+        html.light body { background-color: var(--light-bg); color: var(--light-text); }
+        body { font-family: 'Nunito', sans-serif; transition: background-color 0.5s ease, color 0.5s ease; overflow-x: hidden; }
+        .font-header { font-family: 'Fredoka One', cursive; }
+        html.dark .font-header { text-shadow: 1px 1px 0 #3a3a3a, -1px -1px 0 #3a3a3a, 1px -1px 0 #3a3a3a, -1px 1px 0 #3a3a3a, 4px 4px 6px rgba(0,0,0,0.3); }
+        html.light .font-header { color: #2E5953; text-shadow: 1px 1px 0px rgba(255,255,255,0.8); }
+        .section-container { transition: background-color 0.5s ease, border-color 0.5s ease; }
+        html.dark .section-container { background-color: rgba(0,0,0,0.2); backdrop-filter: blur(4px); border-color: rgba(143, 179, 163, 0.3); }
+        html.light .section-container { background-color: rgba(255,255,255,0.7); backdrop-filter: blur(4px); border-color: rgba(46, 89, 83, 0.2); }
+        .item-card { position: relative; z-index: 1; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease; border: 1px solid transparent; animation: card-fade-in 0.5s ease-out forwards; }
+        @keyframes card-fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        html.dark .item-card { background-color: rgba(46, 89, 83, 0.5); }
+        html.light .item-card { background-color: #ffffff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .item-card.out-of-stock { opacity: 0.6; filter: grayscale(80%); }
+        html.dark .item-card:hover { transform: translateY(-8px); box-shadow: 0 0 25px 5px var(--rarity-glow-color, rgba(242, 167, 137, 0.4)); border-color: var(--rarity-glow-color, var(--accent-soft-orange)); z-index: 10; }
+        html.light .item-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px -5px var(--rarity-glow-color, rgba(217, 131, 97, 0.4)), 0 8px 10px -6px var(--rarity-glow-color, rgba(217, 131, 97, 0.4)); border-color: var(--rarity-glow-color, var(--accent-soft-orange)); z-index: 10; }
+        .item-card.out-of-stock:hover { opacity: 1; filter: grayscale(0); }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; transition: opacity 0.3s ease-out; }
+        .rarity-tag { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: white; }
+        .rarity-prismatic { background: linear-gradient(90deg, #ec4899, #f59e0b, #84cc16, #14b8a6, #6366f1, #d946ef, #ec4899); background-size: 300% 300%; animation: prismatic-glow 4s linear infinite; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);}
+        @keyframes prismatic-glow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .sprout-loader .seed { animation: grow-seed 2s ease-out infinite; transform-origin: bottom center; }
+        .sprout-loader .sprout { animation: grow-sprout 2s ease-out infinite; transform-origin: bottom center; transform: scale(0); }
+        @keyframes grow-seed { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9); } }
+        @keyframes grow-sprout { 0% { transform: scale(0) translateY(10px); } 50% { transform: scale(1) translateY(0); } 100% { transform: scale(1) translateY(0) rotate(10deg); } }
+        #weather-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; pointer-events: none; }
+        .weather-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; transition: opacity 1.5s ease; opacity: 0; }
+        .weather-bg.active { opacity: 1; }
+        /* ... (weather helper styles kept) ... */
+        .item-card .icon-button { background: rgba(255,255,255,0.1); border-radius: 9999px; padding: 0.5rem; transition: all 0.2s ease; font-size: 1.25rem; line-height: 1; display:flex; align-items:center; justify-content:center;}
+        .item-card .icon-button:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+
+        /* STAR SVG style fix: default is outline, active fills */
+        .star-icon { width: 18px; height: 18px; display:block; }
+        .watch-button .star-icon { fill: none; stroke: currentColor; color: #9ca3af; }
+        .watch-button.active .star-icon { fill: currentColor; stroke: currentColor; color: #facc15; filter: drop-shadow(0 0 8px #fde047); }
+
+        #notification-bell { color: #9ca3af; transition: color 0.3s, transform 0.3s; }
+        #notification-bell.enabled { color: #facc15; text-shadow: 0 0 8px #fde047; }
+        #notification-bell.denied { color: #ef4444; text-decoration: line-through; }
+        #notification-bell.ringing { animation: bell-ring 0.5s ease-in-out; }
+        @keyframes bell-ring { 0% { transform: rotate(0); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); } 30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } 60% { transform: rotate(0); } 100% { transform: rotate(0); } }
+        .market-stall { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
+        .market-stall.active { border-color: var(--accent-terracotta); transform: translateY(-4px); }
+        html.light .market-stall.active { border-color: var(--accent-soft-orange); }
+        #rare-item-spotlight .spotlight-content { transition: opacity 0.5s ease-in-out; }
+        .display-toggle { cursor: pointer; padding: 0.5rem 1rem; border-radius: 9999px; transition: color 0.3s ease; flex: 1; text-align: center; position: relative; z-index: 1; }
+        .display-toggle.active { color: white; }
+        html.light .display-toggle.active { color: var(--light-text); }
+        #display-glider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); border-radius: 9999px; background-color: var(--accent-terracotta); transition: transform 0.3s ease-in-out; }
+        html.light #display-glider { background-color: var(--accent-soft-orange); }
+        .header-item { animation: header-fade-in 0.6s 0.2s backwards; }
+        @keyframes header-fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .header-icon { animation: header-icon-pop-in 0.5s 0.4s backwards; }
+        @keyframes header-icon-pop-in { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        .header-sprout { display: inline-block; animation: header-sprout-grow 0.8s 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) backwards, sway 4s ease-in-out infinite alternate; }
+        @keyframes header-sprout-grow { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+        .header-content-wrapper { max-height: 500px; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .header-content-wrapper.header-hidden { max-height: 0; }
+        .arrow { transform-origin: center; transition: transform 0.3s ease-in-out; }
+        .arrow.rotate { transform: rotate(180deg); }
+
+        /* small toast container for messages */
+        #jandel-toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; display:flex; flex-direction:column; gap:.6rem; pointer-events:none; }
+        .jandel-toast { pointer-events:auto; padding:.6rem 1rem; border-radius:.6rem; background:rgba(0,0,0,0.8); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); }
+    </style>
+</head>
+<body>
+    <div id="weather-bg-container"></div>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-500">
+        <div class="text-center">
+            <div class="sprout-loader mx-auto w-24 h-24 flex items-center justify-center">
+                <div style="width: 100px; height: 100px; position: relative;">
+                    <span class="seed" style="display:inline-block; width:20px; height:30px; background:#a16207; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; position: absolute; bottom: 30px; left: 40px;"></span>
+                    <span class="sprout" style="display:inline-block; width:10px; height:40px; background:#84cc16; border-radius: 100% 0% 100% 0% / 100% 100% 0% 0%; position: absolute; bottom: 30px; left: 45px;"></span>
+                </div>
+            </div>
+            <p class="mt-4 text-lg text-gray-300">Planting the seeds of data...</p>
+        </div>
+    </div>
+
+    <div id="header-container" class="relative sticky top-0 z-30 dark:bg-dark-teal/80 bg-light-bg/80 backdrop-blur-md">
+        <div class="header-content-wrapper">
+            <header class="text-center px-2 container mx-auto py-4">
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+                     <h1 class="text-4xl sm:text-5xl md:text-6xl font-header order-2 sm:order-1 header-item">
+                          <span class="header-sprout">🌱</span> Grow a Garden Tracker <span class="header-sprout">🌱</span>
+                     </h1>
+                     <div class="flex items-center ml-0 sm:ml-6 gap-2 order-1 sm:order-2">
+                         <button id="notification-bell" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-soft-orange header-icon" aria-label="Toggle notifications" title="Enable Watchlist Notifications">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                         </button>
+                         <button id="theme-switcher" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-soft-orange header-icon" aria-label="Toggle theme">
+                             <svg class="dark:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                             <svg class="hidden dark:inline" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                         </button>
+                     </div>
+                </div>
+                <p class="text-lg opacity-80 header-item" style="animation-delay: 0.3s;">Your enhanced companion for tracking stock, weather, and rarities.</p>
+            </header>
+        </div>
+        <button id="header-toggle-btn" class="absolute left-1/2 bottom-0 translate-y-full -translate-x-1/2 w-10 h-8 rounded-b-full bg-accent-soft-orange dark:bg-accent-terracotta text-white shadow-lg z-40 flex items-center justify-center" aria-label="Toggle Header" aria-expanded="true">
+          <svg class="arrow w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"></path>
+          </svg>
+        </button>
+    </div>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 relative z-10">
+        <section id="dashboard" class="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <div id="weather-section" class="section-container rounded-2xl p-6 shadow-xl border"></div>
+                <div id="watchlist" class="section-container rounded-2xl p-6 shadow-xl border"></div>
+            </div>
+            <div class="lg:col-span-1 flex flex-col gap-6">
+                <div id="rare-item-spotlight" class="section-container rounded-2xl p-6 shadow-xl border"></div>
+                <!-- Rare Appearance Log removed as requested -->
+            </div>
+        </section>
+
+        <section id="market-street" class="mb-8 p-4 section-container rounded-2xl">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <h2 class="text-3xl font-header text-center sm:text-left mb-4 sm:mb-0">Market Street</h2>
+                <div class="flex-grow max-w-lg">
+                    <input type="text" id="search-bar" placeholder="Search for items..." class="w-full px-4 py-2 rounded-full bg-white/20 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-[var(--accent-terracotta)] transition-shadow">
+                </div>
+                <div id="display-toggle-container" class="relative flex items-center p-1 rounded-full border border-white/10 bg-gray-700/20">
+                    <div id="display-glider" class="absolute top-1 left-1 h-[calc(100%-0.5rem)] w-1/2 rounded-full bg-[var(--accent-terracotta)] transition-all duration-300 ease-in-out"></div>
+                    <button id="display-instock" class="display-toggle active">In Stock</button>
+                    <button id="display-catalog" class="display-toggle">Full Catalog</button>
+                </div>
+            </div>
+            <div id="shops-navigation" class="flex flex-wrap justify-center gap-4 md:gap-8"></div>
+        </section>
+
+        <main id="shops-container" class="mb-12 shop-grid"></main>
+
+        <footer class="text-center mt-16 md:mt-20 py-8 border-t-[1px] dark:border-gray-700/50 border-gray-300/50">
+            <p id="connection-status" class="opacity-70">Fetching data...</p>
+            <p class="opacity-50 mt-4 text-sm">Data provided by JoshLei's API. This is an unofficial fan-made tool.</p>
+        </footer>
+    </div>
+
+    <!-- Toast container -->
+    <div id="jandel-toast-container"></div>
+
+<script>
+/* Single-file script with fixes requested (legendary color, removed log, star fix, full catalog, weather) */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIG & STATE ---
+    const STOCK_URL = 'https://growagardenapi.onrender.com/api/growagarden/stocks?key=key_bdc205fbadf1e102785b07b1';
+    const WEATHER_URL = 'https://growagardenapi.onrender.com/api/growagarden/weather?key=key_bdc205fbadf1e102785b07b1';
+    const IMG_BASE = 'https://growagardenapi.onrender.com/i/growagarden/';
+    const seedList = ["Carrot","Strawberry","Blueberry","Orange Tulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember Lily","Sugar Apple","Burning Bud","Giant pinecone","Elder Strawberry","Crimson Thorn","Great Pumpkin"];
+    const gearList = ["Watering Can","Trading Ticket","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Level up lollipop"];
+    const eggList = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical Egg","Jungle Egg","Bug Egg"];
+
+    let currentStockItems = []; // normalized items
+    let currentWeather = null;
+    let watchlist = JSON.parse(localStorage.getItem('growagarden_watchlist')) || [];
+    let activeFilter = 'all';
+    let showAllItems = false; // false = In Stock, true = Full Catalog
+    let searchTerm = '';
+    let notificationSynth = null;
+    let previouslyWatchedItemsInStock = new Set();
+    let spotlightItems = [];
+    let spotlightIndex = 0;
+    let spotlightInterval = null;
+
+    const rarityOrder = ['Common','Uncommon','Rare','Legendary','Mythical','Divine','Prismatic'];
+
+    // --- ELEMENTS ---
+    const get = id => document.getElementById(id);
+    const shopsContainer = get('shops-container');
+    const weatherSection = get('weather-section');
+    const watchlistSection = get('watchlist');
+    const spotlightSection = get('rare-item-spotlight');
+    const connectionStatus = get('connection-status');
+    const loadingOverlay = get('loading-overlay');
+
+    // --- UTIL ---
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+    const nameToId = name => String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g,'');
+    const hideLoadingOverlay = () => { if (loadingOverlay) { loadingOverlay.style.opacity='0'; setTimeout(()=>loadingOverlay.style.display='none',500); } };
+
+    // fetch helpers
+    async function fetchJson(url){
+        try {
+            const r = await fetch(url);
+            if(!r.ok) throw new Error(`Status ${r.status}`);
+            return await r.json();
+        } catch(e){
+            console.error('Fetch error', e);
+            return null;
+        }
+    }
+
+    // --- NORMALIZE STOCK RESPONSE ---
+    function normalizeStockResponse(raw){
+        const items = [];
+        if(!raw || typeof raw !== 'object') return items;
+        for(const [key,val] of Object.entries(raw)){
+            if(!val) continue;
+            // skip metadata
+            if(['revolt_invite','updatedAt'].includes(key)) continue;
+            let groupItems = null;
+            if(Array.isArray(val)) groupItems = val;
+            else if(val && Array.isArray(val.items)) groupItems = val.items;
+            else continue;
+            groupItems.forEach(it => {
+                const id = it.item_id || it.id || nameToId(it.display_name || it.name || '');
+                const display_name = it.display_name || it.name || id;
+                const rarity = it.rarity || it.rarity_name || '';
+                const quantity = Number(it.stock ?? it.quantity ?? it.amount ?? 0);
+                let icon = it.icon || it.icon_url || it.image || '';
+                // normalize icon
+                if(!icon) icon = IMG_BASE + encodeURIComponent(id);
+                else if(icon.startsWith('/')) icon = 'https://growagardenapi.onrender.com' + icon;
+                else if(!/^https?:\/\//i.test(icon) && icon.includes('growagardenapi.onrender.com')) icon = 'https://' + icon;
+                else if(!/^https?:\/\//i.test(icon)) icon = IMG_BASE + encodeURIComponent(id);
+                items.push({
+                    item_id: id,
+                    display_name,
+                    rarity,
+                    quantity,
+                    icon,
+                    shop: key,
+                    raw: it
+                });
+            });
+        }
+        return items;
+    }
+
+    // --- BUILD CATALOG for Full Catalog (merge API + lists) ---
+    function buildCatalogItems(){
+        // map of existing API items by id
+        const map = new Map(currentStockItems.map(i => [i.item_id, i]));
+        // decide which categories to include based on activeFilter
+        const categories = [];
+        if(activeFilter === 'all'){
+            categories.push('seed_stock','gear_stock','egg_stock','cosmetic_stock','eventshop_stock','travelingmerchant_stock');
+        } else {
+            categories.push(activeFilter);
+        }
+
+        // helper to add from a provided list
+        const addFromList = (list, shopKey) => {
+            for(const name of list){
+                const id = nameToId(name);
+                if(!map.has(id)){
+                    map.set(id, {
+                        item_id: id,
+                        display_name: name,
+                        rarity: '',
+                        quantity: 0,
+                        icon: IMG_BASE + encodeURIComponent(id),
+                        shop: shopKey
+                    });
+                }
+            }
+        };
+
+        // if showing all categories, include all lists; otherwise include only the corresponding one
+        if(categories.includes('seed_stock')) addFromList(seedList, 'Seeds Stock');
+        if(categories.includes('gear_stock')) addFromList(gearList, 'Gear Stock');
+        if(categories.includes('egg_stock')) addFromList(eggList, 'Egg Stock');
+
+        // ensure cosmetics and event items also included if API provided them (we won't fabricate those)
+        // Final array from map values filtered by activeFilter and showAllItems
+        const arr = Array.from(map.values()).filter(it => {
+            const shopKey = normalizeShopKey(it.shop);
+            const shopMatch = activeFilter === 'all' || activeFilter === shopKey;
+            if(!shopMatch) return false;
+            if(showAllItems) return true;
+            return Number(it.quantity) > 0;
+        });
+
+        // sort by rarity order then name
+        arr.sort((a,b) => {
+            const ra = rarityOrder.indexOf(a.rarity) >= 0 ? rarityOrder.indexOf(a.rarity) : 100;
+            const rb = rarityOrder.indexOf(b.rarity) >= 0 ? rarityOrder.indexOf(b.rarity) : 100;
+            if(ra !== rb) return ra - rb;
+            return (a.display_name || '').localeCompare(b.display_name || '');
+        });
+        return arr;
+    }
+
+    function normalizeShopKey(shopRaw){
+        const s = (shopRaw || '').toString().toLowerCase();
+        if(s.includes('seed')) return 'seed_stock';
+        if(s.includes('gear')) return 'gear_stock';
+        if(s.includes('egg')) return 'egg_stock';
+        if(s.includes('cosmetic')) return 'cosmetic_stock';
+        if(s.includes('event')) return 'eventshop_stock';
+        if(s.includes('merchant')) return 'travelingmerchant_stock';
+        return 'other';
+    }
+
+    // --- RENDERING ---
+    function renderShops(){
+        const items = buildCatalogItems();
+        if(!items || items.length === 0){
+            shopsContainer.innerHTML = `<p class="text-center col-span-full opacity-70">No shop data available.</p>`;
+            return;
+        }
+
+        shopsContainer.innerHTML = items.map(it => {
+            const isInStock = Number(it.quantity) > 0;
+            const watched = watchlist.some(w => w.id === it.item_id);
+            const rarity = it.rarity || '';
+            // choose color variable
+            const rarityColorVar = ({
+                'Common': 'var(--common)',
+                'Uncommon': 'var(--uncommon)',
+                'Rare': 'var(--rare)',
+                'Legendary': 'var(--legendary)',
+                'Mythical': 'var(--mythical)',
+                'Divine': 'var(--divine)',
+                'Prismatic': 'var(--prismatic)'
+            }[rarity]) || 'var(--unknown)';
+
+            const rareClass = rarity === 'Prismatic' ? 'rarity-prismatic' : '';
+            // if legendary, don't use prismatic style; use solid color
+            const rarityTagStyle = rareClass ? '' : `style="background-color:${rarityColorVar};"`;
+
+            // out-of-stock class tint already handled by CSS
+            return `
+                <div class="item-card rounded-xl p-4 flex flex-col ${isInStock ? '' : 'out-of-stock'}" data-item-id="${escapeHtml(it.item_id)}" style="--rarity-glow-color:${rarityColorVar}33;">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="rarity-tag ${rareClass}" ${rarityTagStyle}>${escapeHtml(rarity || '')}</div>
+                        <button class="watch-button icon-button ${watched ? 'active' : ''}" title="${watched ? 'Remove from Watchlist' : 'Add to Watchlist'}" data-id="${escapeHtml(it.item_id)}" data-name="${escapeHtml(it.display_name)}" data-icon="${escapeHtml(it.icon)}" aria-pressed="${watched ? 'true' : 'false'}">
+                            <!-- star SVG: stroke-only by default, fills when .active -->
+                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674c.094.289.36.49.662.49h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888c-.281.204-.409.532-.31.844l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.975-2.888a1 1 0 00-1.176 0l-3.975 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674c.099-.312-.029-.64-.31-.844L2.076 9.595c-.783-.57-.38-1.81.588-1.81h4.914c.302 0 .568-.201.662-.49l1.519-4.674z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex-grow flex items-center justify-center my-4">
+                        <img src="${escapeHtml(it.icon)}" alt="${escapeHtml(it.display_name)}" class="max-h-24" onerror="this.onerror=null;this.src='${IMG_BASE+encodeURIComponent(it.item_id)}';">
+                    </div>
+                    <h3 class="font-bold text-center text-lg">${escapeHtml(it.display_name)}</h3>
+                    <div class="mt-4 pt-4 border-t dark:border-gray-600/50 border-gray-300/50 text-sm space-y-1">
+                        <div class="flex justify-between"><span>Stock:</span> <span class="font-semibold">${isInStock ? it.quantity : 'Out of Stock'}</span></div>
+                        <div class="flex justify-between"><span>Shop:</span> <span class="font-semibold">${escapeHtml(it.shop)}</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderWeather(){
+        if(!currentWeather){
+            weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p>The skies are clear.</p>`;
+            return;
+        }
+        const icon = currentWeather.icon && currentWeather.icon.startsWith('/') ? 'https://growagardenapi.onrender.com' + currentWeather.icon : (currentWeather.icon || '');
+        weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2>
+            <div class="flex items-center gap-4">
+                ${icon ? `<img src="${icon}" class="w-16 h-16" alt="${escapeHtml(currentWeather.displayName)}" onerror="this.onerror=null;this.style.display='none'">` : ''}
+                <div>
+                    <p class="text-xl font-bold">${escapeHtml(currentWeather.displayName || currentWeather.name)}</p>
+                    <p class="opacity-80">${currentWeather.emoji || ''} ${currentWeather.isActive ? 'Active' : 'Not active'}</p>
+                </div>
+            </div>`;
+    }
+
+    function renderWatchlist(){
+        watchlistSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Your Watchlist ⭐</h2>`;
+        if(watchlist.length === 0){
+            watchlistSection.innerHTML += `<p class="opacity-70">Click the star on an item to track it here!</p>`;
+            return;
+        }
+        const listHtml = watchlist.map(w => {
+            const inStock = currentStockItems.find(x => x.item_id === w.id && Number(x.quantity) > 0);
+            const status = inStock ? '<span class="text-green-400 font-bold">IN STOCK!</span>' : '<span class="opacity-60 font-semibold">Not in stock</span>';
+            return `
+                <div class="flex items-center justify-between py-2 border-b dark:border-gray-700/50 border-gray-300/50">
+                    <div class="flex items-center gap-4">
+                        <img src="${escapeHtml(w.icon)}" alt="${escapeHtml(w.name)}" class="w-10 h-10" onerror="this.onerror=null;this.src='${IMG_BASE+encodeURIComponent(w.id)}'">
+                        <span class="font-semibold">${escapeHtml(w.name)}</span>
+                    </div>
+                    <div>${status}</div>
+                </div>
+            `;
+        }).join('');
+        watchlistSection.innerHTML += `<div class="space-y-2">${listHtml}</div>`;
+    }
+
+    // --- SPOTLIGHT (kept) ---
+    function updateSpotlight(){
+        if(!spotlightItems || spotlightItems.length === 0){
+            spotlightSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2><div class="spotlight-content"><p class="opacity-70">No recent rare items found.</p></div>`;
+            return;
+        }
+        const item = spotlightItems[spotlightIndex];
+        const content = spotlightSection.querySelector('.spotlight-content');
+        if(content){
+            content.style.opacity = 0;
+            setTimeout(()=> {
+                content.innerHTML = `<div class="text-center"> <img src="${escapeHtml(item.icon)}" alt="${escapeHtml(item.name)}" class="mx-auto w-24 h-24 mb-2" onerror="this.onerror=null;this.src='${IMG_BASE+encodeURIComponent(item.id || nameToId(item.name))}'"> <p class="font-bold text-lg">${escapeHtml(item.name)}</p> <div class="inline-block mt-1 rarity-tag rarity-prismatic">${escapeHtml(item.rarity)}</div> </div>`;
+                content.style.opacity = 1;
+            }, 250);
+        }
+        spotlightIndex = (spotlightIndex + 1) % spotlightItems.length;
+        if(spotlightInterval) clearInterval(spotlightInterval);
+        spotlightInterval = setInterval(updateSpotlight, 7000);
+    }
+
+    // --- WATCHLIST / NOTIFICATIONS ---
+    function toggleWatchlistItem(id, name, icon){
+        const idx = watchlist.findIndex(w => w.id === id);
+        if(idx > -1){
+            watchlist.splice(idx,1);
+            showSmallToast(`${name} removed from watchlist`);
+        } else {
+            watchlist.push({ id, name, icon });
+            showSmallToast(`${name} added to watchlist`);
+        }
+        localStorage.setItem('growagarden_watchlist', JSON.stringify(watchlist));
+        renderWatchlist();
+        // update shop stars quickly in DOM:
+        document.querySelectorAll(`.watch-button[data-id="${id}"]`).forEach(btn => {
+            const active = watchlist.some(w => w.id === id);
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+    }
+
+    function checkWatchlistNotifications(){
+        if(!('Notification' in window) || Notification.permission !== 'granted') return;
+        const nowInStock = new Set();
+        watchlist.forEach(w => {
+            const found = currentStockItems.find(x => x.item_id === w.id && Number(x.quantity) > 0);
+            if(found) nowInStock.add(w.id);
+        });
+        nowInStock.forEach(id => {
+            if(!previouslyWatchedItemsInStock.has(id)){
+                const w = watchlist.find(x => x.id === id);
+                if(w){
+                    try { new Notification('Item in Stock!', { body: `${w.name} is available!`, icon: w.icon }); } catch(e){}
+                    if(notificationSynth) try { notificationSynth.triggerAttackRelease('C5','8n'); } catch(e){}
+                }
+            }
+        });
+        previouslyWatchedItemsInStock = nowInStock;
+    }
+
+    function showSmallToast(text){
+        const c = get('jandel-toast-container');
+        if(!c) return;
+        const d = document.createElement('div');
+        d.className = 'jandel-toast';
+        d.textContent = text;
+        c.appendChild(d);
+        setTimeout(()=>{ d.style.opacity='0'; d.style.transform='translateY(6px)'; setTimeout(()=>d.remove(),300); }, 2600);
+    }
+
+    // --- DATA FETCHING ---
+    async function fetchStockData(){
+        connectionStatus.textContent = 'Loading stock...';
+        const raw = await fetchJson(STOCK_URL);
+        if(!raw){
+            connectionStatus.textContent = 'Failed to load stock data.';
+            currentStockItems = [];
+            renderShops();
+            return;
+        }
+        currentStockItems = normalizeStockResponse(raw);
+        connectionStatus.textContent = `Stock loaded (${currentStockItems.length} items). Last updated: ${raw.updatedAt ? new Date(raw.updatedAt*1000).toLocaleTimeString() : 'unknown'}`;
+        renderShops();
+    }
+
+    async function fetchWeather(){
+        const raw = await fetchJson(WEATHER_URL);
+        if(!raw){
+            currentWeather = null;
+            renderWeather();
+            return;
+        }
+        // raw.Weather is array; find active
+        const arr = raw.Weather || raw.weather || [];
+        const active = arr.find(w => w.isActive) || arr[0] || null;
+        currentWeather = active;
+        renderWeather();
+    }
+
+    // --- LOGS / SPOTLIGHT fetch minimal attempt ---
+    async function fetchSpotlightLogs(){
+        // We try a best-effort: many endpoints for logs vary; we won't fail the UI if logs unavailable
+        spotlightSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2><div class="spotlight-content"><p class="opacity-70">Loading...</p></div>`;
+        // Attempt a known proxy for logs is omitted here to keep simple; we leave spotlightItems empty if not provided
+        spotlightItems = []; // left empty unless you supply a logs endpoint
+        updateSpotlight();
+    }
+
+    // --- EVENT LISTENERS ---
+    function setupEventListeners(){
+        get('theme-switcher').addEventListener('click', ()=>{
+            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            document.documentElement.className = newTheme;
+            localStorage.setItem('growagarden_theme', newTheme);
+        });
+
+        get('notification-bell').addEventListener('click', () => {
+            Tone.start();
+            if(Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied'){
+                Notification.requestPermission().then(updateBellState);
+            } else updateBellState();
+        });
+
+        get('header-toggle-btn').addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.header-content-wrapper');
+            const arrow = e.currentTarget.querySelector('.arrow');
+            wrapper.classList.toggle('header-hidden');
+            arrow.classList.toggle('rotate', wrapper.classList.contains('header-hidden'));
+        });
+
+        get('search-bar').addEventListener('input', e => { searchTerm = e.target.value; renderShops(); });
+
+        get('display-instock').addEventListener('click', () => {
+            showAllItems = false;
+            get('display-instock').classList.add('active');
+            get('display-catalog').classList.remove('active');
+            get('display-glider').style.transform = 'translateX(0%)';
+            renderShops();
+        });
+        get('display-catalog').addEventListener('click', () => {
+            showAllItems = true;
+            get('display-catalog').classList.add('active');
+            get('display-instock').classList.remove('active');
+            get('display-glider').style.transform = 'translateX(100%)';
+            renderShops();
+        });
+
+        // shops nav
+        const shopsNav = get('shops-navigation');
+        const shops = { 'All': 'all', 'Seeds': 'seed_stock', 'Gear': 'gear_stock', 'Pets': 'egg_stock', 'Cosmetics': 'cosmetic_stock', 'Events': 'eventshop_stock', 'Merchant': 'travelingmerchant_stock' };
+        shopsNav.innerHTML = Object.entries(shops).map(([name, key]) => `<button class="market-stall px-4 py-2 rounded-t-lg font-bold ${key === 'all' ? 'active' : ''}" data-shop-key="${key}">${name}</button>`).join('');
+        shopsNav.addEventListener('click', e => {
+            if(e.target.matches('.market-stall')){
+                activeFilter = e.target.dataset.shopKey;
+                shopsNav.querySelectorAll('.market-stall').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderShops();
+            }
+        });
+
+        // watch button delegation
+        shopsContainer.addEventListener('click', e => {
+            const btn = e.target.closest('.watch-button');
+            if(btn){
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+                const icon = btn.dataset.icon;
+                toggleWatchlistItem(id, name, icon);
+            }
+        });
+
+        // accessibility: keyboard toggle for watch buttons
+        shopsContainer.addEventListener('keydown', e => {
+            if(e.key === 'Enter' || e.key === ' '){
+                const btn = e.target.closest('.watch-button');
+                if(btn){ btn.click(); e.preventDefault(); }
+            }
+        });
+    }
+
+    function updateBellState(){
+        const bell = get('notification-bell');
+        bell.classList.remove('enabled','denied','ringing');
+        if(Notification && Notification.permission === 'granted') bell.classList.add('enabled');
+        if(Notification && Notification.permission === 'denied') bell.classList.add('denied');
+        bell.classList.add('ringing');
+        bell.addEventListener('animationend', ()=>bell.classList.remove('ringing'), { once:true });
+    }
+
+    // --- INIT ---
+    async function init(){
+        document.documentElement.className = localStorage.getItem('growagarden_theme') || 'dark';
+        if(typeof Tone !== 'undefined'){
+            try { notificationSynth = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(); } catch(e){}
+        }
+        setupEventListeners();
+        updateBellState();
+        renderWatchlist();
+
+        // fetch data
+        await Promise.allSettled([ fetchStockData(), fetchWeather(), fetchSpotlightLogs() ]);
+        hideLoadingOverlay();
+
+        // polling
+        setInterval(fetchStockData, 30000);
+        setInterval(fetchWeather, 60000);
+        setInterval(checkWatchlistNotifications, 5000);
+    }
+
+    init();
+});
+</script>
+</body>
+</html>
