@@ -86,7 +86,7 @@
         .display-toggle { cursor: pointer; padding: 0.5rem 1rem; border-radius: 9999px; transition: color 0.3s ease; flex: 1; text-align: center; position: relative; z-index: 1; }
         .display-toggle.active { color: white; }
         html.light .display-toggle.active { color: var(--light-text); }
-        #display-glider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); border-radius: 9999px; background-color: var(--accent-terracotta); transition: transform 0.3s ease-in-out; }
+        #display-glider { position: absolute; top: 4px; left: 4px; height: calc(100% - 0.5rem); width: calc(50% - 4px); border-radius: 9999px; background-color: var(--accent-terracotta); transition: transform 0.3s ease-in-out; }
         html.light #display-glider { background-color: var(--accent-soft-orange); }
         .header-item { animation: header-fade-in 0.6s 0.2s backwards; }
         @keyframes header-fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -103,6 +103,8 @@
         /* small toast container for messages */
         #jandel-toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; display:flex; flex-direction:column; gap:.6rem; pointer-events:none; }
         .jandel-toast { pointer-events:auto; padding:.6rem 1rem; border-radius:.6rem; background:rgba(0,0,0,0.8); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); }
+        /* weather cards subtle transition when changed */
+        .weather-list .weather-card { transition: transform .25s ease, opacity .25s ease; }
     </style>
 </head>
 <body>
@@ -186,19 +188,27 @@
     <div id="jandel-toast-container"></div>
 
 <script>
-/* Single-file script with fixes requested (legendary color, removed log, star fix, full catalog, weather) */
+/* Single-file script with fixes requested:
+   - Weather now uses api.joshlei.com/v2/growagarden/weather with jstudio-key header
+   - Only active weathers shown
+   - Polls every 5 seconds
+   - Displays countdown until weather ends (uses end_duration_unix or start_duration_unix + duration)
+*/
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE ---
     const STOCK_URL = 'https://growagardenapi.onrender.com/api/growagarden/stocks?key=key_bdc205fbadf1e102785b07b1';
-    const WEATHER_URL = 'https://growagardenapi.onrender.com/api/growagarden/weather?key=key_bdc205fbadf1e102785b07b1';
+    const WEATHER_URL = 'https://api.joshlei.com/v2/growagarden/weather';
+    // you provided this key in your message — using it here because you asked:
+    const J_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
+
     const IMG_BASE = 'https://growagardenapi.onrender.com/i/growagarden/';
     const seedList = ["Carrot","Strawberry","Blueberry","Orange Tulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember Lily","Sugar Apple","Burning Bud","Giant pinecone","Elder Strawberry","Crimson Thorn","Great Pumpkin"];
     const gearList = ["Watering Can","Trading Ticket","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Level up lollipop"];
     const eggList = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical Egg","Jungle Egg","Bug Egg"];
 
     let currentStockItems = []; // normalized items
-    let currentWeather = null;
+    let currentWeatherList = []; // array of active weather objects
     let watchlist = JSON.parse(localStorage.getItem('growagarden_watchlist')) || [];
     let activeFilter = 'all';
     let showAllItems = false; // false = In Stock, true = Full Catalog
@@ -391,20 +401,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     }
 
+    // renderWeather now shows multiple active weathers and countdowns
     function renderWeather(){
-        if(!currentWeather){
-            weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p>The skies are clear.</p>`;
+        if(!currentWeatherList || currentWeatherList.length === 0){
+            weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p class="opacity-70">No active weather right now.</p>`;
             return;
         }
-        const icon = currentWeather.icon && currentWeather.icon.startsWith('/') ? 'https://growagardenapi.onrender.com' + currentWeather.icon : (currentWeather.icon || '');
-        weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2>
-            <div class="flex items-center gap-4">
-                ${icon ? `<img src="${icon}" class="w-16 h-16" alt="${escapeHtml(currentWeather.displayName)}" onerror="this.onerror=null;this.style.display='none'">` : ''}
-                <div>
-                    <p class="text-xl font-bold">${escapeHtml(currentWeather.displayName || currentWeather.name)}</p>
-                    <p class="opacity-80">${currentWeather.emoji || ''} ${currentWeather.isActive ? 'Active' : 'Not active'}</p>
+
+        const cards = currentWeatherList.map(w => {
+            // normalize fields from different shapes (your sample uses weather_name, weather_id, active, icon, end_duration_unix)
+            const id = w.weather_id || w.weatherId || w.id || w.id_str || w.weather_name || w.weatherName || nameToId(w.weather_name || w.weatherName || '');
+            const displayName = w.weather_name || w.weatherName || w.name || '';
+            const icon = w.icon || '';
+            // compute end unix if present or fallback to start + duration
+            const endUnix = (Number(w.end_duration_unix) || 0) || ((Number(w.start_duration_unix) ? Number(w.start_duration_unix) + Math.floor(Number(w.duration || 0)) : 0));
+            const duration = Number(w.duration || 0);
+            return `
+                <div class="weather-card item-card rounded-xl p-4 flex flex-col items-center justify-center text-center" data-weather-id="${escapeHtml(id)}">
+                    ${icon ? `<img src="${escapeHtml(icon)}" alt="${escapeHtml(displayName)}" class="w-20 h-20 mb-3" onerror="this.onerror=null;this.style.display='none'">` : ''}
+                    <h3 class="text-xl font-bold mb-1">${escapeHtml(displayName)}</h3>
+                    <p class="opacity-80 mb-2">${w.active ? 'Active' : 'Inactive'}</p>
+                    <p class="text-sm countdown font-mono" data-end="${endUnix}" data-duration="${duration}">--</p>
                 </div>
+            `;
+        }).join('');
+
+        weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Active Weather</h2>
+            <div class="weather-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                ${cards}
             </div>`;
+        // ensure countdowns update immediately
+        updateCountdowns();
     }
 
     function renderWatchlist(){
@@ -509,22 +536,104 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         currentStockItems = normalizeStockResponse(raw);
-        connectionStatus.textContent = `Stock loaded (${currentStockItems.length} items). Last updated: ${raw.updatedAt ? new Date(raw.updatedAt*1000).toLocaleTimeString() : 'unknown'}`;
+        try {
+            // updatedAt could be either unix seconds or ISO string; attempt to handle common shapes
+            let updatedLabel = 'unknown';
+            if(raw.updatedAt) {
+                const v = Number(raw.updatedAt);
+                if(!isNaN(v) && v > 1000000000) updatedLabel = new Date(v * 1000).toLocaleTimeString();
+                else updatedLabel = new Date(String(raw.updatedAt)).toLocaleTimeString();
+            }
+            connectionStatus.textContent = `Stock loaded (${currentStockItems.length} items). Last updated: ${updatedLabel}`;
+        } catch(e){
+            connectionStatus.textContent = `Stock loaded (${currentStockItems.length} items). Last updated: unknown`;
+        }
         renderShops();
     }
 
+    // Weather fetch uses jstudio-key header and processes active entries
     async function fetchWeather(){
-        const raw = await fetchJson(WEATHER_URL);
-        if(!raw){
-            currentWeather = null;
+        try {
+            const res = await fetch(WEATHER_URL, {
+                headers: {
+                    'jstudio-key': J_KEY,
+                    'accept': 'application/json'
+                },
+                cache: 'no-store'
+            });
+            if(!res.ok) throw new Error('Status '+res.status);
+            const raw = await res.json();
+            // The sample you sent uses "weather" array; some APIs use "Weather" or other keys — handle both.
+            const arr = raw.weather || raw.Weather || raw.Weather || raw.weathers || [];
+            // Normalize to objects with expected fields, then filter only active ones
+            const normalized = Array.isArray(arr) ? arr.map(w => ({
+                weather_id: w.weather_id || w.weatherId || w.id || '',
+                weather_name: w.weather_name || w.weatherName || w.name || '',
+                icon: w.icon || w.image || '',
+                active: (typeof w.active === 'boolean') ? w.active : (w.isActive || false),
+                start_duration_unix: Number(w.start_duration_unix || w.start || 0),
+                end_duration_unix: Number(w.end_duration_unix || w.end || 0),
+                duration: Number(w.duration || 0),
+                raw: w
+            })) : [];
+
+            // filter active
+            currentWeatherList = normalized.filter(w => w.active === true);
+
+            // If none active, keep empty array (UI shows "No active weather")
             renderWeather();
+        } catch (err) {
+            console.error('[Weather Fetch Error]', err);
+            currentWeatherList = [];
+            weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p class="text-red-400">Failed to fetch weather data</p>`;
+        }
+    }
+
+    // Updates all countdown timers on the page once per second
+    function updateCountdowns(){
+        const els = document.querySelectorAll('.countdown');
+        const now = Math.floor(Date.now() / 1000);
+        els.forEach(el => {
+            const end = Number(el.dataset.end) || 0;
+            const duration = Number(el.dataset.duration) || 0;
+            // if end is provided and > now -> show remaining
+            if(end && end > now){
+                const remaining = end - now;
+                formatAndSet(el, remaining);
+                el.closest('.weather-card')?.classList.remove('opacity-60');
+                return;
+            }
+            // fallback: if no explicit end but duration exists, show countdown from duration (best-effort)
+            if(!end && duration && duration > 0){
+                // show "duration left" (can't compute exact unless we know when it started)
+                el.textContent = `${Math.floor(duration/60)}m ${Math.floor(duration%60)}s (duration)`;
+                return;
+            }
+            // If we reach here, no timer available or expired
+            if(end && end <= now){
+                el.textContent = `Ended`;
+                el.closest('.weather-card')?.classList.add('opacity-60');
+            } else {
+                el.textContent = `No timer`;
+            }
+        });
+    }
+
+    function formatAndSet(el, seconds){
+        if(seconds <= 0){
+            el.textContent = 'Ended';
             return;
         }
-        // raw.Weather is array; find active
-        const arr = raw.Weather || raw.weather || [];
-        const active = arr.find(w => w.isActive) || arr[0] || null;
-        currentWeather = active;
-        renderWeather();
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        let txt = '';
+        if(days > 0) txt = `${days}d ${hours}h ${minutes}m`;
+        else if(hours > 0) txt = `${hours}h ${minutes}m ${secs}s`;
+        else if(minutes > 0) txt = `${minutes}m ${secs}s`;
+        else txt = `${secs}s`;
+        el.textContent = `${txt} left`;
     }
 
     // --- LOGS / SPOTLIGHT fetch minimal attempt ---
@@ -627,14 +736,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBellState();
         renderWatchlist();
 
-        // fetch data
+        // fetch data initially
         await Promise.allSettled([ fetchStockData(), fetchWeather(), fetchSpotlightLogs() ]);
         hideLoadingOverlay();
 
         // polling
-        setInterval(fetchStockData, 30000);
-        setInterval(fetchWeather, 60000);
-        setInterval(checkWatchlistNotifications, 5000);
+        setInterval(fetchStockData, 30000);   // stock every 30s (kept)
+        setInterval(fetchWeather, 5000);      // weather every 5s (you asked for frequent polling)
+        setInterval(checkWatchlistNotifications, 5000); // watch notifications every 5s
+
+        // countdown updater runs every second
+        setInterval(updateCountdowns, 1000);
     }
 
     init();
