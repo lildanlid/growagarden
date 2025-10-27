@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Grow a Garden Tracker | Live Stock & Weather</title>
-    <meta name="og:description" content="Live, real-time tracker for the Grow a Garden game. Monitor shop stock, get alerts, and never miss a rare item with our personalized watchlist and notification system.">
+    <meta name="description" content="Live, real-time tracker for the Grow a Garden game. Monitor shop stock, get alerts, and never miss a rare item with our personalized watchlist and notification system.">
+    <meta property="og:description" content="Live, real-time tracker for the Grow a Garden game. Monitor shop stock, get alerts, and never miss a rare item with our personalized watchlist and notification system.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
 
     <!-- External Libraries & Fonts -->
@@ -14,7 +15,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS Styles (kept your styling, added --legendary var and star fixes) -->
     <style>
         :root { 
             --bg-dark-teal: #2E5953; 
@@ -27,33 +27,34 @@
             --dark-text: #F2D8C9; 
             --light-bg: #fdfbf7; 
             --light-text: #3f3c3a;
-            /* Rarity colors */
             --common: #6c757d; 
             --uncommon: #28a745; 
             --rare: #007bff; 
             --mythical: #6610f2; 
             --divine: #e83e8c; 
             --prismatic: #fd7e14; 
-            --legendary: #d4af37; /* new: distinct gold color */
+            --legendary: #d4af37; 
             --unknown: #6f42c1;
+
+            /* toast / watch colors */
+            --toast-border: rgba(96,165,250,0.12);
+            --toast-glow: rgba(59,130,246,0.06);
+            --watch-blue-weak: rgba(96,165,250,0.12);
+            --watch-blue-strong: rgba(59,130,246,0.12);
         }
+
         html.dark body { background-color: var(--dark-bg); color: var(--dark-text); }
         html.light body { background-color: var(--light-bg); color: var(--light-text); }
         body { font-family: 'Nunito', sans-serif; transition: background-color 0.5s ease, color 0.5s ease; overflow-x: hidden; }
         .font-header { font-family: 'Fredoka One', cursive; }
-        html.dark .font-header { text-shadow: 1px 1px 0 #3a3a3a, -1px -1px 0 #3a3a3a, 1px -1px 0 #3a3a3a, -1px 1px 0 #3a3a3a, 4px 4px 6px rgba(0,0,0,0.3); }
-        html.light .font-header { color: #2E5953; text-shadow: 1px 1px 0px rgba(255,255,255,0.8); }
         .section-container { transition: background-color 0.5s ease, border-color 0.5s ease; }
         html.dark .section-container { background-color: rgba(0,0,0,0.2); backdrop-filter: blur(4px); border-color: rgba(143, 179, 163, 0.3); }
         html.light .section-container { background-color: rgba(255,255,255,0.7); backdrop-filter: blur(4px); border-color: rgba(46, 89, 83, 0.2); }
-        .item-card { position: relative; z-index: 1; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease; border: 1px solid transparent; animation: card-fade-in 0.5s ease-out forwards; }
+        .item-card { position: relative; z-index: 1; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, filter 0.3s ease; border: 1px solid transparent; animation: card-fade-in 0.5s ease-out forwards; border-radius: 1rem; padding: 1rem; }
         @keyframes card-fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        html.dark .item-card { background-color: rgba(46, 89, 83, 0.5); }
-        html.light .item-card { background-color: #ffffff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        html.dark .item-card { background-color: rgba(46, 89, 83, 0.45); }
+        html.light .item-card { background-color: #ffffff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06); }
         .item-card.out-of-stock { opacity: 0.6; filter: grayscale(80%); }
-        html.dark .item-card:hover { transform: translateY(-8px); box-shadow: 0 0 25px 5px var(--rarity-glow-color, rgba(242, 167, 137, 0.4)); border-color: var(--rarity-glow-color, var(--accent-soft-orange)); z-index: 10; }
-        html.light .item-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px -5px var(--rarity-glow-color, rgba(217, 131, 97, 0.4)), 0 8px 10px -6px var(--rarity-glow-color, rgba(217, 131, 97, 0.4)); border-color: var(--rarity-glow-color, var(--accent-soft-orange)); z-index: 10; }
-        .item-card.out-of-stock:hover { opacity: 1; filter: grayscale(0); }
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; transition: opacity 0.3s ease-out; }
         .rarity-tag { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: white; }
         .rarity-prismatic { background: linear-gradient(90deg, #ec4899, #f59e0b, #84cc16, #14b8a6, #6366f1, #d946ef, #ec4899); background-size: 300% 300%; animation: prismatic-glow 4s linear infinite; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);}
@@ -63,48 +64,142 @@
         @keyframes grow-seed { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9); } }
         @keyframes grow-sprout { 0% { transform: scale(0) translateY(10px); } 50% { transform: scale(1) translateY(0); } 100% { transform: scale(1) translateY(0) rotate(10deg); } }
         #weather-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; pointer-events: none; }
-        .weather-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; transition: opacity 1.5s ease; opacity: 0; }
-        .weather-bg.active { opacity: 1; }
-        /* ... (weather helper styles kept) ... */
-        .item-card .icon-button { background: rgba(255,255,255,0.1); border-radius: 9999px; padding: 0.5rem; transition: all 0.2s ease; font-size: 1.25rem; line-height: 1; display:flex; align-items:center; justify-content:center;}
-        .item-card .icon-button:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
 
-        /* STAR SVG style fix: default is outline, active fills */
-        .star-icon { width: 18px; height: 18px; display:block; }
-        .watch-button .star-icon { fill: none; stroke: currentColor; color: #9ca3af; }
-        .watch-button.active .star-icon { fill: currentColor; stroke: currentColor; color: #facc15; filter: drop-shadow(0 0 8px #fde047); }
+        /* WATCH BUTTON + STAR */
+        .watch-button{
+            position:relative;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:40px;
+            height:40px;
+            border-radius:9999px;
+            padding:.35rem;
+            background:transparent;
+            border:0;
+            cursor:pointer;
+            transition:transform .12s ease, box-shadow .12s ease;
+            z-index:1;
+            outline:none;
+        }
+        .watch-button:focus{ box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+
+        /* subtle circular translucent backdrop behind the transparent button */
+        .watch-button::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:9999px;
+            background: linear-gradient(180deg, rgba(96,165,250,0.02), rgba(99,102,241,0.02));
+            transform:scale(0.9);
+            transition: transform .12s, background .18s, box-shadow .12s;
+            z-index:0;
+            pointer-events:none;
+        }
+
+        /* star SVG sits above backdrop */
+        .watch-button .star-icon{
+            width:18px;
+            height:18px;
+            display:block;
+            position:relative;
+            z-index:1;
+            stroke:currentColor;
+            fill:none;
+            color:#9ca3af; /* default grey */
+            transition: color .15s ease, transform .12s ease, filter .15s;
+            stroke-width:1;
+            filter:none;
+        }
+
+        .watch-button.active::before{
+            background: linear-gradient(135deg, var(--watch-blue-strong), var(--watch-blue-weak));
+            box-shadow: 0 6px 18px rgba(59,130,246,0.06);
+            transform:scale(1);
+            backdrop-filter: blur(6px) saturate(120%);
+        }
+        .watch-button.active .star-icon{
+            color: var(--rare);
+            fill: currentColor;
+            stroke: currentColor;
+            transform: scale(1.05);
+            filter: drop-shadow(0 6px 14px rgba(96,165,250,0.12));
+        }
+
+        .watch-button:hover{ transform: translateY(-3px); }
+        .watch-button:active{ transform: translateY(-1px) scale(.98); }
+
+        .item-card .icon-button { background: rgba(255,255,255,0.06); border-radius: 9999px; padding: 0.5rem; transition: all 0.2s ease; font-size: 1.25rem; line-height: 1; display:flex; align-items:center; justify-content:center;}
 
         #notification-bell { color: #9ca3af; transition: color 0.3s, transform 0.3s; }
         #notification-bell.enabled { color: #facc15; text-shadow: 0 0 8px #fde047; }
         #notification-bell.denied { color: #ef4444; text-decoration: line-through; }
         #notification-bell.ringing { animation: bell-ring 0.5s ease-in-out; }
         @keyframes bell-ring { 0% { transform: rotate(0); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); } 30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } 60% { transform: rotate(0); } 100% { transform: rotate(0); } }
+
         .market-stall { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
         .market-stall.active { border-color: var(--accent-terracotta); transform: translateY(-4px); }
-        html.light .market-stall.active { border-color: var(--accent-soft-orange); }
-        #rare-item-spotlight .spotlight-content { transition: opacity 0.5s ease-in-out; }
         .display-toggle { cursor: pointer; padding: 0.5rem 1rem; border-radius: 9999px; transition: color 0.3s ease; flex: 1; text-align: center; position: relative; z-index: 1; }
         .display-toggle.active { color: white; }
-        html.light .display-toggle.active { color: var(--light-text); }
         #display-glider { position: absolute; top: 4px; left: 4px; height: calc(100% - 0.5rem); width: calc(50% - 4px); border-radius: 9999px; background-color: var(--accent-terracotta); transition: transform 0.3s ease-in-out; }
-        html.light #display-glider { background-color: var(--accent-soft-orange); }
-        .header-item { animation: header-fade-in 0.6s 0.2s backwards; }
-        @keyframes header-fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .header-icon { animation: header-icon-pop-in 0.5s 0.4s backwards; }
-        @keyframes header-icon-pop-in { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-        .header-sprout { display: inline-block; animation: header-sprout-grow 0.8s 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) backwards, sway 4s ease-in-out infinite alternate; }
-        @keyframes header-sprout-grow { from { transform: scale(0); } to { transform: scale(1); } }
-        @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+
         .header-content-wrapper { max-height: 500px; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .header-content-wrapper.header-hidden { max-height: 0; }
         .arrow { transform-origin: center; transition: transform 0.3s ease-in-out; }
-        .arrow.rotate { transform: rotate(180deg); }
 
-        /* small toast container for messages */
-        #jandel-toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; display:flex; flex-direction:column; gap:.6rem; pointer-events:none; }
-        .jandel-toast { pointer-events:auto; padding:.6rem 1rem; border-radius:.6rem; background:rgba(0,0,0,0.8); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.25); }
-        /* weather cards subtle transition when changed */
-        .weather-list .weather-card { transition: transform .25s ease, opacity .25s ease; }
+        /* TOASTS: transparent with bluish blurred backdrop behind them */
+        #jandel-toast-container{
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index:1200;
+            display:flex;
+            flex-direction:column;
+            gap:.6rem;
+            pointer-events:none;
+        }
+        .jandel-toast{
+            pointer-events:auto;
+            padding:.6rem 1rem;
+            border-radius:.6rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid var(--toast-border);
+            color: var(--dark-text);
+            min-width:160px;
+            box-shadow: 0 10px 30px var(--toast-glow);
+            backdrop-filter: blur(8px) saturate(120%);
+            display:inline-flex;
+            align-items:center;
+            gap:.6rem;
+            font-weight:600;
+            transform-origin: right bottom;
+        }
+        .jandel-toast.success{
+            border-color: rgba(96,165,250,0.22);
+            background: linear-gradient(180deg, rgba(96,165,250,0.06), rgba(255,255,255,0.01));
+            color: white;
+        }
+        .jandel-toast.warn{
+            border-color: rgba(245,158,11,0.12);
+            background: linear-gradient(180deg, rgba(245,158,11,0.04), rgba(255,255,255,0.01));
+            color: white;
+        }
+        .jandel-toast .toast-icon{
+            width:28px;
+            height:28px;
+            border-radius:9999px;
+            display:inline-grid;
+            place-items:center;
+            flex:0 0 28px;
+            font-size:14px;
+        }
+        .jandel-toast.success .toast-icon{ background: rgba(96,165,250,0.16); color: white; }
+        .jandel-toast.warn .toast-icon{ background: rgba(245,158,11,0.12); color: white; }
+
+        @media (max-width:640px){
+            #jandel-toast-container{ right:.8rem; left:.8rem; bottom:1rem; align-items:flex-end; }
+            .jandel-toast{ min-width:120px; }
+        }
     </style>
 </head>
 <body>
@@ -130,12 +225,12 @@
                           <span class="header-sprout">🌱</span> Grow a Garden Tracker <span class="header-sprout">🌱</span>
                      </h1>
                      <div class="flex items-center ml-0 sm:ml-6 gap-2 order-1 sm:order-2">
-                         <button id="notification-bell" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-soft-orange header-icon" aria-label="Toggle notifications" title="Enable Watchlist Notifications">
+                         <button id="notification-bell" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 header-icon" aria-label="Toggle notifications" title="Enable Watchlist Notifications">
                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                          </button>
-                         <button id="theme-switcher" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-soft-orange header-icon" aria-label="Toggle theme">
+                         <button id="theme-switcher" class="icon-button p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 header-icon" aria-label="Toggle theme">
                              <svg class="dark:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                             <svg class="hidden dark:inline" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                             <svg class="hidden dark:inline" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle></svg>
                          </button>
                      </div>
                 </div>
@@ -157,7 +252,6 @@
             </div>
             <div class="lg:col-span-1 flex flex-col gap-6">
                 <div id="rare-item-spotlight" class="section-container rounded-2xl p-6 shadow-xl border"></div>
-                <!-- Rare Appearance Log removed as requested -->
             </div>
         </section>
 
@@ -184,22 +278,13 @@
         </footer>
     </div>
 
-    <!-- Toast container -->
     <div id="jandel-toast-container"></div>
 
 <script>
-/* Single-file script with fixes requested:
-   - Weather now uses api.joshlei.com/v2/growagarden/weather with jstudio-key header
-   - Only active weathers shown
-   - Polls every 5 seconds
-   - Displays countdown until weather ends (uses end_duration_unix or start_duration_unix + duration)
-*/
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE ---
     const STOCK_URL = 'https://growagardenapi.onrender.com/api/growagarden/stocks?key=key_bdc205fbadf1e102785b07b1';
     const WEATHER_URL = 'https://api.joshlei.com/v2/growagarden/weather';
-    // you provided this key in your message — using it here because you asked:
     const J_KEY = 'js_c5d322d0652bc477f50348450bb2c6fe4f4d767042b2b0facb69b074c3d46f46';
 
     const IMG_BASE = 'https://growagardenapi.onrender.com/i/growagarden/';
@@ -207,11 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gearList = ["Watering Can","Trading Ticket","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Medium Toy","Medium Treat","Godly Sprinkler","Magnifying Glass","Master Sprinkler","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Grandmaster Sprinkler","Level up lollipop"];
     const eggList = ["Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Mythical Egg","Jungle Egg","Bug Egg"];
 
-    let currentStockItems = []; // normalized items
-    let currentWeatherList = []; // array of active weather objects
+    let currentStockItems = [];
+    let currentWeatherList = [];
     let watchlist = JSON.parse(localStorage.getItem('growagarden_watchlist')) || [];
     let activeFilter = 'all';
-    let showAllItems = false; // false = In Stock, true = Full Catalog
+    let showAllItems = false;
     let searchTerm = '';
     let notificationSynth = null;
     let previouslyWatchedItemsInStock = new Set();
@@ -235,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameToId = name => String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g,'');
     const hideLoadingOverlay = () => { if (loadingOverlay) { loadingOverlay.style.opacity='0'; setTimeout(()=>loadingOverlay.style.display='none',500); } };
 
-    // fetch helpers
     async function fetchJson(url){
         try {
             const r = await fetch(url);
@@ -253,7 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!raw || typeof raw !== 'object') return items;
         for(const [key,val] of Object.entries(raw)){
             if(!val) continue;
-            // skip metadata
             if(['revolt_invite','updatedAt'].includes(key)) continue;
             let groupItems = null;
             if(Array.isArray(val)) groupItems = val;
@@ -265,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rarity = it.rarity || it.rarity_name || '';
                 const quantity = Number(it.stock ?? it.quantity ?? it.amount ?? 0);
                 let icon = it.icon || it.icon_url || it.image || '';
-                // normalize icon
                 if(!icon) icon = IMG_BASE + encodeURIComponent(id);
                 else if(icon.startsWith('/')) icon = 'https://growagardenapi.onrender.com' + icon;
                 else if(!/^https?:\/\//i.test(icon) && icon.includes('growagardenapi.onrender.com')) icon = 'https://' + icon;
@@ -284,11 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return items;
     }
 
-    // --- BUILD CATALOG for Full Catalog (merge API + lists) ---
     function buildCatalogItems(){
-        // map of existing API items by id
         const map = new Map(currentStockItems.map(i => [i.item_id, i]));
-        // decide which categories to include based on activeFilter
         const categories = [];
         if(activeFilter === 'all'){
             categories.push('seed_stock','gear_stock','egg_stock','cosmetic_stock','eventshop_stock','travelingmerchant_stock');
@@ -296,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
             categories.push(activeFilter);
         }
 
-        // helper to add from a provided list
         const addFromList = (list, shopKey) => {
             for(const name of list){
                 const id = nameToId(name);
@@ -313,13 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // if showing all categories, include all lists; otherwise include only the corresponding one
         if(categories.includes('seed_stock')) addFromList(seedList, 'Seeds Stock');
         if(categories.includes('gear_stock')) addFromList(gearList, 'Gear Stock');
         if(categories.includes('egg_stock')) addFromList(eggList, 'Egg Stock');
 
-        // ensure cosmetics and event items also included if API provided them (we won't fabricate those)
-        // Final array from map values filtered by activeFilter and showAllItems
         const arr = Array.from(map.values()).filter(it => {
             const shopKey = normalizeShopKey(it.shop);
             const shopMatch = activeFilter === 'all' || activeFilter === shopKey;
@@ -328,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return Number(it.quantity) > 0;
         });
 
-        // sort by rarity order then name
         arr.sort((a,b) => {
             const ra = rarityOrder.indexOf(a.rarity) >= 0 ? rarityOrder.indexOf(a.rarity) : 100;
             const rb = rarityOrder.indexOf(b.rarity) >= 0 ? rarityOrder.indexOf(b.rarity) : 100;
@@ -349,6 +423,74 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'other';
     }
 
+    // --- RESTOCK CALC + COMPACT FORMAT ---
+    function calculateRestockTimesClient() {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      function getResetTimes(intervalMs){
+        const timeSinceStartOfDay = now.getTime() - today.getTime();
+        const lastReset = today.getTime() + Math.floor(timeSinceStartOfDay / intervalMs) * intervalMs;
+        const nextReset = today.getTime() + Math.ceil(timeSinceStartOfDay / intervalMs) * intervalMs;
+        return { lastReset, nextReset };
+      }
+
+      const eggInterval = 30 * 60 * 1000;        // 30m
+      const gearInterval = 5 * 60 * 1000;        // 5m
+      const cosmeticInterval = 4 * 3600 * 1000;  // 4h
+      const merchantInterval = 14400 * 1000;     // 4h
+
+      const { lastReset: eggLast, nextReset: eggNext } = getResetTimes(eggInterval);
+      const { lastReset: gearLast, nextReset: gearNext } = getResetTimes(gearInterval);
+      const { lastReset: cosmeticLast, nextReset: cosmeticNext } = getResetTimes(cosmeticInterval);
+      const { lastReset: merchantLast, nextReset: merchantNext } = getResetTimes(merchantInterval);
+
+      return {
+        egg: { last: eggLast, next: eggNext },
+        gear: { last: gearLast, next: gearNext },
+        seeds: { last: gearLast, next: gearNext }, // seeds same as gear
+        cosmetic: { last: cosmeticLast, next: cosmeticNext },
+        merchant: { last: merchantLast, next: merchantNext }
+      };
+    }
+
+    // compact formatting exactly as requested: "1s", "1m 1s", "1h 1m"
+    function formatCompactRemaining(ms){
+        if(ms <= 0) return '0s';
+        const s = Math.floor(ms / 1000);
+        if(s < 60) {
+            return `${s}s`;
+        }
+        if(s < 3600){
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}m ${sec}s`;
+        }
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        return `${h}h ${m}m`;
+    }
+
+    function shopKeyToRestockId(shopKey){
+        if(shopKey === 'seed_stock') return 'seeds';
+        if(shopKey === 'gear_stock') return 'gear';
+        if(shopKey === 'egg_stock') return 'egg';
+        if(shopKey === 'cosmetic_stock' || shopKey === 'eventshop_stock') return 'cosmetic';
+        if(shopKey === 'travelingmerchant_stock') return 'merchant';
+        return null;
+    }
+
+    function updateItemRestocks(){
+        const restocks = calculateRestockTimesClient();
+        document.querySelectorAll('[data-restock-shop]').forEach(el => {
+            const shopKey = el.getAttribute('data-restock-shop');
+            const restockId = shopKeyToRestockId(shopKey);
+            if(!restockId || !restocks[restockId]) { el.textContent = '—'; return; }
+            const remainingMs = restocks[restockId].next - Date.now();
+            el.textContent = formatCompactRemaining(remainingMs);
+        });
+    }
+
     // --- RENDERING ---
     function renderShops(){
         const items = buildCatalogItems();
@@ -361,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const isInStock = Number(it.quantity) > 0;
             const watched = watchlist.some(w => w.id === it.item_id);
             const rarity = it.rarity || '';
-            // choose color variable
             const rarityColorVar = ({
                 'Common': 'var(--common)',
                 'Uncommon': 'var(--uncommon)',
@@ -373,35 +514,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }[rarity]) || 'var(--unknown)';
 
             const rareClass = rarity === 'Prismatic' ? 'rarity-prismatic' : '';
-            // if legendary, don't use prismatic style; use solid color
             const rarityTagStyle = rareClass ? '' : `style="background-color:${rarityColorVar};"`;
 
-            // out-of-stock class tint already handled by CSS
+            const shopKey = normalizeShopKey(it.shop);
+            const restockPlaceholder = '—';
+
             return `
-                <div class="item-card rounded-xl p-4 flex flex-col ${isInStock ? '' : 'out-of-stock'}" data-item-id="${escapeHtml(it.item_id)}" style="--rarity-glow-color:${rarityColorVar}33;">
+                <div class="item-card ${isInStock ? '' : 'out-of-stock'}" data-item-id="${escapeHtml(it.item_id)}" style="--rarity-glow-color:${rarityColorVar}33;">
                     <div class="flex justify-between items-start mb-2">
                         <div class="rarity-tag ${rareClass}" ${rarityTagStyle}>${escapeHtml(rarity || '')}</div>
-                        <button class="watch-button icon-button ${watched ? 'active' : ''}" title="${watched ? 'Remove from Watchlist' : 'Add to Watchlist'}" data-id="${escapeHtml(it.item_id)}" data-name="${escapeHtml(it.display_name)}" data-icon="${escapeHtml(it.icon)}" aria-pressed="${watched ? 'true' : 'false'}">
-                            <!-- star SVG: stroke-only by default, fills when .active -->
-                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674c.094.289.36.49.662.49h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888c-.281.204-.409.532-.31.844l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.975-2.888a1 1 0 00-1.176 0l-3.975 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674c.099-.312-.029-.64-.31-.844L2.076 9.595c-.783-.57-.38-1.81.588-1.81h4.914c.302 0 .568-.201.662-.49l1.519-4.674z"/>
-                            </svg>
+                        <button class="watch-button ${watched ? 'active' : ''}" title="${watched ? 'Remove from Watchlist' : 'Add to Watchlist'}" data-id="${escapeHtml(it.item_id)}" data-name="${escapeHtml(it.display_name)}" data-icon="${escapeHtml(it.icon)}" aria-pressed="${watched ? 'true' : 'false'}">
+                            <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674c.094.289.36.49.662.49h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888c-.281.204-.409.532-.31.844l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.975-2.888a1 1 0 00-1.176 0l-3.975 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674c.099-.312-.029-.64-.31-.844L2.076 9.595c-.783-.57-.38-1.81.588-1.81h4.914c.302 0 .568-.201.662-.49l1.519-4.674z"/></svg>
                         </button>
                     </div>
+
                     <div class="flex-grow flex items-center justify-center my-4">
                         <img src="${escapeHtml(it.icon)}" alt="${escapeHtml(it.display_name)}" class="max-h-24" onerror="this.onerror=null;this.src='${IMG_BASE+encodeURIComponent(it.item_id)}';">
                     </div>
+
                     <h3 class="font-bold text-center text-lg">${escapeHtml(it.display_name)}</h3>
+
                     <div class="mt-4 pt-4 border-t dark:border-gray-600/50 border-gray-300/50 text-sm space-y-1">
                         <div class="flex justify-between"><span>Stock:</span> <span class="font-semibold">${isInStock ? it.quantity : 'Out of Stock'}</span></div>
                         <div class="flex justify-between"><span>Shop:</span> <span class="font-semibold">${escapeHtml(it.shop)}</span></div>
+                        <div class="flex justify-between"><span>Restock:</span> <span class="font-semibold" data-restock-shop="${escapeHtml(shopKey)}">${restockPlaceholder}</span></div>
                     </div>
                 </div>
             `;
         }).join('');
+
+        // after HTML is in DOM ensure restocks update immediately
+        updateItemRestocks();
     }
 
-    // renderWeather now shows multiple active weathers and countdowns
     function renderWeather(){
         if(!currentWeatherList || currentWeatherList.length === 0){
             weatherSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Weather Alert</h2><p class="opacity-70">No active weather right now.</p>`;
@@ -409,11 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const cards = currentWeatherList.map(w => {
-            // normalize fields from different shapes (your sample uses weather_name, weather_id, active, icon, end_duration_unix)
             const id = w.weather_id || w.weatherId || w.id || w.id_str || w.weather_name || w.weatherName || nameToId(w.weather_name || w.weatherName || '');
             const displayName = w.weather_name || w.weatherName || w.name || '';
             const icon = w.icon || '';
-            // compute end unix if present or fallback to start + duration
             const endUnix = (Number(w.end_duration_unix) || 0) || ((Number(w.start_duration_unix) ? Number(w.start_duration_unix) + Math.floor(Number(w.duration || 0)) : 0));
             const duration = Number(w.duration || 0);
             return `
@@ -430,7 +573,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="weather-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 ${cards}
             </div>`;
-        // ensure countdowns update immediately
         updateCountdowns();
     }
 
@@ -456,7 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
         watchlistSection.innerHTML += `<div class="space-y-2">${listHtml}</div>`;
     }
 
-    // --- SPOTLIGHT (kept) ---
     function updateSpotlight(){
         if(!spotlightItems || spotlightItems.length === 0){
             spotlightSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2><div class="spotlight-content"><p class="opacity-70">No recent rare items found.</p></div>`;
@@ -476,19 +617,35 @@ document.addEventListener('DOMContentLoaded', () => {
         spotlightInterval = setInterval(updateSpotlight, 7000);
     }
 
-    // --- WATCHLIST / NOTIFICATIONS ---
+    // --- TOASTS & WATCHLIST ---
+    function showSmallToast(text, type = 'success'){
+        const c = get('jandel-toast-container');
+        if(!c) return;
+        const d = document.createElement('div');
+        d.className = 'jandel-toast ' + (type === 'warn' ? 'warn' : 'success');
+        d.innerHTML = `<span class="toast-icon">${ type === 'warn' ? '⚠' : '✓' }</span><span class="toast-text">${text}</span>`;
+        c.appendChild(d);
+        d.style.opacity = '0';
+        d.style.transform = 'translateY(8px) scale(.995)';
+        requestAnimationFrame(()=> {
+            d.style.transition = 'opacity .28s, transform .28s';
+            d.style.opacity = '1';
+            d.style.transform = 'translateY(0) scale(1)';
+        });
+        setTimeout(()=>{ d.style.opacity='0'; d.style.transform='translateY(8px) scale(.995)'; setTimeout(()=>d.remove(),300); }, 2600);
+    }
+
     function toggleWatchlistItem(id, name, icon){
         const idx = watchlist.findIndex(w => w.id === id);
         if(idx > -1){
             watchlist.splice(idx,1);
-            showSmallToast(`${name} removed from watchlist`);
+            showSmallToast(`${name} removed from watchlist`, 'warn');
         } else {
             watchlist.push({ id, name, icon });
-            showSmallToast(`${name} added to watchlist`);
+            showSmallToast(`${name} added to watchlist`, 'success');
         }
         localStorage.setItem('growagarden_watchlist', JSON.stringify(watchlist));
         renderWatchlist();
-        // update shop stars quickly in DOM:
         document.querySelectorAll(`.watch-button[data-id="${id}"]`).forEach(btn => {
             const active = watchlist.some(w => w.id === id);
             btn.classList.toggle('active', active);
@@ -515,17 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previouslyWatchedItemsInStock = nowInStock;
     }
 
-    function showSmallToast(text){
-        const c = get('jandel-toast-container');
-        if(!c) return;
-        const d = document.createElement('div');
-        d.className = 'jandel-toast';
-        d.textContent = text;
-        c.appendChild(d);
-        setTimeout(()=>{ d.style.opacity='0'; d.style.transform='translateY(6px)'; setTimeout(()=>d.remove(),300); }, 2600);
-    }
-
-    // --- DATA FETCHING ---
+    // --- FETCH & UPDATE ---
     async function fetchStockData(){
         connectionStatus.textContent = 'Loading stock...';
         const raw = await fetchJson(STOCK_URL);
@@ -537,7 +684,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentStockItems = normalizeStockResponse(raw);
         try {
-            // updatedAt could be either unix seconds or ISO string; attempt to handle common shapes
             let updatedLabel = 'unknown';
             if(raw.updatedAt) {
                 const v = Number(raw.updatedAt);
@@ -551,7 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderShops();
     }
 
-    // Weather fetch uses jstudio-key header and processes active entries
     async function fetchWeather(){
         try {
             const res = await fetch(WEATHER_URL, {
@@ -563,9 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if(!res.ok) throw new Error('Status '+res.status);
             const raw = await res.json();
-            // The sample you sent uses "weather" array; some APIs use "Weather" or other keys — handle both.
-            const arr = raw.weather || raw.Weather || raw.Weather || raw.weathers || [];
-            // Normalize to objects with expected fields, then filter only active ones
+            const arr = raw.weather || raw.Weather || raw.weathers || [];
             const normalized = Array.isArray(arr) ? arr.map(w => ({
                 weather_id: w.weather_id || w.weatherId || w.id || '',
                 weather_name: w.weather_name || w.weatherName || w.name || '',
@@ -576,11 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 duration: Number(w.duration || 0),
                 raw: w
             })) : [];
-
-            // filter active
             currentWeatherList = normalized.filter(w => w.active === true);
-
-            // If none active, keep empty array (UI shows "No active weather")
             renderWeather();
         } catch (err) {
             console.error('[Weather Fetch Error]', err);
@@ -589,27 +728,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Updates all countdown timers on the page once per second
     function updateCountdowns(){
         const els = document.querySelectorAll('.countdown');
         const now = Math.floor(Date.now() / 1000);
         els.forEach(el => {
             const end = Number(el.dataset.end) || 0;
             const duration = Number(el.dataset.duration) || 0;
-            // if end is provided and > now -> show remaining
             if(end && end > now){
                 const remaining = end - now;
                 formatAndSet(el, remaining);
                 el.closest('.weather-card')?.classList.remove('opacity-60');
                 return;
             }
-            // fallback: if no explicit end but duration exists, show countdown from duration (best-effort)
             if(!end && duration && duration > 0){
-                // show "duration left" (can't compute exact unless we know when it started)
                 el.textContent = `${Math.floor(duration/60)}m ${Math.floor(duration%60)}s (duration)`;
                 return;
             }
-            // If we reach here, no timer available or expired
             if(end && end <= now){
                 el.textContent = `Ended`;
                 el.closest('.weather-card')?.classList.add('opacity-60');
@@ -620,10 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatAndSet(el, seconds){
-        if(seconds <= 0){
-            el.textContent = 'Ended';
-            return;
-        }
+        if(seconds <= 0){ el.textContent = 'Ended'; return; }
         const days = Math.floor(seconds / 86400);
         const hours = Math.floor((seconds % 86400) / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -636,16 +767,13 @@ document.addEventListener('DOMContentLoaded', () => {
         el.textContent = `${txt} left`;
     }
 
-    // --- LOGS / SPOTLIGHT fetch minimal attempt ---
     async function fetchSpotlightLogs(){
-        // We try a best-effort: many endpoints for logs vary; we won't fail the UI if logs unavailable
         spotlightSection.innerHTML = `<h2 class="text-2xl font-header mb-4">Rare Spotlight ✨</h2><div class="spotlight-content"><p class="opacity-70">Loading...</p></div>`;
-        // Attempt a known proxy for logs is omitted here to keep simple; we leave spotlightItems empty if not provided
-        spotlightItems = []; // left empty unless you supply a logs endpoint
+        spotlightItems = [];
         updateSpotlight();
     }
 
-    // --- EVENT LISTENERS ---
+    // --- EVENTS ---
     function setupEventListeners(){
         get('theme-switcher').addEventListener('click', ()=>{
             const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
@@ -684,7 +812,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderShops();
         });
 
-        // shops nav
         const shopsNav = get('shops-navigation');
         const shops = { 'All': 'all', 'Seeds': 'seed_stock', 'Gear': 'gear_stock', 'Pets': 'egg_stock', 'Cosmetics': 'cosmetic_stock', 'Events': 'eventshop_stock', 'Merchant': 'travelingmerchant_stock' };
         shopsNav.innerHTML = Object.entries(shops).map(([name, key]) => `<button class="market-stall px-4 py-2 rounded-t-lg font-bold ${key === 'all' ? 'active' : ''}" data-shop-key="${key}">${name}</button>`).join('');
@@ -697,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // watch button delegation
+        // delegated watch button clicks inside shops container
         shopsContainer.addEventListener('click', e => {
             const btn = e.target.closest('.watch-button');
             if(btn){
@@ -708,7 +835,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // accessibility: keyboard toggle for watch buttons
         shopsContainer.addEventListener('keydown', e => {
             if(e.key === 'Enter' || e.key === ' '){
                 const btn = e.target.closest('.watch-button');
@@ -736,17 +862,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBellState();
         renderWatchlist();
 
-        // fetch data initially
         await Promise.allSettled([ fetchStockData(), fetchWeather(), fetchSpotlightLogs() ]);
         hideLoadingOverlay();
 
-        // polling
-        setInterval(fetchStockData, 30000);   // stock every 30s (kept)
-        setInterval(fetchWeather, 5000);      // weather every 5s (you asked for frequent polling)
-        setInterval(checkWatchlistNotifications, 5000); // watch notifications every 5s
-
-        // countdown updater runs every second
+        setInterval(fetchStockData, 30000);
+        setInterval(fetchWeather, 5000);
+        setInterval(checkWatchlistNotifications, 5000);
         setInterval(updateCountdowns, 1000);
+
+        // update item restocks every second
+        updateItemRestocks();
+        setInterval(updateItemRestocks, 1000);
     }
 
     init();
